@@ -35,6 +35,14 @@ export class MemoryTagStore implements TagStore {
 		this.#cache.set(tag.name, tag);
 	}
 
+	cleanup(): void {
+		const now = Date.now();
+
+		for (const [key, tag] of this.#cache.entries())
+			if (now - +tag.fetchTimestamp > MemoryTagStore.TAGS_CACHE_LIFETIME)
+				this.#cache.delete(key);
+	}
+
 	/**@description Cleans up a stored {@link Tag} if it hasn't been cached in a while.*/
 	#cleanIfExpired(name: string) {
 		const now = Date.now();

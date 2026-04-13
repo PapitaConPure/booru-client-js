@@ -1,5 +1,7 @@
 import type { Tag } from '../models/tag';
+import type { BooruClient } from '../services/booru';
 
+/**@description Represents a repository of {@link Tag}s to be managed by a {@link BooruClient}.*/
 export default interface TagStore {
 	/**
 	 * @description Obtains multiple {@link Tag}s from this {@link TagStore} based on the provided `names`.
@@ -26,4 +28,11 @@ export default interface TagStore {
 	 * @param tag The tag to store.
 	 */
 	setOne(tag: Tag): Promise<void>;
+
+	/**
+	 * @description Cleans up all {@link Tag}s that are deemed as no longer valid, based on this {@link TagStore}'s criteria.
+	 * 
+	 * Use this as a means of reducing resource consumption.
+	 */
+	cleanup?(): void | Promise<void>;
 }
