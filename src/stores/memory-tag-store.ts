@@ -12,7 +12,15 @@ export class MemoryTagStore implements TagStore {
 
 	async getMany(names: Iterable<string>): Promise<Tag[]> {
 		this.#cleanExpiredCacheFor(names);
-		return [...names].map((n) => this.#cache.get(n)).filter((t) => t != null);
+
+		const result: Tag[] = [];
+
+		for (const name of names) {
+			const tag = this.#cache.get(name);
+			if (tag) result.push(tag);
+		}
+
+		return result;
 	}
 
 	async getOne(name: string): Promise<Tag | null | undefined> {
