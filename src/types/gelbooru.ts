@@ -66,3 +66,8 @@ export interface Credentials {
 	apiKey: string;
 	userId: string;
 }
+
+export interface BooruSearchOptions {
+	limit?: number;
+	random?: boolean;
+}
