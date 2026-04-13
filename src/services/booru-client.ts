@@ -15,7 +15,6 @@ import type {
 } from '../types/gelbooru';
 import { decodeEntities } from '../utils/encoding';
 import { type FetchResult, fetchExt } from '../utils/fetchExt';
-import { shuffleArray } from '../utils/misc';
 
 /**@description Representa una conexión a un sitio Booru.*/
 export class BooruClient {
@@ -194,23 +193,13 @@ export class BooruClient {
 	 * @throws {BooruFetchError}
 	 */
 	async search(tags: string | string[], searchOptions: BooruSearchOptions = {}): Promise<Post[]> {
-		const { limit = 1, random = false } = searchOptions;
-
-		const { apiKey, userId } = this.#getCredentials();
 		if (Array.isArray(tags)) tags = tags.join(' ');
 
-		const fetchResult = await BooruClient.POSTS_API.request<{ post: APIPostData[] }>({
-			api_key: apiKey,
-			user_id: userId,
-			limit: limit,
-			tags: tags,
-		});
+		const { limit = 1, random = false } = searchOptions;
 
-		const posts = BooruClient.#expectPosts(fetchResult, { dontThrowOnEmptyFetch: true });
+		const finalSearchOptions = { limit, random };
 
-		if (random) shuffleArray(posts);
-
-		return posts.map((p) => new Post(p));
+		return this.#booru.search(tags, finalSearchOptions, this.#getCredentials());
 	}
 
 	/**
