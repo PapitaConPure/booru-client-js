@@ -391,10 +391,11 @@ export class BooruClient {
 		const storedTagsMap = new Map<string, Tag>();
 		const missingTagNames: string[] = [];
 
-		for (let i = 0; i < normalizedTagNames.length; i++) {
+		for (const [i, name] of normalizedTagNames.entries()) {
 			const tag = results[i];
+
 			if (tag) storedTagsMap.set(tag.name, tag);
-			else missingTagNames.push(normalizedTagNames[i] as string);
+			else missingTagNames.push(name);
 		}
 
 		return {
