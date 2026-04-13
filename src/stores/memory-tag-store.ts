@@ -11,7 +11,7 @@ export class MemoryTagStore implements TagStore {
 	}
 
 	async getMany(names: Iterable<string>): Promise<Tag[]> {
-		this.#cleanExpiredCacheFor(names);
+		this.#cleanAllExpiredCache();
 
 		const result: Tag[] = [];
 
@@ -24,14 +24,12 @@ export class MemoryTagStore implements TagStore {
 	}
 
 	async getOne(name: string): Promise<Tag | null | undefined> {
-		this.#cleanAllExpiredCache();
+		this.#cleanIfExpired(name);
 		return this.#cache.get(name);
 	}
 
 	async setMany(tags: Iterable<Tag>): Promise<void> {
-		for (const tag of tags) {
-			this.#cache.set(tag.name, tag);
-		}
+		for (const tag of tags) this.setOne(tag);
 	}
 
 	async setOne(tag: Tag): Promise<void> {
@@ -40,7 +38,7 @@ export class MemoryTagStore implements TagStore {
 
 	/**
 	 * @description
-	 * Libera memoria de Tags guardadas en caché que no se han refrescado en mucho tiempo.
+	 * Libera memoria de todas las Tags guardadas en caché que no se han refrescado en mucho tiempo.
 	 */
 	#cleanAllExpiredCache() {
 		const now = Date.now();
@@ -54,13 +52,11 @@ export class MemoryTagStore implements TagStore {
 	 * @description
 	 * Libera memoria de Tags guardadas en caché que no se han refrescado en mucho tiempo.
 	 */
-	#cleanExpiredCacheFor(names: Iterable<string>) {
+	#cleanIfExpired(name: string) {
 		const now = Date.now();
+		const tag = this.#cache.get(name);
 
-		for (const name of names) {
-			const tag = this.#cache.get(name);
-			if (tag && now - +tag.fetchTimestamp > MemoryTagStore.TAGS_CACHE_LIFETIME)
-				this.#cache.delete(name);
-		}
+		if (tag && now - +tag.fetchTimestamp > MemoryTagStore.TAGS_CACHE_LIFETIME)
+			this.#cache.delete(name);
 	}
 }
