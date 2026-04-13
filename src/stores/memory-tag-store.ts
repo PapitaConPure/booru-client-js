@@ -35,7 +35,7 @@ export class MemoryTagStore implements TagStore {
 		this.#cache.set(tag.name, tag);
 	}
 
-	cleanup(): void {
+	async cleanup(): Promise<void> {
 		const now = Date.now();
 
 		for (const [key, tag] of this.#cache.entries())
