@@ -1,41 +1,14 @@
 import type Booru from '../adapters/booru';
-import { BooruFetchError, BooruUnknownPostError, BooruUnknownTagError } from '../errors/booru';
 import { InvalidOperationError } from '../errors/misc';
-import { Post } from '../models/post';
-import { Tag } from '../models/tag';
+import type { Post } from '../models/post';
+import type { Tag } from '../models/tag';
 import { MemoryTagStore } from '../stores/memory-tag-store';
 import type TagStore from '../stores/tag-store';
-import type {
-	APIPostData,
-	APITagData,
-	BooruSearchOptions,
-	Credentials,
-	PostResolvable,
-	TagResolvable,
-} from '../types/gelbooru';
+import type { BooruSearchOptions, Credentials } from '../types/gelbooru';
 import { decodeEntities } from '../utils/encoding';
-import { type FetchResult, fetchExt } from '../utils/fetchExt';
 
 /**@description Representa una conexión a un sitio Booru.*/
 export class BooruClient {
-	static readonly API_URI = 'https://gelbooru.com/index.php';
-
-	static readonly POSTS_API = BooruClient.#createBooruEndpoint({
-		//timeout: 10000,
-		page: 'dapi',
-		s: 'post',
-		q: 'index',
-		json: '1',
-	});
-
-	static readonly TAGS_API = BooruClient.#createBooruEndpoint({
-		//timeout: 10000,
-		page: 'dapi',
-		s: 'tag',
-		q: 'index',
-		json: '1',
-	});
-
 	#booru: Booru;
 	#credentials: Credentials | undefined;
 
@@ -86,88 +59,6 @@ export class BooruClient {
 		this.#lastCleanup = 0;
 	}
 
-	static #createBooruEndpoint(defaultParams: Record<string, string>) {
-		const endpointURL = new URL(BooruClient.API_URI);
-
-		for (const [name, value] of Object.entries(defaultParams))
-			endpointURL.searchParams.set(name, value);
-
-		return {
-			async request<TSchema>(params: Record<string, unknown>) {
-				const searchURL = new URL(endpointURL);
-
-				for (const [name, value] of Object.entries(params))
-					searchURL.searchParams.set(name, `${value}`);
-
-				return fetchExt<TSchema>(searchURL, {
-					type: 'json',
-					init: {
-						referrer: 'https://papitaconpure.github.io',
-						signal: AbortSignal.timeout(10_000),
-					},
-				});
-			},
-		};
-	}
-
-	/**
-	 * @description Asserts that the status code of a response is 200 and that the Post data is valid before returning it.
-	 * @throws {BooruFetchError}
-	 * @throws {BooruUnknownPostError}
-	 */
-	static #expectPosts(
-		fetchResult: FetchResult<{ post: APIPostData[] }>,
-		options: {
-			dontThrowOnEmptyFetch?: boolean;
-		} = {},
-	): PostResolvable[] {
-		const { dontThrowOnEmptyFetch = false } = options;
-
-		if (fetchResult.success === false)
-			throw new BooruFetchError(
-				`Booru API Posts fetch failed: ${fetchResult.error.name} ${fetchResult.error.message || ''}`,
-				{ cause: fetchResult.error },
-			);
-
-		if (!Array.isArray(fetchResult.data?.post)) {
-			if (dontThrowOnEmptyFetch) return [];
-			else throw new BooruUnknownPostError(`Couldn't fetch any Posts from the Booru API`);
-		}
-
-		return fetchResult.data.post;
-	}
-
-	/**
-	 * @description Asserts that the status code of a response is 200 and that the Tag data is valid before returning it.
-	 * @throws {BooruFetchError}
-	 * @throws {BooruUnknownTagError}
-	 */
-	static #expectTags(
-		fetchResult: FetchResult<{ tag: APITagData[] }>,
-		options: {
-			dontThrowOnEmptyFetch?: boolean;
-			tags?: string;
-		} = {},
-	): TagResolvable[] {
-		const { dontThrowOnEmptyFetch = false, tags = null } = options;
-
-		if (fetchResult.success === false)
-			throw new BooruFetchError(
-				`Booru API Tags fetch failed: ${fetchResult.error.name} ${fetchResult.error.message || ''}`,
-				{ cause: fetchResult.error },
-			);
-
-		if (!Array.isArray(fetchResult.data?.tag)) {
-			if (dontThrowOnEmptyFetch) return [];
-			else
-				throw new BooruUnknownTagError(
-					`Couldn't fetch any Tags from the Booru API${tags ? `. Tried to fetch: ${tags}` : ''}`,
-				);
-		}
-
-		return fetchResult.data.tag;
-	}
-
 	addTagStoreFirst(tagStore: TagStore): this {
 		this.#tagStoreChain.unshift(tagStore);
 		return this;
@@ -196,7 +87,6 @@ export class BooruClient {
 		if (Array.isArray(tags)) tags = tags.join(' ');
 
 		const { limit = 1, random = false } = searchOptions;
-
 		const finalSearchOptions = { limit, random };
 
 		return this.#booru.search(tags, finalSearchOptions, this.#getCredentials());
@@ -210,17 +100,10 @@ export class BooruClient {
 	 * @throws {BooruFetchError}
 	 * @throws {BooruUnknownPostError}
 	 */
-	async fetchPostById(postId: string | number): Promise<Post | undefined> {
-		const { apiKey, userId } = this.#getCredentials();
-		if (!['string', 'number'].includes(typeof postId)) throw TypeError('Invalid Post ID');
+	async fetchPostById(postId: string): Promise<Post | undefined> {
+		if (typeof postId !== 'string') throw TypeError('Post ID must be a string');
 
-		const response = await BooruClient.POSTS_API.request<{ post: APIPostData[] }>({
-			api_key: apiKey,
-			user_id: userId,
-			id: postId,
-		});
-		const [post] = BooruClient.#expectPosts(response) as [Post];
-		return new Post(post);
+		return this.#booru.fetchPostById(postId, this.#getCredentials());
 	}
 
 	/**
@@ -231,22 +114,9 @@ export class BooruClient {
 	 * @throws {BooruFetchError}
 	 */
 	async fetchPostByUrl(postUrl: URL | string): Promise<Post | undefined> {
-		const { apiKey, userId } = this.#getCredentials();
-
 		if (typeof postUrl !== 'string') throw TypeError('Invalid Post URL');
 
-		const url = new URL(postUrl);
-		url.searchParams.set('page', 'dapi');
-		url.searchParams.set('s', 'post');
-		url.searchParams.set('q', 'index');
-		url.searchParams.set('json', '1');
-		url.searchParams.delete('tags');
-		url.searchParams.set('api_key', apiKey);
-		url.searchParams.set('user_id', userId);
-
-		const response = await fetchExt<{ post: APIPostData[] }>(url.toString());
-		const [post] = BooruClient.#expectPosts(response) as [Post];
-		return new Post(post);
+		return this.#booru.fetchPostByUrl(postUrl, this.#getCredentials());
 	}
 
 	/**
@@ -281,7 +151,7 @@ export class BooruClient {
 	 * @throws {TypeError}
 	 * @throws {BooruFetchError}
 	 */
-	async fetchPostTagsById(postId: string | number): Promise<Tag[] | undefined> {
+	async fetchPostTagsById(postId: string): Promise<Tag[] | undefined> {
 		const post = await this.fetchPostById(postId);
 		return post ? this.fetchTagsByNames({ names: post.tags }) : undefined;
 	}
@@ -305,8 +175,6 @@ export class BooruClient {
 
 		this.#performAutoCleanup();
 
-		const { apiKey, userId } = this.#getCredentials();
-
 		if (tagNames.some((t) => typeof t !== 'string')) throw TypeError('Invalid tags');
 
 		const normalizedTagNames = tagNames.map(decodeEntities);
@@ -319,23 +187,10 @@ export class BooruClient {
 
 		if (!missingTagNames.length) return storedTags;
 
-		const fetchedTags: Tag[] = [];
-
-		//The batch size should be extracted from a future specific Booru class (in this case Gelbooru)
-		for (let i = 0; i < missingTagNames.length; i += 100) {
-			const namesBatch = missingTagNames.slice(i, i + 100).join(' ');
-
-			//This should be generalized later
-			const response = await BooruClient.TAGS_API.request<{ tag: APITagData[] }>({
-				api_key: apiKey,
-				user_id: userId,
-				names: namesBatch,
-			});
-
-			const tags = BooruClient.#expectTags(response, { tags: namesBatch });
-			const freshTags = tags.map((t) => new Tag(t));
-			fetchedTags.push(...freshTags);
-		}
+		const fetchedTags = await this.#booru.fetchTagsByNames(
+			missingTagNames,
+			this.#getCredentials(),
+		);
 
 		if (fetchedTags.length)
 			await Promise.all(this.#tagStoreChain.map((tagStore) => tagStore.setMany(fetchedTags)));
