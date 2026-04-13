@@ -27,7 +27,7 @@ it('auto cleanup triggers based on interval', async () => {
 		},
 	);
 
-	await client.fetchTagsByNames('test');
+	await client.fetchTagsByNames({ names: ['test'] });
 
 	expect(cleaned).toBe(true);
 });

@@ -23,7 +23,7 @@ describe('BooruClient - store chain', () => {
 			},
 		);
 
-		const tags = await client.fetchTagsByNames('cached');
+		const tags = await client.fetchTagsByNames({ names: ['cached'] });
 
 		expect(tags.length).toBe(1);
 		expect(tags[0]?.name).toBe('cached');
@@ -38,7 +38,7 @@ describe('BooruClient - store chain', () => {
 			{ tagStoreChain: [store1, store2] },
 		);
 
-		await client.fetchTagsByNames('reimu');
+		await client.fetchTagsByNames({ names: ['reimu'] });
 
 		expect(store1.map.size).toBeGreaterThan(0);
 		expect(store2.map.size).toBeGreaterThan(0);
