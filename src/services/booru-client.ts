@@ -38,9 +38,6 @@ export class BooruClient {
 		json: '1',
 	});
 
-	static tagsSemaphoreCount: number = 0;
-	static tagsSemaphoreDone: number = 0;
-
 	#credentials: Credentials | undefined;
 	#tagStoreChain: TagStore[];
 	#tagFetchThreshold: number;
