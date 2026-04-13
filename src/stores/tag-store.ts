@@ -31,7 +31,7 @@ export default interface TagStore {
 
 	/**
 	 * @description Cleans up all {@link Tag}s that are deemed as no longer valid, based on this {@link TagStore}'s criteria.
-	 * 
+	 *
 	 * Use this as a means of both keeping fresh/up-to-date tags and reducing resource consumption.
 	 */
 	cleanup?(): void | Promise<void>;
