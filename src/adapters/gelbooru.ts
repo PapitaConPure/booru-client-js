@@ -98,7 +98,6 @@ export default class Gelbooru implements Booru {
 		for (let i = 0; i < namesArr.length; i += 100) {
 			const namesBatch = namesArr.slice(i, i + 100).join(' ');
 
-			//This should be generalized later
 			const response = await Gelbooru.TAGS_API.request<{ tag: APITagData[] }>({
 				api_key: apiKey,
 				user_id: userId,
