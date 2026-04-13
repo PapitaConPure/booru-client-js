@@ -285,6 +285,8 @@ export class BooruClient {
 	 * @throws {BooruFetchError}
 	 */
 	async fetchTagsByNames(...tagNames: string[]): Promise<Tag[]> {
+		this.#performAutoCleanup();
+
 		const { apiKey, userId } = this.#getCredentials();
 
 		if (tagNames.some((t) => typeof t !== 'string')) throw TypeError('Invalid tags');
@@ -376,8 +378,6 @@ export class BooruClient {
 	async #fetchTagNamesByTag(
 		normalizedTagNames: string[],
 	): Promise<{ storedTags: Tag[]; missingTagNames: string[] }> {
-		this.#performAutoCleanup();
-
 		const results = await Promise.all(
 			normalizedTagNames.map(async (tagName) => {
 				for (const tagStore of this.#tagStoreChain) {
@@ -411,8 +411,6 @@ export class BooruClient {
 
 		for (const tagStore of this.#tagStoreChain) {
 			if (!normalizedTagNamesToGet.size) break;
-
-			this.#performAutoCleanup(tagStore);
 
 			const storedTags = await tagStore.getMany(normalizedTagNamesToGet);
 
