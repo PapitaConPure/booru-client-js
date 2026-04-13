@@ -1,7 +1,17 @@
-import { type TagResolvable, type TagType, TagTypes } from '../types/gelbooru';
+import { type TagResolvable, type TagType, TagTypes, ValidTagTypes } from '../types/gelbooru';
 import { decodeEntities } from '../utils/encoding';
 
-/**@class Representa una tag de {@linkcode Post} de un {@linkcode Booru}.*/
+const TagTypeNames: Record<TagType, string> = {
+	[TagTypes.GENERAL]: 'General',
+	[TagTypes.ARTIST]: 'Artist',
+	[TagTypes.COPYRIGHT]: 'Copyright',
+	[TagTypes.CHARACTER]: 'Character',
+	[TagTypes.METADATA]: 'Metadata',
+	[TagTypes.DEPRECATED]: 'Deprecated',
+	[TagTypes.UNKNOWN]: 'Unknown',
+};
+
+/**@description Representa una tag de {@linkcode Post} de un {@linkcode Booru}.*/
 export class Tag {
 	id: number;
 	name: string;
@@ -11,37 +21,33 @@ export class Tag {
 	fetchTimestamp: Date;
 
 	constructor(data: TagResolvable) {
-		if (!Object.values(TagTypes).some((t) => t === data.type))
-			throw RangeError('Tipo de tag inválido. Solo se aceptan números: 0, 1, 2, 3, 4, 5, 6');
+		const tagType = data.type != null ? data.type : TagTypes.UNKNOWN;
+
+		if (!ValidTagTypes.has(tagType as TagType)) throw RangeError('Invalid tag type');
 
 		this.id = data.id;
 		this.name = decodeEntities(data.name);
-		this.count = data.count;
-		this.type = data.type as TagType;
+		this.count = data.count ?? 1;
+		this.type = tagType as TagType;
 		this.ambiguous = !!data.ambiguous;
-		this.fetchTimestamp = 'fetchTimestamp' in data ? data.fetchTimestamp : new Date(Date.now());
+		this.fetchTimestamp =
+			'fetchTimestamp' in data && data.fetchTimestamp != null
+				? new Date(data.fetchTimestamp)
+				: new Date(Date.now());
+
+		Object.freeze(this);
 	}
 
 	get typeName() {
-		switch (this.type) {
-			case TagTypes.GENERAL:
-				return 'General';
-			case TagTypes.ARTIST:
-				return 'Artist';
-			case TagTypes.COPYRIGHT:
-				return 'Copyright';
-			case TagTypes.CHARACTER:
-				return 'Character';
-			case TagTypes.METADATA:
-				return 'Metadata';
-			case TagTypes.DEPRECATED:
-				return 'Deprecated';
-			default:
-				return 'Unknown';
-		}
+		return TagTypeNames[this.type] ?? TagTypeNames[TagTypes.UNKNOWN];
+	}
+
+	[Symbol.toPrimitive](hint: string) {
+		if (hint === 'string' || hint === 'default') return this.toString();
+		return this.id;
 	}
 
 	toString() {
-		return `{${this.id} / ${this.typeName}} ${this.count} ${this.name}`;
+		return `[Tag ${this.id}] (${this.typeName}) ${this.name} x${this.count}`;
 	}
 }

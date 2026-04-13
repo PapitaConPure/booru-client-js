@@ -42,11 +42,12 @@ export const TagTypes = {
 	DEPRECATED: 6,
 } as const satisfies Record<string, number>;
 export type TagType = ValuesOf<typeof TagTypes>;
+export const ValidTagTypes = new Set<TagType>(Object.values(TagTypes));
 
 export interface APITagData {
 	id: number;
 	name: string;
-	count: number;
+	count?: number;
 	type: TagType | number;
 	ambiguous?: boolean;
 }
@@ -54,10 +55,10 @@ export interface APITagData {
 export interface TagData {
 	id: number;
 	name: string;
-	count: number;
-	type: TagType | number;
+	count?: number;
+	type?: TagType | number;
 	ambiguous?: boolean;
-	fetchTimestamp: Date;
+	fetchTimestamp: Date | number;
 }
 
 export type TagResolvable = Tag | TagData | APITagData;
