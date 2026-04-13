@@ -1,5 +1,6 @@
 import './booru-client.test';
 import { describe, expect, it } from 'bun:test';
+import Gelbooru from '../adapters/gelbooru';
 import { Tag } from '../models/tag';
 import { BooruClient } from '../services/booru-client';
 import { MemoryTagStore } from '../stores/memory-tag-store';
@@ -17,6 +18,7 @@ describe('BooruClient - store chain', () => {
 		);
 
 		const client = new BooruClient(
+			new Gelbooru(),
 			{ apiKey: 'x', userId: '1' },
 			{
 				tagStoreChain: [new MemoryTagStore(), persistent],
@@ -34,6 +36,7 @@ describe('BooruClient - store chain', () => {
 		const store2 = new FakeTagStore();
 
 		const client = new BooruClient(
+			new Gelbooru(),
 			{ apiKey: 'x', userId: '1' },
 			{ tagStoreChain: [store1, store2] },
 		);

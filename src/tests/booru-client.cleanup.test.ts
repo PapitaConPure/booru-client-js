@@ -1,5 +1,6 @@
 import './booru-client.test';
 import { expect, it } from 'bun:test';
+import Gelbooru from '../adapters/gelbooru';
 import { BooruClient } from '../services/booru-client';
 
 it('auto cleanup triggers based on interval', async () => {
@@ -20,6 +21,7 @@ it('auto cleanup triggers based on interval', async () => {
 	};
 
 	const client = new BooruClient(
+		new Gelbooru(),
 		{ apiKey: 'x', userId: '1' },
 		{
 			tagStoreChain: [store],
