@@ -38,7 +38,7 @@ describe('BooruClient - store chain', () => {
 			{ tagStoreChain: [store1, store2] },
 		);
 
-		await client.fetchTagsByNames({ names: ['reimu'] });
+		await client.fetchTagsByNames({ names: ['kishin_sagume'] });
 
 		expect(store1.map.size).toBeGreaterThan(0);
 		expect(store2.map.size).toBeGreaterThan(0);

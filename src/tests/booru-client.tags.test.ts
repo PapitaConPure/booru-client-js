@@ -11,17 +11,17 @@ describe('BooruClient - tag fetching', () => {
 	it('fetches tags from API when not cached', async () => {
 		const client = new BooruClient(credentials);
 
-		const tags = await client.fetchTagsByNames({ names: ['reimu'] });
+		const tags = await client.fetchTagsByNames({ names: ['kishin_sagume'] });
 
 		expect(tags.length).toBeGreaterThan(0);
-		expect(tags[0]?.name).toBe('reimu');
+		expect(tags[0]?.name).toBe('kishin_sagume');
 	});
 
 	it('caches tags between calls', async () => {
 		const client = new BooruClient(credentials);
 
-		await client.fetchTagsByNames({ names: ['reimu'] });
-		const second = await client.fetchTagsByNames({ names: ['reimu'] });
+		await client.fetchTagsByNames({ names: ['kishin_sagume'] });
+		const second = await client.fetchTagsByNames({ names: ['kishin_sagume'] });
 
 		expect(second.length).toBe(1);
 	});

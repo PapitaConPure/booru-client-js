@@ -5,8 +5,8 @@ mock.module('../utils/fetchExt', () => ({
 		success: true,
 		data: {
 			tag: [
-				{ id: 1, name: 'reimu' },
-				{ id: 2, name: 'marisa' },
+				{ id: 1, name: 'kishin_sagume' },
+				{ id: 2, name: 'junko_(touhou)' },
 			],
 		},
 	}),
