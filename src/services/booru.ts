@@ -1,4 +1,5 @@
 import { BooruFetchError, BooruUnknownPostError, BooruUnknownTagError } from '../errors/booru';
+import { InvalidOperationError } from '../errors/misc';
 import { Post } from '../models/post';
 import { Tag } from '../models/tag';
 import { MemoryTagStore } from '../stores/memory-tag-store';
@@ -15,7 +16,7 @@ import { decodeEntities } from '../utils/encoding';
 import { type FetchResult, fetchExt } from '../utils/fetchExt';
 import { shuffleArray } from '../utils/misc';
 
-/**@class Representa una conexión a un sitio Booru.*/
+/**@description Representa una conexión a un sitio Booru.*/
 export class BooruClient {
 	static readonly API_URI = 'https://gelbooru.com/index.php';
 	static readonly API_POSTS_URL = 'https://gelbooru.com/index.php';
@@ -43,21 +44,45 @@ export class BooruClient {
 	#credentials: Credentials | undefined;
 	#tagStoreChain: TagStore[];
 	#tagFetchThreshold: number;
+	#manualTagCleanup: boolean;
+	#cleanupIntervalMs;
+	#lastCleanup;
 
-	/**@param credentials Credenciales para autorizarse en la API*/
+	/**
+	 * @description Creates a {@link BooruClient} with the specified `credentials` and various other `options`.
+	 * @param credentials Credentials for API authorization.
+	 */
 	constructor(
 		credentials: Credentials,
 		options: {
+			/**Allows to define a custom {@link TagStore} chain from which to fetch {@link Tag}s. By default: [{@link MemoryTagStore}] (cache only).*/
 			tagStoreChain?: TagStore[];
+			/**When fetching multiple {@link Tag}s: what amount of these should switch the fetch strategy from "tag by tag" to "store by store". Defaults to 50.*/
 			tagFetchThreshold?: number;
+			/**
+			 * Defines whether the {@link Tag} invalidation process of {@link TagStore}s should be managed manually and externally (``true``)
+			 * or it should instead be this {@link BooruClient}'s concern (false, default).
+			 */
+			manualTagCleanup?: boolean;
+			/**Defines the throttle amount (in milliseconds) for automatic {@link Tag} invalidation if this {@link BooruClient} is auto-managed (`manualTagCleanup`=`false`).*/
+			cleanupIntervalMs?: number;
 		} = {},
 	) {
 		this.setCredentials(credentials);
 
-		const { tagStoreChain = [new MemoryTagStore()], tagFetchThreshold = 50 } = options;
+		const {
+			tagStoreChain = [new MemoryTagStore()],
+			tagFetchThreshold = 50,
+			manualTagCleanup = false,
+			cleanupIntervalMs = 5 * 60e3,
+		} = options;
 
 		this.#tagStoreChain = tagStoreChain;
 		this.#tagFetchThreshold = tagFetchThreshold;
+		this.#manualTagCleanup = manualTagCleanup;
+		this.#cleanupIntervalMs = cleanupIntervalMs;
+
+		this.#lastCleanup = 0;
 	}
 
 	static #createBooruEndpoint(defaultParams: Record<string, string>) {
@@ -310,6 +335,21 @@ export class BooruClient {
 	}
 
 	/**
+	 * @description Performs a cleanup of all managed {@link TagStore}s so that invalid tags are re-fetched from the API or a store deeper in the chain.
+	 *
+	 * Only call manually if this {@link BooruClient} was created using `manualTagCleanup:true`
+	 * @throws {InvalidOperationError}
+	 */
+	async performCleanup(...stores: TagStore[]) {
+		if (!this.#manualTagCleanup)
+			throw new InvalidOperationError(
+				`Manual cleanup cannot be called on a ${BooruClient.name} that has manualTagCleanup set to false`,
+			);
+
+		await this.#performCleanup(...stores);
+	}
+
+	/**
 	 * @description Recupera las credenciales de búsqueda establecidas.
 	 * @throws {ReferenceError}
 	 * @throws {TypeError}
@@ -336,6 +376,8 @@ export class BooruClient {
 	async #fetchTagNamesByTag(
 		normalizedTagNames: string[],
 	): Promise<{ storedTags: Tag[]; missingTagNames: string[] }> {
+		this.#performAutoCleanup();
+
 		const results = await Promise.all(
 			normalizedTagNames.map(async (tagName) => {
 				for (const tagStore of this.#tagStoreChain) {
@@ -368,6 +410,10 @@ export class BooruClient {
 		const storedTagsMap = new Map<string, Tag>();
 
 		for (const tagStore of this.#tagStoreChain) {
+			if (!normalizedTagNamesToGet.size) break;
+
+			this.#performAutoCleanup(tagStore);
+
 			const storedTags = await tagStore.getMany(normalizedTagNamesToGet);
 
 			for (const storedTag of storedTags) {
@@ -382,5 +428,21 @@ export class BooruClient {
 			storedTags: [...storedTagsMap.values()],
 			missingTagNames: [...normalizedTagNamesToGet],
 		};
+	}
+
+	async #performAutoCleanup(...stores: TagStore[]) {
+		if (this.#manualTagCleanup) return;
+
+		const now = Date.now();
+		if (now - this.#lastCleanup < this.#cleanupIntervalMs) return;
+
+		this.#lastCleanup = now;
+		await this.#performCleanup(...stores);
+	}
+
+	async #performCleanup(...stores: TagStore[]) {
+		const targetStores = stores.length ? stores : this.#tagStoreChain;
+		const toCleanUp = targetStores.map((tagStore) => tagStore.cleanup?.());
+		await Promise.all(toCleanUp);
 	}
 }
