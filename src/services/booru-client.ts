@@ -162,8 +162,18 @@ export class BooruClient {
 		return fetchResult.data.tag;
 	}
 
-	addTagStore(tagStore: TagStore) {
+	addTagStoreFirst(tagStore: TagStore): this {
+		this.#tagStoreChain.unshift(tagStore);
+		return this;
+	}
+
+	addTagStoreLast(tagStore: TagStore): this {
 		this.#tagStoreChain.push(tagStore);
+		return this;
+	}
+
+	addTagStoreAt(index: number, tagStore: TagStore): this {
+		this.#tagStoreChain.splice(index, 0, tagStore);
 		return this;
 	}
 
