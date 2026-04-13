@@ -1,3 +1,4 @@
+import type Booru from '../adapters/booru';
 import { BooruFetchError, BooruUnknownPostError, BooruUnknownTagError } from '../errors/booru';
 import { InvalidOperationError } from '../errors/misc';
 import { Post } from '../models/post';
@@ -36,7 +37,9 @@ export class BooruClient {
 		json: '1',
 	});
 
+	#booru: Booru;
 	#credentials: Credentials | undefined;
+
 	#tagStoreChain: TagStore[];
 	#tagFetchThreshold: number;
 	#manualTagCleanup: boolean;
@@ -46,8 +49,11 @@ export class BooruClient {
 	/**
 	 * @description Creates a {@link BooruClient} with the specified `credentials` and various other `options`.
 	 * @param credentials Credentials for API authorization.
+	 * @param booru The {@link Booru} API this client will consume.
+	 * @param options Options to define this client's behaviour.
 	 */
 	constructor(
+		booru: Booru,
 		credentials: Credentials,
 		options: {
 			/**Allows to define a custom {@link TagStore} chain from which to fetch {@link Tag}s. By default: [{@link MemoryTagStore}] (cache only).*/
@@ -63,6 +69,7 @@ export class BooruClient {
 			cleanupIntervalMs?: number;
 		} = {},
 	) {
+		this.#booru = booru;
 		this.setCredentials(credentials);
 
 		const {
