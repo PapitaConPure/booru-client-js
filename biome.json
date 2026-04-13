@@ -19,7 +19,7 @@
 		"expand": "auto",
 		"formatWithErrors": null,
 		"lineEnding": "auto",
-		"lineWidth": 100,
+		"lineWidth": 80,
 		"trailingNewline": true,
 		"useEditorconfig": false
 	},
