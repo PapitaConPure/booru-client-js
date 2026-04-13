@@ -1,5 +1,5 @@
-import type { Post } from '../post';
-import type { Tag } from '../tag';
+import type { Post } from '../models/post';
+import type { Tag } from '../models/tag';
 import type { ValuesOf } from './util';
 
 export const PostRatings = {

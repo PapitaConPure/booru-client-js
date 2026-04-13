@@ -1,6 +1,6 @@
-import type { PostRating, PostResolvable } from './types/gelbooru';
-import { decodeEntities } from './utils/encoding';
-import { getSourceUrl } from './utils/misc';
+import type { PostRating, PostResolvable } from '../types/gelbooru';
+import { decodeEntities } from '../utils/encoding';
+import { getSourceUrl } from '../utils/misc';
 
 /**@class Representa una imagen publicada en un {@linkcode Booru}*/
 export class Post {

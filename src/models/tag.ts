@@ -1,5 +1,5 @@
-import { type TagResolvable, type TagType, TagTypes } from './types/gelbooru';
-import { decodeEntities } from './utils/encoding';
+import { type TagResolvable, type TagType, TagTypes } from '../types/gelbooru';
+import { decodeEntities } from '../utils/encoding';
 
 /**@class Representa una tag de {@linkcode Post} de un {@linkcode Booru}.*/
 export class Tag {
