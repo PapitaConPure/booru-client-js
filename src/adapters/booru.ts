@@ -1,6 +1,6 @@
 import type { Post } from '../models/post';
 import type { Tag } from '../models/tag';
-import type { Credentials } from '../types/gelbooru';
+import type { BooruSearchOptions, Credentials } from '../types/gelbooru';
 
 /**@description Defines una interface to interact with one of various imageboards.*/
 export default interface Booru {
@@ -10,7 +10,7 @@ export default interface Booru {
 	 * @param options
 	 * @param credentials
 	 */
-	search(tags: string, searchOptions: { limit: number, random: boolean }, credentials: Credentials): Promise<Post[]>;
+	search(tags: string, searchOptions: Required<BooruSearchOptions>, credentials: Credentials): Promise<Post[]>;
 
 	/**
 	 *
