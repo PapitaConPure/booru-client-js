@@ -1,7 +1,7 @@
 import './booru-client.test';
 import { describe, expect, it } from 'bun:test';
 import { Tag } from '../models/tag';
-import { BooruClient } from '../services/booru';
+import { BooruClient } from '../services/booru-client';
 import { MemoryTagStore } from '../stores/memory-tag-store';
 import type TagStore from '../stores/tag-store';
 

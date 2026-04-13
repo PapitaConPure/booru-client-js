@@ -1,6 +1,6 @@
 import './booru-client.test';
 import { describe, expect, it } from 'bun:test';
-import { BooruClient } from '../services/booru';
+import { BooruClient } from '../services/booru-client';
 
 const credentials = {
 	apiKey: 'test',

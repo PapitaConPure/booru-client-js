@@ -1,5 +1,5 @@
 import type { Tag } from '../models/tag';
-import type { BooruClient } from '../services/booru';
+import type { BooruClient } from '../services/booru-client';
 
 /**@description Represents a repository of {@link Tag}s to be managed by a {@link BooruClient}.*/
 export default interface TagStore {
