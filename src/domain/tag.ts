@@ -13,12 +13,12 @@ const TagTypeNames: Record<TagType, string> = {
 
 /**@description Representa una tag de {@linkcode Post} de un {@linkcode Booru}.*/
 export class Tag {
-	id: number;
-	name: string;
-	count: number;
-	type: TagType;
-	ambiguous: boolean;
-	fetchTimestamp: Date;
+	readonly id: number;
+	readonly name: string;
+	readonly count: number;
+	readonly type: TagType;
+	readonly ambiguous: boolean;
+	readonly fetchTimestamp: Date;
 
 	constructor(data: TagResolvable) {
 		const tagType = data.type != null ? data.type : TagTypes.UNKNOWN;
