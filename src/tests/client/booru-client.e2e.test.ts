@@ -3,7 +3,11 @@ import Danbooru from '../../adapters/danbooru/client';
 import Gelbooru from '../../adapters/gelbooru/client';
 import { BooruClient } from '../../services/booru-client';
 
-describe('E2E: search posts', () => {
+const skipE2E = !new Set(['true', 't', '1', 'on']).has(
+	process.env.TEST_PERFORM_E2E?.toLowerCase() as string,
+);
+
+describe.skipIf(skipE2E)('E2E: search posts', () => {
 	it('returns posts for a simple tag', async () => {
 		const client = new BooruClient(new Danbooru(), {
 			apiKey: process.env.TEST_DANBOORU_APIKEY as string,
@@ -37,7 +41,7 @@ describe('E2E: search posts', () => {
 	});
 });
 
-describe('E2E: get post', () => {
+describe.skipIf(skipE2E)('E2E: get post', () => {
 	it('fetches a known post by ID', async () => {
 		const client = new BooruClient(new Gelbooru(), {
 			apiKey: process.env.TEST_GELBOORU_APIKEY as string,
@@ -52,7 +56,7 @@ describe('E2E: get post', () => {
 	});
 });
 
-describe('E2E: adapter normalization', () => {
+describe.skipIf(skipE2E)('E2E: adapter normalization', () => {
 	it('returns consistent shape across adapters', async () => {
 		const danbooru = new BooruClient(new Danbooru(), {
 			apiKey: process.env.TEST_DANBOORU_APIKEY as string,
