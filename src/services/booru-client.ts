@@ -114,7 +114,7 @@ export class BooruClient<TBooru extends Booru> {
 	 * @throws {BooruFetchError}
 	 */
 	async fetchPostByUrl(postUrl: URL | string): Promise<Post | undefined> {
-		if (typeof postUrl !== 'string') throw new TypeError('Invalid Post URL');
+		if (typeof postUrl !== 'string' && !(postUrl instanceof URL)) throw new TypeError('Invalid Post URL');
 
 		return this.#booru.fetchPostByUrl(postUrl, this.#getCredentials());
 	}

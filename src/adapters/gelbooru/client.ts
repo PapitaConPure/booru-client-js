@@ -60,8 +60,6 @@ export default class Gelbooru implements Booru<GelbooruCredentials, BooruSearchO
 		const { limit, random } = searchOptions;
 		const { apiKey, userId } = credentials;
 
-		if (Array.isArray(tags)) tags = tags.join(' ');
-
 		const fetchResult = await Gelbooru.API_POSTS_ENDPOINT.request<GelbooruPostsResponseDto>({
 			api_key: apiKey,
 			user_id: userId,
@@ -80,8 +78,6 @@ export default class Gelbooru implements Booru<GelbooruCredentials, BooruSearchO
 	async fetchPostById(postId: string, credentials: GelbooruCredentials): Promise<Post> {
 		const { apiKey, userId } = credentials;
 
-		if (typeof postId !== 'string') throw new TypeError('Invalid GelbooruPost ID');
-
 		const response = await Gelbooru.API_POSTS_ENDPOINT.request<GelbooruPostsResponseDto>({
 			api_key: apiKey,
 			user_id: userId,
@@ -94,21 +90,18 @@ export default class Gelbooru implements Booru<GelbooruCredentials, BooruSearchO
 		return post;
 	}
 
-	async fetchPostByUrl(postUrl: URL | string, credentials: GelbooruCredentials): Promise<Post> {
+	async fetchPostByUrl(postUrl: URL, credentials: GelbooruCredentials): Promise<Post> {
 		const { apiKey, userId } = credentials;
 
-		if (typeof postUrl !== 'string' && !(postUrl instanceof URL)) throw new TypeError('Invalid Post URL');
+		postUrl.searchParams.set('page', 'dapi');
+		postUrl.searchParams.set('s', 'post');
+		postUrl.searchParams.set('q', 'index');
+		postUrl.searchParams.set('json', '1');
+		postUrl.searchParams.delete('tags');
+		postUrl.searchParams.set('api_key', apiKey);
+		postUrl.searchParams.set('user_id', userId);
 
-		const url = new URL(postUrl);
-		url.searchParams.set('page', 'dapi');
-		url.searchParams.set('s', 'post');
-		url.searchParams.set('q', 'index');
-		url.searchParams.set('json', '1');
-		url.searchParams.delete('tags');
-		url.searchParams.set('api_key', apiKey);
-		url.searchParams.set('user_id', userId);
-
-		const response = await fetchExt<GelbooruPostsResponseDto>(url.toString(), {
+		const response = await fetchExt<GelbooruPostsResponseDto>(postUrl.toString(), {
 			type: 'json',
 			init: {
 				signal: AbortSignal.timeout(10_000),
