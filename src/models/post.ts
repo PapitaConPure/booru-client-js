@@ -1,69 +1,38 @@
-import type { PostRating, PostResolvable } from '../types/booru';
-import { decodeEntities } from '../utils/encoding';
+import type { PostInit } from '../types/booru';
 import { getSourceUrl } from '../utils/misc';
+import type { PostRating } from './post-rating';
 
 /**@class Representa una imagen publicada en un {@linkcode Booru}*/
 export class Post {
-	id: number;
-	title: string;
-	tags: string[];
-	sources: string[] | undefined;
-	score: number;
-	rating: PostRating;
-	createdAt: Date;
-	creatorId: number;
-	fileUrl: string;
-	size: number[];
-	previewUrl: string | undefined;
-	previewSize: (number | undefined)[] | undefined;
-	sampleUrl: string | undefined;
-	sampleSize: (number | undefined)[] | undefined;
+	readonly id: number;
+	readonly title: string;
+	readonly tags: string[];
+	readonly sources?: string[];
+	readonly score: number;
+	readonly rating: PostRating;
+	readonly createdAt: Date;
+	readonly creatorId: number;
+	readonly fileUrl: string;
+	readonly size: [number, number];
+	readonly previewUrl?: string;
+	readonly previewSize?: [number, number];
+	readonly sampleUrl?: string;
+	readonly sampleSize?: [number, number];
 
-	constructor(data: PostResolvable) {
+	constructor(data: PostInit) {
 		this.id = data.id;
 		this.title = data.title;
-		this.tags = Array.isArray(data.tags)
-			? data.tags.map(decodeEntities)
-			: decodeEntities(data.tags ?? '').split(' ');
-
-		if (data.source) {
-			const sources =
-				typeof data.source === 'object'
-					? Array.isArray(data.source)
-						? data.source
-						: Object.values(data.source as Record<string, string>)
-					: data.source.split(/[ \n]+/);
-			this.sources = sources;
-		}
-
+		this.tags = data.tags;
+		this.sources = data.sources;
 		this.score = data.score;
 		this.rating = data.rating;
-		this.creatorId = 'creatorId' in data ? data.creatorId : data.creator_id;
-
-		const createdAt = 'createdAt' in data ? data.createdAt : data.created_at;
-		this.createdAt =
-			typeof createdAt === 'string' || typeof createdAt === 'number'
-				? new Date(createdAt)
-				: createdAt;
-
-		this.fileUrl = 'fileUrl' in data ? data.fileUrl : data.file_url;
-		this.size = 'size' in data ? data.size : [data.width, data.height];
-
-		if ('preview_url' in data) {
-			this.previewUrl = data.preview_url;
-			this.previewSize = [data.preview_width, data.preview_height];
-		} else if ('previewUrl' in data) {
-			this.previewUrl = data.previewUrl;
-			this.previewSize = data.size;
-		}
-
-		if ('sample_url' in data) {
-			this.sampleUrl = data.sample_url;
-			this.sampleSize = [data.sample_width, data.sample_height];
-		} else if ('sampleUrl' in data) {
-			this.sampleUrl = data.sampleUrl;
-			this.sampleSize = data.size;
-		}
+		this.createdAt = data.createdAt;
+		this.creatorId = data.creatorId;
+		this.fileUrl = data.fileUrl;
+		this.size = data.size;
+		this.previewUrl = data.previewUrl;
+		this.sampleUrl = data.sampleUrl;
+		this.sampleSize = data.sampleSize;
 	}
 
 	/**@description Tries to find sources that match a URL pattern, and returns all matches (if any)*/
