@@ -8,7 +8,7 @@ import type { BooruSearchOptions, CredentialsOf } from '../types/booru';
 import { decodeEntities } from '../utils/encoding';
 
 /**@description Representa una conexión a un sitio Booru.*/
-export class BooruClient<TBooru extends Booru> {
+export class BooruClient<TBooru extends Booru = Booru> {
 	#booru: TBooru;
 	#credentials: CredentialsOf<TBooru> | undefined;
 
