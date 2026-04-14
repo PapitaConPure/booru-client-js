@@ -1,18 +1,17 @@
 import { BooruFetchError, BooruUnknownPostError, BooruUnknownTagError } from '../errors/booru';
 import { Post } from '../models/post';
 import { Tag } from '../models/tag';
-import type {
-	APIPostData,
-	APITagData,
-	Credentials,
-	PostResolvable,
-	TagResolvable,
-} from '../types/gelbooru';
+import type { APIPostData, APITagData, PostResolvable, TagResolvable } from '../types/gelbooru';
 import { type FetchResult, fetchExt } from '../utils/fetchExt';
 import { shuffleArray } from '../utils/misc';
 import type Booru from './booru';
 
-export default class Gelbooru implements Booru {
+interface GelbooruCredentials {
+	apiKey: string;
+	userId: string;
+}
+
+export default class Gelbooru implements Booru<GelbooruCredentials> {
 	static readonly API_URI = 'https://gelbooru.com/index.php';
 	static readonly API_POSTS_URL = 'https://gelbooru.com/index.php';
 	static readonly API_TAGS_URL = 'https://gelbooru.com/index.php?page=dapi&s=tag&q=index';
@@ -36,7 +35,7 @@ export default class Gelbooru implements Booru {
 	async search(
 		tags: string,
 		searchOptions: { limit: number; random: boolean },
-		credentials: Credentials,
+		credentials: GelbooruCredentials,
 	): Promise<Post[]> {
 		const { limit, random } = searchOptions;
 		const { apiKey, userId } = credentials;
@@ -57,7 +56,7 @@ export default class Gelbooru implements Booru {
 		return posts.map((p) => new Post(p));
 	}
 
-	async fetchPostById(postId: string, credentials: Credentials): Promise<Post> {
+	async fetchPostById(postId: string, credentials: GelbooruCredentials): Promise<Post> {
 		const { apiKey, userId } = credentials;
 		if (typeof postId !== 'string') throw new TypeError('Invalid Post ID');
 
@@ -70,7 +69,7 @@ export default class Gelbooru implements Booru {
 		return new Post(post);
 	}
 
-	async fetchPostByUrl(postUrl: URL | string, credentials: Credentials): Promise<Post> {
+	async fetchPostByUrl(postUrl: URL | string, credentials: GelbooruCredentials): Promise<Post> {
 		const { apiKey, userId } = credentials;
 
 		if (typeof postUrl !== 'string') throw new TypeError('Invalid Post URL');
@@ -89,7 +88,10 @@ export default class Gelbooru implements Booru {
 		return new Post(post);
 	}
 
-	async fetchTagsByNames(names: Iterable<string>, credentials: Credentials): Promise<Tag[]> {
+	async fetchTagsByNames(
+		names: Iterable<string>,
+		credentials: GelbooruCredentials,
+	): Promise<Tag[]> {
 		const { apiKey, userId } = credentials;
 		const namesArr: string[] = Array.isArray(names) ? names : [...names];
 
@@ -110,6 +112,16 @@ export default class Gelbooru implements Booru {
 		}
 
 		return fetchedTags;
+	}
+
+	validateCredentials(
+		credentials: GelbooruCredentials | undefined,
+	): asserts credentials is GelbooruCredentials {
+		if (!credentials) throw new ReferenceError('No credentials were defined');
+		if (!credentials.apiKey || typeof credentials.apiKey !== 'string')
+			throw new TypeError('API Key is invalid');
+		if (!credentials.userId || typeof credentials.userId !== 'string')
+			throw new TypeError('User ID is invalid');
 	}
 
 	static #createEndpoint(defaultParams: Record<string, string>) {

@@ -4,13 +4,13 @@ import type { Post } from '../models/post';
 import type { Tag } from '../models/tag';
 import { MemoryTagStore } from '../stores/memory-tag-store';
 import type TagStore from '../stores/tag-store';
-import type { BooruSearchOptions, Credentials } from '../types/gelbooru';
+import type { BooruSearchOptions, CredentialsOf } from '../types/gelbooru';
 import { decodeEntities } from '../utils/encoding';
 
 /**@description Representa una conexión a un sitio Booru.*/
-export class BooruClient {
-	#booru: Booru;
-	#credentials: Credentials | undefined;
+export class BooruClient<TBooru extends Booru> {
+	#booru: TBooru;
+	#credentials: CredentialsOf<TBooru> | undefined;
 
 	#tagStoreChain: TagStore[];
 	#tagFetchThreshold: number;
@@ -25,8 +25,8 @@ export class BooruClient {
 	 * @param options Options to define this client's behaviour.
 	 */
 	constructor(
-		booru: Booru,
-		credentials: Credentials,
+		booru: TBooru,
+		credentials: CredentialsOf<TBooru>,
 		options: {
 			/**Allows to define a custom {@link TagStore} chain from which to fetch {@link Tag}s. By default: [{@link MemoryTagStore}] (cache only).*/
 			tagStoreChain?: TagStore[];
@@ -204,7 +204,7 @@ export class BooruClient {
 	 * @throws {ReferenceError}
 	 * @throws {TypeError}
 	 */
-	setCredentials(credentials: Credentials): this {
+	setCredentials(credentials: CredentialsOf<TBooru>): this {
 		this.#expectCredentials(credentials);
 		this.#credentials = credentials;
 		return this;
@@ -231,7 +231,7 @@ export class BooruClient {
 	 * @throws {ReferenceError}
 	 * @throws {TypeError}
 	 */
-	#getCredentials(): Credentials {
+	#getCredentials(): CredentialsOf<TBooru> {
 		this.#expectCredentials(this.#credentials);
 		return this.#credentials;
 	}
@@ -242,12 +242,8 @@ export class BooruClient {
 	 * @throws {ReferenceError}
 	 * @throws {TypeError}
 	 */
-	#expectCredentials(credentials: Credentials | undefined): asserts credentials is Credentials {
-		if (!credentials) throw new ReferenceError('No credentials were defined');
-		if (!credentials.apiKey || typeof credentials.apiKey !== 'string')
-			throw new TypeError('API Key is invalid');
-		if (!credentials.userId || typeof credentials.userId !== 'string')
-			throw new TypeError('User ID is invalid');
+	#expectCredentials(credentials: CredentialsOf<TBooru> | undefined): asserts credentials is CredentialsOf<TBooru> {
+		return this.#booru.validateCredentials(credentials);
 	}
 
 	/**
