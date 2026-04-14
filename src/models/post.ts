@@ -88,7 +88,14 @@ export class Post {
 	 * If no URL source is found, `undefined` is returned.
 	 */
 	findLastUrlSource() {
-		return this.sources?.map(getSourceUrl).findLast((s) => s != null);
+		const sources = this.sources?.map(getSourceUrl);
+
+		if (!sources) return undefined;
+
+		let i = sources.length;
+		while (--i >= 0) if (sources[i] != null) return sources[i];
+
+		return undefined;
 	}
 
 	get source() {
