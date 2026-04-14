@@ -15,6 +15,7 @@ describe('Gelbooru - batching', () => {
 					ambiguous: false,
 				}));
 			},
+			validateCredentials: () => undefined,
 		} as unknown as Gelbooru;
 
 		const client = new BooruClient(gelbooru, {
