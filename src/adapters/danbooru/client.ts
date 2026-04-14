@@ -1,0 +1,235 @@
+import type { Post } from '../../domain/post';
+import type { Tag } from '../../domain/tag';
+import { BooruFetchError, BooruUnknownPostError, BooruUnknownTagError } from '../../errors/booru';
+import type { PostMapper } from '../../mappers/post-mapper';
+import { DanbooruPostMapper } from '../../mappers/post-mapper/danbooru-post-mapper';
+import type { TagMapper } from '../../mappers/tag-mapper';
+import { DanbooruTagMapper } from '../../mappers/tag-mapper/danbooru-tag-mapper';
+import type { BooruSearchOptions } from '../../types/booru';
+import { defineEndpoint } from '../../utils/endpoint';
+import { type FetchResult, fetchExt } from '../../utils/fetchExt';
+import { shuffleArray } from '../../utils/misc';
+import type Booru from '../booru';
+import type { DanbooruCredentials } from './credentials';
+import type {
+	DanbooruPostDto,
+	DanbooruPostsResponseDto,
+	DanbooruTagDto,
+	DanbooruTagsResponseDto,
+} from './dto';
+
+export default class Danbooru implements Booru<DanbooruCredentials, BooruSearchOptions> {
+	static readonly API_BASE_URL = 'https://danbooru.donmai.us';
+
+	static readonly API_RANDOM_POSTS_ENDPOINT = defineEndpoint(
+		'get',
+		`${Danbooru.API_BASE_URL}/posts/random.json`,
+		{},
+	);
+	static readonly API_POSTS_ENDPOINT = defineEndpoint(
+		'get',
+		`${Danbooru.API_BASE_URL}/posts.json`,
+		{},
+	);
+	static readonly API_TAGS_ENDPOINT = defineEndpoint(
+		'get',
+		`${Danbooru.API_BASE_URL}/tags.json`,
+		{},
+	);
+
+	#postMapper: PostMapper<DanbooruPostDto>;
+	#tagMapper: TagMapper<DanbooruTagDto>;
+
+	constructor(
+		options: {
+			postMapper?: PostMapper<DanbooruPostDto>;
+			tagMapper?: TagMapper<DanbooruTagDto>;
+		} = {},
+	) {
+		const { postMapper = new DanbooruPostMapper(), tagMapper = new DanbooruTagMapper() } =
+			options;
+
+		this.#postMapper = postMapper;
+		this.#tagMapper = tagMapper;
+	}
+
+	async search(
+		tags: string,
+		searchOptions: Required<BooruSearchOptions>,
+		credentials: DanbooruCredentials,
+	): Promise<Post[]> {
+		const { limit, random } = searchOptions;
+		const { apiKey, login } = credentials;
+
+		const endpoint = random ? Danbooru.API_RANDOM_POSTS_ENDPOINT : Danbooru.API_POSTS_ENDPOINT;
+
+		const fetchResult = await endpoint.request<DanbooruPostsResponseDto>({
+			api_key: apiKey,
+			login: login,
+			limit: limit,
+			tags: tags,
+		});
+
+		const postDtos = Danbooru.#expectPosts(fetchResult, { dontThrowOnEmptyFetch: true });
+		const posts = postDtos.map((dto) => this.#postMapper.fromDto(dto));
+
+		if (random) shuffleArray(posts);
+
+		return posts;
+	}
+
+	async fetchPostById(
+		postId: string,
+		credentials: DanbooruCredentials,
+	): Promise<Post | undefined> {
+		const { apiKey, login } = credentials;
+
+		const url = new URL(`${Danbooru.API_BASE_URL}/posts/${postId}.json`);
+		url.searchParams.set('api_key', apiKey);
+		url.searchParams.set('login', login);
+
+		const response = await fetchExt<DanbooruPostDto | undefined>(url, {
+			type: 'json',
+			init: {
+				signal: AbortSignal.timeout(10_000),
+			},
+		});
+
+		if (!response.success)
+			throw new BooruFetchError(
+				`Danbooru post fetch via ID failed: ${response.error.name} ${response.error.message || ''}`,
+				{ cause: response.error },
+			);
+
+		if (!response.data) return undefined;
+
+		return this.#postMapper.fromDto(response.data);
+	}
+
+	async fetchPostByUrl(
+		postUrl: URL,
+		credentials: DanbooruCredentials,
+	): Promise<Post | undefined> {
+		const { apiKey, login } = credentials;
+
+		const match = postUrl.pathname.match(/\/posts\/(\d+)/);
+		if (!match) throw new TypeError('Invalid Danbooru post URL');
+
+		const postId = match[1];
+
+		const url = new URL(`https://danbooru.donmai.us/posts/${postId}.json`);
+		url.searchParams.set('api_key', apiKey);
+		url.searchParams.set('login', login);
+
+		const response = await fetchExt<DanbooruPostDto | undefined>(url, {
+			type: 'json',
+			init: {
+				signal: AbortSignal.timeout(10_000),
+			},
+		});
+
+		if (!response.success)
+			throw new BooruFetchError(
+				`Danbooru post fetch via URL failed: ${response.error.name} ${response.error.message || ''}`,
+				{ cause: response.error },
+			);
+
+		if (!response.data) return undefined;
+
+		return this.#postMapper.fromDto(response.data);
+	}
+
+	async fetchTagsByNames(
+		names: Iterable<string>,
+		credentials: DanbooruCredentials,
+	): Promise<Tag[]> {
+		const { apiKey, login } = credentials;
+		const namesArr: string[] = Array.isArray(names) ? names : [...names];
+
+		const fetchedTags: Tag[] = [];
+
+		for (let i = 0; i < namesArr.length; i += 100) {
+			const namesBatch = namesArr.slice(i, i + 100).join(' ');
+
+			const response = await Danbooru.API_TAGS_ENDPOINT.request<
+				DanbooruTagsResponseDto | undefined
+			>({
+				api_key: apiKey,
+				login: login,
+				tags: namesBatch,
+			});
+
+			const tagDtos = Danbooru.#expectTags(response, { tags: namesBatch });
+			const tags = tagDtos.map((dto) => this.#tagMapper.fromDto(dto));
+			fetchedTags.push(...tags);
+		}
+
+		return fetchedTags;
+	}
+
+	validateCredentials(
+		credentials: DanbooruCredentials,
+	): asserts credentials is DanbooruCredentials {
+		if (!credentials.apiKey || typeof credentials.apiKey !== 'string')
+			throw new TypeError('API Key is invalid');
+		if (!credentials.login || typeof credentials.login !== 'string')
+			throw new TypeError('User ID is invalid');
+	}
+
+	/**
+	 * @description Asserts that the status code of a response is 200 and that the {@link Post} data is valid before returning it.
+	 * @throws {BooruFetchError}
+	 * @throws {BooruUnknownPostError}
+	 */
+	static #expectPosts(
+		fetchResult: FetchResult<DanbooruPostsResponseDto | undefined>,
+		options: {
+			dontThrowOnEmptyFetch?: boolean;
+		} = {},
+	): DanbooruPostDto[] {
+		const { dontThrowOnEmptyFetch = false } = options;
+
+		if (!fetchResult.success)
+			throw new BooruFetchError(
+				`Danbooru posts fetch failed: ${fetchResult.error.name} ${fetchResult.error.message || ''}`,
+				{ cause: fetchResult.error },
+			);
+
+		if (!Array.isArray(fetchResult.data)) {
+			if (dontThrowOnEmptyFetch) return [];
+			throw new BooruUnknownPostError(`Couldn't fetch posts from Danbooru API`);
+		}
+
+		return fetchResult.data;
+	}
+
+	/**
+	 * @description Asserts that the status code of a response is 200 and that the {@link Tag} data is valid before returning it.
+	 * @throws {BooruFetchError}
+	 * @throws {BooruUnknownTagError}
+	 */
+	static #expectTags(
+		fetchResult: FetchResult<DanbooruTagsResponseDto | undefined>,
+		options: {
+			dontThrowOnEmptyFetch?: boolean;
+			tags?: string;
+		} = {},
+	): DanbooruTagDto[] {
+		const { dontThrowOnEmptyFetch = false, tags = null } = options;
+
+		if (!fetchResult.success)
+			throw new BooruFetchError(
+				`Danbooru tags fetch failed: ${fetchResult.error.name} ${fetchResult.error.message || ''}`,
+				{ cause: fetchResult.error },
+			);
+
+		if (!Array.isArray(fetchResult.data)) {
+			if (dontThrowOnEmptyFetch) return [];
+			throw new BooruUnknownTagError(
+				`Couldn't fetch tags from Danbooru${tags ? `. Tried to fetch: ${tags}` : ''}`,
+			);
+		}
+
+		return fetchResult.data;
+	}
+}
