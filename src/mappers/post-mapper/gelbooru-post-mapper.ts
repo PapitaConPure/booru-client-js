@@ -12,11 +12,16 @@ const gelbooruRatingsMap = {
 
 export class GelbooruPostMapper implements PostMapper<GelbooruPostDto> {
 	fromDto(dto: GelbooruPostDto): Post {
+		const sources = dto.source
+			?.split(/\s+/)
+			.map((s) => s.trim())
+			.filter((s) => s != null);
+
 		return new Post({
 			id: dto.id,
 			title: dto.title,
 			tags: dto.tags.split(' '),
-			sources: dto.source.split(/\s+/),
+			sources: sources.length ? sources : undefined,
 			score: dto.score,
 			rating: gelbooruRatingsMap[dto.rating],
 			createdAt: new Date(dto.created_at),
