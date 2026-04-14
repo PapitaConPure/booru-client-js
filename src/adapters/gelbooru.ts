@@ -1,7 +1,7 @@
 import { BooruFetchError, BooruUnknownPostError, BooruUnknownTagError } from '../errors/booru';
 import { Post } from '../models/post';
 import { Tag } from '../models/tag';
-import type { APIPostData, APITagData, PostResolvable, TagResolvable } from '../types/booru';
+import type { APIPostData, APITagData, BooruSearchOptions, PostResolvable, TagResolvable } from '../types/booru';
 import { type FetchResult, fetchExt } from '../utils/fetchExt';
 import { shuffleArray } from '../utils/misc';
 import type Booru from './booru';
@@ -12,12 +12,11 @@ interface GelbooruCredentials {
 }
 
 export default class Gelbooru implements Booru<GelbooruCredentials> {
-	static readonly API_URI = 'https://gelbooru.com/index.php';
+	static readonly API_BASE_URL = 'https://gelbooru.com/index.php';
 	static readonly API_POSTS_URL = 'https://gelbooru.com/index.php';
 	static readonly API_TAGS_URL = 'https://gelbooru.com/index.php?page=dapi&s=tag&q=index';
 
 	static readonly API_POSTS_ENDPOINT = Gelbooru.#createEndpoint({
-		//timeout: 10000,
 		page: 'dapi',
 		s: 'post',
 		q: 'index',
@@ -25,7 +24,6 @@ export default class Gelbooru implements Booru<GelbooruCredentials> {
 	});
 
 	static readonly API_TAGS_ENDPOINT = Gelbooru.#createEndpoint({
-		//timeout: 10000,
 		page: 'dapi',
 		s: 'tag',
 		q: 'index',
@@ -34,7 +32,7 @@ export default class Gelbooru implements Booru<GelbooruCredentials> {
 
 	async search(
 		tags: string,
-		searchOptions: { limit: number; random: boolean },
+		searchOptions: Required<BooruSearchOptions>,
 		credentials: GelbooruCredentials,
 	): Promise<Post[]> {
 		const { limit, random } = searchOptions;
@@ -58,6 +56,7 @@ export default class Gelbooru implements Booru<GelbooruCredentials> {
 
 	async fetchPostById(postId: string, credentials: GelbooruCredentials): Promise<Post> {
 		const { apiKey, userId } = credentials;
+
 		if (typeof postId !== 'string') throw new TypeError('Invalid Post ID');
 
 		const response = await Gelbooru.API_POSTS_ENDPOINT.request<{ post: APIPostData[] }>({
@@ -65,6 +64,7 @@ export default class Gelbooru implements Booru<GelbooruCredentials> {
 			user_id: userId,
 			id: postId,
 		});
+
 		const [post] = Gelbooru.#expectPosts(response) as [Post];
 		return new Post(post);
 	}
@@ -83,7 +83,13 @@ export default class Gelbooru implements Booru<GelbooruCredentials> {
 		url.searchParams.set('api_key', apiKey);
 		url.searchParams.set('user_id', userId);
 
-		const response = await fetchExt<{ post: APIPostData[] }>(url.toString());
+		const response = await fetchExt<{ post: APIPostData[] }>(url.toString(), {
+			type: 'json',
+			init: {
+				signal: AbortSignal.timeout(10_000),
+			},
+		});
+
 		const [post] = Gelbooru.#expectPosts(response) as [Post];
 		return new Post(post);
 	}
@@ -124,7 +130,7 @@ export default class Gelbooru implements Booru<GelbooruCredentials> {
 	}
 
 	static #createEndpoint(defaultParams: Record<string, string>) {
-		const endpointURL = new URL(Gelbooru.API_URI);
+		const endpointURL = new URL(Gelbooru.API_BASE_URL);
 
 		for (const [name, value] of Object.entries(defaultParams))
 			endpointURL.searchParams.set(name, value);
@@ -159,15 +165,15 @@ export default class Gelbooru implements Booru<GelbooruCredentials> {
 	): PostResolvable[] {
 		const { dontThrowOnEmptyFetch = false } = options;
 
-		if (fetchResult.success === false)
+		if (!fetchResult.success)
 			throw new BooruFetchError(
-				`Booru API Posts fetch failed: ${fetchResult.error.name} ${fetchResult.error.message || ''}`,
+				`Gelbooru posts fetch failed: ${fetchResult.error.name} ${fetchResult.error.message || ''}`,
 				{ cause: fetchResult.error },
 			);
 
 		if (!Array.isArray(fetchResult.data?.post)) {
 			if (dontThrowOnEmptyFetch) return [];
-			else throw new BooruUnknownPostError(`Couldn't fetch any Posts from the Booru API`);
+			throw new BooruUnknownPostError(`Couldn't fetch posts from Gelbooru`);
 		}
 
 		return fetchResult.data.post;
@@ -187,18 +193,17 @@ export default class Gelbooru implements Booru<GelbooruCredentials> {
 	): TagResolvable[] {
 		const { dontThrowOnEmptyFetch = false, tags = null } = options;
 
-		if (fetchResult.success === false)
+		if (!fetchResult.success)
 			throw new BooruFetchError(
-				`Booru API Tags fetch failed: ${fetchResult.error.name} ${fetchResult.error.message || ''}`,
+				`Gelbooru tags fetch failed: ${fetchResult.error.name} ${fetchResult.error.message || ''}`,
 				{ cause: fetchResult.error },
 			);
 
 		if (!Array.isArray(fetchResult.data?.tag)) {
 			if (dontThrowOnEmptyFetch) return [];
-			else
-				throw new BooruUnknownTagError(
-					`Couldn't fetch any Tags from the Booru API${tags ? `. Tried to fetch: ${tags}` : ''}`,
-				);
+			throw new BooruUnknownTagError(
+				`Couldn't fetch tags from Gelbooru${tags ? `. Tried to fetch: ${tags}` : ''}`,
+			);
 		}
 
 		return fetchResult.data.tag;
