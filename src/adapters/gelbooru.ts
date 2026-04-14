@@ -17,7 +17,7 @@ export default class Gelbooru implements Booru {
 	static readonly API_POSTS_URL = 'https://gelbooru.com/index.php';
 	static readonly API_TAGS_URL = 'https://gelbooru.com/index.php?page=dapi&s=tag&q=index';
 
-	static readonly POSTS_API = Gelbooru.#createBooruEndpoint({
+	static readonly API_POSTS_ENDPOINT = Gelbooru.#createEndpoint({
 		//timeout: 10000,
 		page: 'dapi',
 		s: 'post',
@@ -25,7 +25,7 @@ export default class Gelbooru implements Booru {
 		json: '1',
 	});
 
-	static readonly TAGS_API = Gelbooru.#createBooruEndpoint({
+	static readonly API_TAGS_ENDPOINT = Gelbooru.#createEndpoint({
 		//timeout: 10000,
 		page: 'dapi',
 		s: 'tag',
@@ -43,7 +43,7 @@ export default class Gelbooru implements Booru {
 
 		if (Array.isArray(tags)) tags = tags.join(' ');
 
-		const fetchResult = await Gelbooru.POSTS_API.request<{ post: APIPostData[] }>({
+		const fetchResult = await Gelbooru.API_POSTS_ENDPOINT.request<{ post: APIPostData[] }>({
 			api_key: apiKey,
 			user_id: userId,
 			limit: limit,
@@ -61,7 +61,7 @@ export default class Gelbooru implements Booru {
 		const { apiKey, userId } = credentials;
 		if (typeof postId !== 'string') throw new TypeError('Invalid Post ID');
 
-		const response = await Gelbooru.POSTS_API.request<{ post: APIPostData[] }>({
+		const response = await Gelbooru.API_POSTS_ENDPOINT.request<{ post: APIPostData[] }>({
 			api_key: apiKey,
 			user_id: userId,
 			id: postId,
@@ -98,7 +98,7 @@ export default class Gelbooru implements Booru {
 		for (let i = 0; i < namesArr.length; i += 100) {
 			const namesBatch = namesArr.slice(i, i + 100).join(' ');
 
-			const response = await Gelbooru.TAGS_API.request<{ tag: APITagData[] }>({
+			const response = await Gelbooru.API_TAGS_ENDPOINT.request<{ tag: APITagData[] }>({
 				api_key: apiKey,
 				user_id: userId,
 				names: namesBatch,
@@ -112,7 +112,7 @@ export default class Gelbooru implements Booru {
 		return fetchedTags;
 	}
 
-	static #createBooruEndpoint(defaultParams: Record<string, string>) {
+	static #createEndpoint(defaultParams: Record<string, string>) {
 		const endpointURL = new URL(Gelbooru.API_URI);
 
 		for (const [name, value] of Object.entries(defaultParams))
