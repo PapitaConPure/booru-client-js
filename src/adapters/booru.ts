@@ -24,14 +24,14 @@ export default interface Booru<
 	 * @param postId
 	 * @param credentials
 	 */
-	fetchPostById(postId: string, credentials: TCredentials): Promise<Post>;
+	fetchPostById(postId: string, credentials: TCredentials): Promise<Post | undefined>;
 
 	/**
 	 *
 	 * @param postUrl
 	 * @param credentials
 	 */
-	fetchPostByUrl(postUrl: URL, credentials: TCredentials): Promise<Post>;
+	fetchPostByUrl(postUrl: URL, credentials: TCredentials): Promise<Post | undefined>;
 
 	/**
 	 *
