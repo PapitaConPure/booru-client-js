@@ -1,7 +1,13 @@
 import { BooruFetchError, BooruUnknownPostError, BooruUnknownTagError } from '../errors/booru';
 import { Post } from '../models/post';
 import { Tag } from '../models/tag';
-import type { APIPostData, APITagData, BooruSearchOptions, PostResolvable, TagResolvable } from '../types/booru';
+import type {
+	APIPostData,
+	APITagData,
+	BooruSearchOptions,
+	PostResolvable,
+	TagResolvable,
+} from '../types/booru';
 import { type FetchResult, fetchExt } from '../utils/fetchExt';
 import { shuffleArray } from '../utils/misc';
 import type Booru from './booru';
@@ -57,7 +63,7 @@ export default class Gelbooru implements Booru<GelbooruCredentials, BooruSearchO
 	async fetchPostById(postId: string, credentials: GelbooruCredentials): Promise<Post> {
 		const { apiKey, userId } = credentials;
 
-		if (typeof postId !== 'string') throw new TypeError('Invalid Post ID');
+		if (typeof postId !== 'string') throw new TypeError('Invalid GelbooruPost ID');
 
 		const response = await Gelbooru.API_POSTS_ENDPOINT.request<{ post: APIPostData[] }>({
 			api_key: apiKey,
@@ -65,14 +71,14 @@ export default class Gelbooru implements Booru<GelbooruCredentials, BooruSearchO
 			id: postId,
 		});
 
-		const [post] = Gelbooru.#expectPosts(response) as [Post];
+		const [post] = Gelbooru.#expectPosts(response) as [PostResolvable];
 		return new Post(post);
 	}
 
 	async fetchPostByUrl(postUrl: URL | string, credentials: GelbooruCredentials): Promise<Post> {
 		const { apiKey, userId } = credentials;
 
-		if (typeof postUrl !== 'string') throw new TypeError('Invalid Post URL');
+		if (typeof postUrl !== 'string') throw new TypeError('Invalid GelbooruPost URL');
 
 		const url = new URL(postUrl);
 		url.searchParams.set('page', 'dapi');
@@ -90,7 +96,7 @@ export default class Gelbooru implements Booru<GelbooruCredentials, BooruSearchO
 			},
 		});
 
-		const [post] = Gelbooru.#expectPosts(response) as [Post];
+		const [post] = Gelbooru.#expectPosts(response) as [PostResolvable];
 		return new Post(post);
 	}
 
@@ -153,7 +159,7 @@ export default class Gelbooru implements Booru<GelbooruCredentials, BooruSearchO
 	}
 
 	/**
-	 * @description Asserts that the status code of a response is 200 and that the Post data is valid before returning it.
+	 * @description Asserts that the status code of a response is 200 and that the {@link Post} data is valid before returning it.
 	 * @throws {BooruFetchError}
 	 * @throws {BooruUnknownPostError}
 	 */
@@ -180,7 +186,7 @@ export default class Gelbooru implements Booru<GelbooruCredentials, BooruSearchO
 	}
 
 	/**
-	 * @description Asserts that the status code of a response is 200 and that the Tag data is valid before returning it.
+	 * @description Asserts that the status code of a response is 200 and that the {@link Tag} data is valid before returning it.
 	 * @throws {BooruFetchError}
 	 * @throws {BooruUnknownTagError}
 	 */
