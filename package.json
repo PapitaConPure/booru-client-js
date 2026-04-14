@@ -1,5 +1,5 @@
 {
-  "name": "@papitaconpure/booru-fetch",
+  "name": "@papitaconpure/booru-client",
   "version": "0.1.0",
   "description": "A simple Booru wrapper mostly for my personal projects. Uses Node fetch API.",
   "type": "module",
