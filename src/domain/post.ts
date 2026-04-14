@@ -31,6 +31,7 @@ export class Post {
 		this.fileUrl = data.fileUrl;
 		this.size = data.size;
 		this.previewUrl = data.previewUrl;
+		this.previewSize = data.previewSize;
 		this.sampleUrl = data.sampleUrl;
 		this.sampleSize = data.sampleSize;
 
@@ -71,5 +72,20 @@ export class Post {
 
 	get source() {
 		return this.sources?.join(' ');
+	}
+
+	static mock() {
+		return new Post({
+			id: 1,
+			title: 'title',
+			tags: ['a', 'b', 'c'],
+			sources: ['https://google.com'],
+			score: 0,
+			rating: 'general',
+			createdAt: new Date(),
+			creatorId: 0,
+			fileUrl: '',
+			size: [0, 0],
+		});
 	}
 }
