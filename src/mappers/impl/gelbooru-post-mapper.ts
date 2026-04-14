@@ -1,0 +1,38 @@
+import type { GelbooruPostDto } from '../../adapters/gelbooru/dto';
+import { Post } from '../../models/post';
+import { type PostRating, PostRatings } from '../../models/post-rating';
+import type { PostMapper } from '../post-mapper';
+
+const gelbooruRatingsMap = {
+	general: PostRatings.General,
+	sensitive: PostRatings.Sensitive,
+	questionable: PostRatings.Questionable,
+	explicit: PostRatings.Explicit,
+} as const satisfies Record<string, PostRating>;
+
+export class GelbooruPostMapper implements PostMapper<GelbooruPostDto> {
+	fromDto(dto: GelbooruPostDto): Post {
+		return new Post({
+			id: dto.id,
+			title: dto.title,
+			tags: dto.tags.split(' '),
+			sources: dto.source.split(/\s+/),
+			score: dto.score,
+			rating: gelbooruRatingsMap[dto.rating],
+			createdAt: new Date(dto.created_at),
+			creatorId: dto.creator_id,
+			fileUrl: dto.file_url,
+			size: [dto.width, dto.height],
+			previewUrl: dto.preview_url,
+			previewSize:
+				dto.preview_width != null && dto.preview_height != null
+					? [dto.preview_width, dto.preview_height]
+					: undefined,
+			sampleUrl: dto.sample_url,
+			sampleSize:
+				dto.sample_width != null && dto.sample_height != null
+					? [dto.sample_width, dto.sample_height]
+					: undefined,
+		});
+	}
+}
