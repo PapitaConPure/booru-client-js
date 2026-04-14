@@ -11,11 +11,7 @@ import type {
 import { type FetchResult, fetchExt } from '../../utils/fetchExt';
 import { shuffleArray } from '../../utils/misc';
 import type Booru from '../booru';
-
-interface GelbooruCredentials {
-	apiKey: string;
-	userId: string;
-}
+import type { GelbooruCredentials } from './dto';
 
 export default class Gelbooru implements Booru<GelbooruCredentials, BooruSearchOptions> {
 	static readonly API_BASE_URL = 'https://gelbooru.com/index.php';
