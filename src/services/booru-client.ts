@@ -182,8 +182,8 @@ export class BooruClient {
 		const { storedTags, missingTagNames } = forceFetch
 			? { storedTags: [], missingTagNames: normalizedTagNames }
 			: normalizedTagNames.length < this.#tagFetchThreshold
-				? await this.#fetchTagsByNameFromStoreByName(normalizedTagNames)
-				: await this.#fetchTagsByNameFromStoreByStore(normalizedTagNames);
+				? await this.#fetchTagsByNamePerTag(normalizedTagNames)
+				: await this.#fetchTagsByNamePerStore(normalizedTagNames);
 
 		if (!missingTagNames.length) return storedTags;
 
@@ -257,7 +257,7 @@ export class BooruClient {
 	 * * `storedTags`: Tags that could be obtained from a store layer.
 	 * * `missingTagNames`: Tag names that weren't available on any store.
 	 */
-	async #fetchTagsByNameFromStoreByName(
+	async #fetchTagsByNamePerTag(
 		normalizedTagNames: string[],
 	): Promise<{ storedTags: Tag[]; missingTagNames: string[] }> {
 		const results = await Promise.all(
@@ -293,7 +293,7 @@ export class BooruClient {
 	 * * `storedTags`: Tags that could be obtained from a store layer.
 	 * * `missingTagNames`: Tag names that weren't available on any store.
 	 */
-	async #fetchTagsByNameFromStoreByStore(
+	async #fetchTagsByNamePerStore(
 		normalizedTagNames: string[],
 	): Promise<{ storedTags: Tag[]; missingTagNames: string[] }> {
 		const normalizedTagNamesToGet = new Set(normalizedTagNames);
