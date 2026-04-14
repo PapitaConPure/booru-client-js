@@ -131,12 +131,12 @@ export default class Gelbooru implements Booru<GelbooruCredentials> {
 
 		return {
 			async request<TSchema>(params: Record<string, unknown>) {
-				const searchURL = new URL(endpointURL);
+				const searchUrl = new URL(endpointURL);
 
 				for (const [name, value] of Object.entries(params))
-					searchURL.searchParams.set(name, `${value}`);
+					searchUrl.searchParams.set(name, `${value}`);
 
-				return fetchExt<TSchema>(searchURL, {
+				return fetchExt<TSchema>(searchUrl, {
 					type: 'json',
 					init: {
 						signal: AbortSignal.timeout(10_000),
