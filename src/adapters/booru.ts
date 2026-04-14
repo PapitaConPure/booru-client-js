@@ -37,5 +37,5 @@ export default interface Booru<TCredentials = unknown> {
 	 * 
 	 * @param credentials 
 	 */
-	validateCredentials(credentials: TCredentials | undefined): asserts credentials is TCredentials;
+	validateCredentials(credentials: TCredentials): asserts credentials is TCredentials;
 }

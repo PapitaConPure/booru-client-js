@@ -242,7 +242,10 @@ export class BooruClient<TBooru extends Booru> {
 	 * @throws {ReferenceError}
 	 * @throws {TypeError}
 	 */
-	#expectCredentials(credentials: CredentialsOf<TBooru> | undefined): asserts credentials is CredentialsOf<TBooru> {
+	#expectCredentials(
+		credentials: CredentialsOf<TBooru> | undefined,
+	): asserts credentials is CredentialsOf<TBooru> {
+		if (credentials == null) throw new ReferenceError('No credentials were defined');
 		return this.#booru.validateCredentials(credentials);
 	}
 

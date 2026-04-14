@@ -115,9 +115,8 @@ export default class Gelbooru implements Booru<GelbooruCredentials> {
 	}
 
 	validateCredentials(
-		credentials: GelbooruCredentials | undefined,
+		credentials: GelbooruCredentials,
 	): asserts credentials is GelbooruCredentials {
-		if (!credentials) throw new ReferenceError('No credentials were defined');
 		if (!credentials.apiKey || typeof credentials.apiKey !== 'string')
 			throw new TypeError('API Key is invalid');
 		if (!credentials.userId || typeof credentials.userId !== 'string')
