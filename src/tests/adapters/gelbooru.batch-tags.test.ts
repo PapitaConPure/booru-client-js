@@ -1,4 +1,4 @@
-import './booru-client.test';
+import '../mocks/fetchExt.test';
 import { describe, expect, it, mock } from 'bun:test';
 import Gelbooru from '../../adapters/gelbooru';
 import { BooruClient } from '../../services/booru-client';
