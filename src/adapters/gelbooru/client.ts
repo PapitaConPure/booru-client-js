@@ -6,7 +6,7 @@ import { GelbooruPostMapper } from '../../mappers/post-mapper/gelbooru-post-mapp
 import type { TagMapper } from '../../mappers/tag-mapper';
 import { GelbooruTagMapper } from '../../mappers/tag-mapper/gelbooru-tag-mapper';
 import type { BooruSearchOptions } from '../../types/booru';
-import { defineEndpoint } from '../../utils/endpoint';
+import { defineEndpoint, type Endpoint, type FetchFn } from '../../utils/endpoint';
 import { type FetchResult, fetchExt } from '../../utils/fetchExt';
 import { shuffleArray } from '../../utils/misc';
 import type Booru from '../booru';
@@ -21,34 +21,50 @@ import type {
 export default class Gelbooru implements Booru<GelbooruCredentials, BooruSearchOptions> {
 	static readonly API_BASE_URL = 'https://gelbooru.com/index.php';
 
-	static readonly API_POSTS_ENDPOINT = defineEndpoint('get', this.API_BASE_URL, {
-		page: 'dapi',
-		s: 'post',
-		q: 'index',
-		json: '1',
-	});
-
-	static readonly API_TAGS_ENDPOINT = defineEndpoint('get', this.API_BASE_URL, {
-		page: 'dapi',
-		s: 'tag',
-		q: 'index',
-		json: '1',
-	});
-
-	#postMapper: PostMapper<GelbooruPostDto>;
-	#tagMapper: TagMapper<GelbooruTagDto>;
+	readonly #postMapper: PostMapper<GelbooruPostDto>;
+	readonly #tagMapper: TagMapper<GelbooruTagDto>;
+	readonly #apiPostsEndpoint: Endpoint;
+	readonly #apiTagsEndpoint: Endpoint;
 
 	constructor(
 		options: {
 			postMapper?: PostMapper<GelbooruPostDto>;
 			tagMapper?: TagMapper<GelbooruTagDto>;
+			fetchFn?: FetchFn;
 		} = {},
 	) {
-		const { postMapper = new GelbooruPostMapper(), tagMapper = new GelbooruTagMapper() } =
-			options;
+		const {
+			postMapper = new GelbooruPostMapper(),
+			tagMapper = new GelbooruTagMapper(),
+			fetchFn = fetchExt,
+		} = options;
 
 		this.#postMapper = postMapper;
 		this.#tagMapper = tagMapper;
+
+		this.#apiPostsEndpoint = defineEndpoint(
+			'get',
+			Gelbooru.API_BASE_URL,
+			{
+				page: 'dapi',
+				s: 'post',
+				q: 'index',
+				json: '1',
+			},
+			{ fetchFn },
+		);
+
+		this.#apiTagsEndpoint = defineEndpoint(
+			'get',
+			Gelbooru.API_BASE_URL,
+			{
+				page: 'dapi',
+				s: 'tag',
+				q: 'index',
+				json: '1',
+			},
+			{ fetchFn },
+		);
 	}
 
 	async search(
@@ -59,7 +75,7 @@ export default class Gelbooru implements Booru<GelbooruCredentials, BooruSearchO
 		const { limit, random } = searchOptions;
 		const { apiKey, userId } = credentials;
 
-		const fetchResult = await Gelbooru.API_POSTS_ENDPOINT.request<GelbooruPostsResponseDto>({
+		const fetchResult = await this.#apiPostsEndpoint.request<GelbooruPostsResponseDto>({
 			api_key: apiKey,
 			user_id: userId,
 			limit: limit,
@@ -74,14 +90,19 @@ export default class Gelbooru implements Booru<GelbooruCredentials, BooruSearchO
 		return posts;
 	}
 
-	async fetchPostById(postId: string, credentials: GelbooruCredentials): Promise<Post | undefined> {
+	async fetchPostById(
+		postId: string,
+		credentials: GelbooruCredentials,
+	): Promise<Post | undefined> {
 		const { apiKey, userId } = credentials;
 
-		const response = await Gelbooru.API_POSTS_ENDPOINT.request<GelbooruPostsResponseDto | undefined>({
-			api_key: apiKey,
-			user_id: userId,
-			id: postId,
-		});
+		const response = await this.#apiPostsEndpoint.request<GelbooruPostsResponseDto | undefined>(
+			{
+				api_key: apiKey,
+				user_id: userId,
+				id: postId,
+			},
+		);
 
 		const [postDto] = Gelbooru.#expectPosts(response) as [GelbooruPostDto];
 		const post = this.#postMapper.fromDto(postDto);
@@ -89,7 +110,10 @@ export default class Gelbooru implements Booru<GelbooruCredentials, BooruSearchO
 		return post;
 	}
 
-	async fetchPostByUrl(postUrl: URL, credentials: GelbooruCredentials): Promise<Post | undefined> {
+	async fetchPostByUrl(
+		postUrl: URL,
+		credentials: GelbooruCredentials,
+	): Promise<Post | undefined> {
 		const { apiKey, userId } = credentials;
 
 		postUrl.searchParams.set('page', 'dapi');
@@ -125,7 +149,9 @@ export default class Gelbooru implements Booru<GelbooruCredentials, BooruSearchO
 		for (let i = 0; i < namesArr.length; i += 100) {
 			const namesBatch = namesArr.slice(i, i + 100).join(' ');
 
-			const response = await Gelbooru.API_TAGS_ENDPOINT.request<GelbooruTagsResponseDto | undefined>({
+			const response = await this.#apiTagsEndpoint.request<
+				GelbooruTagsResponseDto | undefined
+			>({
 				api_key: apiKey,
 				user_id: userId,
 				names: namesBatch,

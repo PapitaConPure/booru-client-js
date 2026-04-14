@@ -6,7 +6,7 @@ import { DanbooruPostMapper } from '../../mappers/post-mapper/danbooru-post-mapp
 import type { TagMapper } from '../../mappers/tag-mapper';
 import { DanbooruTagMapper } from '../../mappers/tag-mapper/danbooru-tag-mapper';
 import type { BooruSearchOptions } from '../../types/booru';
-import { defineEndpoint } from '../../utils/endpoint';
+import { defineEndpoint, type Endpoint, type FetchFn } from '../../utils/endpoint';
 import { type FetchResult, fetchExt } from '../../utils/fetchExt';
 import { shuffleArray } from '../../utils/misc';
 import type Booru from '../booru';
@@ -21,36 +21,48 @@ import type {
 export default class Danbooru implements Booru<DanbooruCredentials, BooruSearchOptions> {
 	static readonly API_BASE_URL = 'https://danbooru.donmai.us';
 
-	static readonly API_RANDOM_POSTS_ENDPOINT = defineEndpoint(
-		'get',
-		`${Danbooru.API_BASE_URL}/posts/random.json`,
-		{},
-	);
-	static readonly API_POSTS_ENDPOINT = defineEndpoint(
-		'get',
-		`${Danbooru.API_BASE_URL}/posts.json`,
-		{},
-	);
-	static readonly API_TAGS_ENDPOINT = defineEndpoint(
-		'get',
-		`${Danbooru.API_BASE_URL}/tags.json`,
-		{},
-	);
-
-	#postMapper: PostMapper<DanbooruPostDto>;
-	#tagMapper: TagMapper<DanbooruTagDto>;
+	readonly #postMapper: PostMapper<DanbooruPostDto>;
+	readonly #tagMapper: TagMapper<DanbooruTagDto>;
+	readonly #apiPostsEndpoint: Endpoint;
+	readonly #apiRandomPostsEndpoint: Endpoint;
+	readonly #apiTagsEndpoint: Endpoint;
 
 	constructor(
 		options: {
 			postMapper?: PostMapper<DanbooruPostDto>;
 			tagMapper?: TagMapper<DanbooruTagDto>;
+			fetchFn?: FetchFn;
 		} = {},
 	) {
-		const { postMapper = new DanbooruPostMapper(), tagMapper = new DanbooruTagMapper() } =
-			options;
+		const {
+			postMapper = new DanbooruPostMapper(),
+			tagMapper = new DanbooruTagMapper(),
+			fetchFn = fetchExt,
+		} = options;
 
 		this.#postMapper = postMapper;
 		this.#tagMapper = tagMapper;
+
+		this.#apiPostsEndpoint = defineEndpoint(
+			'get',
+			`${Danbooru.API_BASE_URL}/posts.json`,
+			{},
+			{ fetchFn },
+		);
+
+		this.#apiRandomPostsEndpoint = defineEndpoint(
+			'get',
+			`${Danbooru.API_BASE_URL}/posts/random.json`,
+			{},
+			{ fetchFn },
+		);
+
+		this.#apiTagsEndpoint = defineEndpoint(
+			'get',
+			`${Danbooru.API_BASE_URL}/tags.json`,
+			{},
+			{ fetchFn },
+		);
 	}
 
 	async search(
@@ -61,7 +73,7 @@ export default class Danbooru implements Booru<DanbooruCredentials, BooruSearchO
 		const { limit, random } = searchOptions;
 		const { apiKey, login } = credentials;
 
-		const endpoint = random ? Danbooru.API_RANDOM_POSTS_ENDPOINT : Danbooru.API_POSTS_ENDPOINT;
+		const endpoint = random ? this.#apiRandomPostsEndpoint : this.#apiPostsEndpoint;
 
 		const fetchResult = await endpoint.request<DanbooruPostsResponseDto>({
 			api_key: apiKey,
@@ -151,7 +163,7 @@ export default class Danbooru implements Booru<DanbooruCredentials, BooruSearchO
 		for (let i = 0; i < namesArr.length; i += 100) {
 			const namesBatch = namesArr.slice(i, i + 100).join(' ');
 
-			const response = await Danbooru.API_TAGS_ENDPOINT.request<
+			const response = await this.#apiTagsEndpoint.request<
 				DanbooruTagsResponseDto | undefined
 			>({
 				api_key: apiKey,
