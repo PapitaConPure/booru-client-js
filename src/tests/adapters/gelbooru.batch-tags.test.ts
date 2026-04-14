@@ -1,11 +1,11 @@
 import '../mocks/fetchExt.test';
-import { describe, expect, it, mock } from 'bun:test';
-import Gelbooru from '../../adapters/gelbooru';
+import { describe, expect, it } from 'bun:test';
+import type Gelbooru from '../../adapters/gelbooru';
 import { BooruClient } from '../../services/booru-client';
 
-mock.module('../../adapters/gelbooru', () => {
-	return {
-		default: class {
+describe('Gelbooru - batching', () => {
+	it('splits large tag requests into multiple batches', async () => {
+		const gelbooru = {
 			async fetchTagsByNames(names: string[]) {
 				return names.map((n, i) => ({
 					id: i,
@@ -14,14 +14,10 @@ mock.module('../../adapters/gelbooru', () => {
 					type: 0,
 					ambiguous: false,
 				}));
-			}
-		},
-	};
-});
+			},
+		} as unknown as Gelbooru;
 
-describe('BooruClient - batching', () => {
-	it('splits large tag requests into multiple batches', async () => {
-		const client = new BooruClient(new Gelbooru(), {
+		const client = new BooruClient(gelbooru, {
 			apiKey: 'x',
 			userId: '1',
 		});
