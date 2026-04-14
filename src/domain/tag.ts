@@ -40,4 +40,14 @@ export class Tag {
 	toString() {
 		return `[Tag ${this.id}] (${this.typeName}) ${this.name} x${this.count}`;
 	}
+
+	static mock() {
+		return new Tag({
+			id: 1,
+			name: 'name',
+			count: 1,
+			type: 0,
+			fetchTimestamp: new Date(),
+		});
+	}
 }
