@@ -1,6 +1,6 @@
 import { mock } from 'bun:test';
 
-mock.module('../utils/fetchExt', () => ({
+mock.module('../../utils/fetchExt', () => ({
 	fetchExt: async () => ({
 		success: true,
 		data: {
