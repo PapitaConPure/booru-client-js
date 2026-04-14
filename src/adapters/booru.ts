@@ -1,6 +1,6 @@
 import type { Post } from '../models/post';
 import type { Tag } from '../models/tag';
-import type { BooruSearchOptions } from '../types/gelbooru';
+import type { BooruSearchOptions } from '../types/booru';
 
 /**@description Defines una interface to interact with one of various imageboards.*/
 export default interface Booru<TCredentials = unknown> {

@@ -1,4 +1,4 @@
-import { type TagResolvable, type TagType, TagTypes, ValidTagTypes } from '../types/gelbooru';
+import { type TagResolvable, type TagType, TagTypes, ValidTagTypes } from '../types/booru';
 import { decodeEntities } from '../utils/encoding';
 
 const TagTypeNames: Record<TagType, string> = {

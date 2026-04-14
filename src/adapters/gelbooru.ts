@@ -1,7 +1,7 @@
 import { BooruFetchError, BooruUnknownPostError, BooruUnknownTagError } from '../errors/booru';
 import { Post } from '../models/post';
 import { Tag } from '../models/tag';
-import type { APIPostData, APITagData, PostResolvable, TagResolvable } from '../types/gelbooru';
+import type { APIPostData, APITagData, PostResolvable, TagResolvable } from '../types/booru';
 import { type FetchResult, fetchExt } from '../utils/fetchExt';
 import { shuffleArray } from '../utils/misc';
 import type Booru from './booru';

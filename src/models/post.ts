@@ -1,4 +1,4 @@
-import type { PostRating, PostResolvable } from '../types/gelbooru';
+import type { PostRating, PostResolvable } from '../types/booru';
 import { decodeEntities } from '../utils/encoding';
 import { getSourceUrl } from '../utils/misc';
 

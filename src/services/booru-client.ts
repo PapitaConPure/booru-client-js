@@ -4,7 +4,7 @@ import type { Post } from '../models/post';
 import type { Tag } from '../models/tag';
 import { MemoryTagStore } from '../stores/memory-tag-store';
 import type TagStore from '../stores/tag-store';
-import type { BooruSearchOptions, CredentialsOf } from '../types/gelbooru';
+import type { BooruSearchOptions, CredentialsOf } from '../types/booru';
 import { decodeEntities } from '../utils/encoding';
 
 /**@description Representa una conexión a un sitio Booru.*/
