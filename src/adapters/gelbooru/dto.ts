@@ -1,4 +1,4 @@
-import type { ValuesOf } from "../../types/util";
+import type { ValuesOf } from '../../types/util';
 
 export interface GelbooruCredentials {
 	apiKey: string;
