@@ -6,6 +6,7 @@ import { GelbooruPostMapper } from '../../mappers/post-mapper/gelbooru-post-mapp
 import type { TagMapper } from '../../mappers/tag-mapper';
 import { GelbooruTagMapper } from '../../mappers/tag-mapper/gelbooru-tag-mapper';
 import type { BooruSearchOptions } from '../../types/booru';
+import { defineEndpoint } from '../../utils/endpoint';
 import { type FetchResult, fetchExt } from '../../utils/fetchExt';
 import { shuffleArray } from '../../utils/misc';
 import type Booru from '../booru';
@@ -19,17 +20,15 @@ import type {
 
 export default class Gelbooru implements Booru<GelbooruCredentials, BooruSearchOptions> {
 	static readonly API_BASE_URL = 'https://gelbooru.com/index.php';
-	static readonly API_POSTS_URL = 'https://gelbooru.com/index.php';
-	static readonly API_TAGS_URL = 'https://gelbooru.com/index.php?page=dapi&s=tag&q=index';
 
-	static readonly API_POSTS_ENDPOINT = Gelbooru.#createEndpoint({
+	static readonly API_POSTS_ENDPOINT = defineEndpoint('get', this.API_BASE_URL, {
 		page: 'dapi',
 		s: 'post',
 		q: 'index',
 		json: '1',
 	});
 
-	static readonly API_TAGS_ENDPOINT = Gelbooru.#createEndpoint({
+	static readonly API_TAGS_ENDPOINT = defineEndpoint('get', this.API_BASE_URL, {
 		page: 'dapi',
 		s: 'tag',
 		q: 'index',
@@ -75,10 +74,10 @@ export default class Gelbooru implements Booru<GelbooruCredentials, BooruSearchO
 		return posts;
 	}
 
-	async fetchPostById(postId: string, credentials: GelbooruCredentials): Promise<Post> {
+	async fetchPostById(postId: string, credentials: GelbooruCredentials): Promise<Post | undefined> {
 		const { apiKey, userId } = credentials;
 
-		const response = await Gelbooru.API_POSTS_ENDPOINT.request<GelbooruPostsResponseDto>({
+		const response = await Gelbooru.API_POSTS_ENDPOINT.request<GelbooruPostsResponseDto | undefined>({
 			api_key: apiKey,
 			user_id: userId,
 			id: postId,
@@ -90,7 +89,7 @@ export default class Gelbooru implements Booru<GelbooruCredentials, BooruSearchO
 		return post;
 	}
 
-	async fetchPostByUrl(postUrl: URL, credentials: GelbooruCredentials): Promise<Post> {
+	async fetchPostByUrl(postUrl: URL, credentials: GelbooruCredentials): Promise<Post | undefined> {
 		const { apiKey, userId } = credentials;
 
 		postUrl.searchParams.set('page', 'dapi');
@@ -101,7 +100,7 @@ export default class Gelbooru implements Booru<GelbooruCredentials, BooruSearchO
 		postUrl.searchParams.set('api_key', apiKey);
 		postUrl.searchParams.set('user_id', userId);
 
-		const response = await fetchExt<GelbooruPostsResponseDto>(postUrl.toString(), {
+		const response = await fetchExt<GelbooruPostsResponseDto | undefined>(postUrl.toString(), {
 			type: 'json',
 			init: {
 				signal: AbortSignal.timeout(10_000),
@@ -126,7 +125,7 @@ export default class Gelbooru implements Booru<GelbooruCredentials, BooruSearchO
 		for (let i = 0; i < namesArr.length; i += 100) {
 			const namesBatch = namesArr.slice(i, i + 100).join(' ');
 
-			const response = await Gelbooru.API_TAGS_ENDPOINT.request<GelbooruTagsResponseDto>({
+			const response = await Gelbooru.API_TAGS_ENDPOINT.request<GelbooruTagsResponseDto | undefined>({
 				api_key: apiKey,
 				user_id: userId,
 				names: namesBatch,
@@ -149,36 +148,13 @@ export default class Gelbooru implements Booru<GelbooruCredentials, BooruSearchO
 			throw new TypeError('User ID is invalid');
 	}
 
-	static #createEndpoint(defaultParams: Record<string, string>) {
-		const endpointURL = new URL(Gelbooru.API_BASE_URL);
-
-		for (const [name, value] of Object.entries(defaultParams))
-			endpointURL.searchParams.set(name, value);
-
-		return {
-			async request<TSchema>(params: Record<string, unknown>) {
-				const searchUrl = new URL(endpointURL);
-
-				for (const [name, value] of Object.entries(params))
-					searchUrl.searchParams.set(name, `${value}`);
-
-				return fetchExt<TSchema>(searchUrl, {
-					type: 'json',
-					init: {
-						signal: AbortSignal.timeout(10_000),
-					},
-				});
-			},
-		};
-	}
-
 	/**
 	 * @description Asserts that the status code of a response is 200 and that the {@link Post} data is valid before returning it.
 	 * @throws {BooruFetchError}
 	 * @throws {BooruUnknownPostError}
 	 */
 	static #expectPosts(
-		fetchResult: FetchResult<GelbooruPostsResponseDto>,
+		fetchResult: FetchResult<GelbooruPostsResponseDto | undefined>,
 		options: {
 			dontThrowOnEmptyFetch?: boolean;
 		} = {},
@@ -205,7 +181,7 @@ export default class Gelbooru implements Booru<GelbooruCredentials, BooruSearchO
 	 * @throws {BooruUnknownTagError}
 	 */
 	static #expectTags(
-		fetchResult: FetchResult<GelbooruTagsResponseDto>,
+		fetchResult: FetchResult<GelbooruTagsResponseDto | undefined>,
 		options: {
 			dontThrowOnEmptyFetch?: boolean;
 			tags?: string;
