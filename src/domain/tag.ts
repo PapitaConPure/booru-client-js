@@ -17,7 +17,6 @@ export class Tag {
 	readonly name: string;
 	readonly count: number;
 	readonly type: TagType;
-	readonly ambiguous: boolean;
 	readonly fetchTimestamp: Date;
 
 	constructor(data: TagResolvable) {
@@ -29,7 +28,6 @@ export class Tag {
 		this.name = decodeEntities(data.name);
 		this.count = data.count ?? 1;
 		this.type = tagType as TagType;
-		this.ambiguous = !!data.ambiguous;
 		this.fetchTimestamp =
 			'fetchTimestamp' in data && data.fetchTimestamp != null
 				? new Date(data.fetchTimestamp)
