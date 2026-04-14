@@ -1,7 +1,7 @@
 import type Booru from '../adapters/booru';
-import type { Post } from '../models/post';
-import type { PostRating } from '../models/post-rating';
-import type { Tag } from '../models/tag';
+import type { Post } from '../domain/post';
+import type { PostRating } from '../domain/post-rating';
+import type { Tag } from '../domain/tag';
 import type { ValuesOf } from './util';
 
 export interface APIPostData {

@@ -1,6 +1,6 @@
 import '../mocks/fetchExt.test';
 import { describe, expect, it } from 'bun:test';
-import { Tag } from '../../models/tag';
+import { Tag } from '../../domain/tag';
 import type TagStore from '../../stores/tag-store';
 
 function runContract(store: TagStore) {

@@ -1,7 +1,7 @@
 import '../mocks/fetchExt.test';
 import { describe, expect, it } from 'bun:test';
 import Gelbooru from '../../adapters/gelbooru/client';
-import type { Tag } from '../../models/tag';
+import type { Tag } from '../../domain/tag';
 import { BooruClient } from '../../services/booru-client';
 import type TagStore from '../../stores/tag-store';
 

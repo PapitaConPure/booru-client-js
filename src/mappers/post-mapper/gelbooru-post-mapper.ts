@@ -1,6 +1,6 @@
 import type { GelbooruPostDto } from '../../adapters/gelbooru/dto';
-import { Post } from '../../models/post';
-import { type PostRating, PostRatings } from '../../models/post-rating';
+import { Post } from '../../domain/post';
+import { type PostRating, PostRatings } from '../../domain/post-rating';
 import type { PostMapper } from '../post-mapper';
 
 const gelbooruRatingsMap = {

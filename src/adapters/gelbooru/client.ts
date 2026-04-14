@@ -1,8 +1,8 @@
+import type { Post } from '../../domain/post';
+import { Tag } from '../../domain/tag';
 import { BooruFetchError, BooruUnknownPostError, BooruUnknownTagError } from '../../errors/booru';
 import type { PostMapper } from '../../mappers/post-mapper';
 import { GelbooruPostMapper } from '../../mappers/post-mapper/gelbooru-post-mapper';
-import type { Post } from '../../models/post';
-import { Tag } from '../../models/tag';
 import type { APITagData, BooruSearchOptions, TagResolvable } from '../../types/booru';
 import { type FetchResult, fetchExt } from '../../utils/fetchExt';
 import { shuffleArray } from '../../utils/misc';

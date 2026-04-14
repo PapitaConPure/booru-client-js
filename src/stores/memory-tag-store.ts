@@ -1,4 +1,4 @@
-import type { Tag } from '../models/tag';
+import type { Tag } from '../domain/tag';
 import type TagStore from './tag-store';
 
 export class MemoryTagStore implements TagStore {

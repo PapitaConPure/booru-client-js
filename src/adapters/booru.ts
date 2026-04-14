@@ -1,5 +1,5 @@
-import type { Post } from '../models/post';
-import type { Tag } from '../models/tag';
+import type { Post } from '../domain/post';
+import type { Tag } from '../domain/tag';
 import type { BooruSearchOptions } from '../types/booru';
 
 /**@description Defines una interface to interact with one of various imageboards.*/
