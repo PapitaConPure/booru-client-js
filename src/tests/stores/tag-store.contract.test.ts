@@ -10,8 +10,8 @@ function runContract(store: TagStore) {
 				id: 1,
 				name: 'test',
 				type: 0,
-				ambiguous: false,
 				count: 1,
+				fetchTimestamp: new Date(),
 			});
 
 			await store.setOne(tag);
@@ -22,8 +22,8 @@ function runContract(store: TagStore) {
 
 		it('supports setMany + getMany roundtrip', async () => {
 			const tags = [
-				new Tag({ id: 1, name: 'a', type: 0, ambiguous: false, count: 1 }),
-				new Tag({ id: 2, name: 'b', type: 0, ambiguous: false, count: 1 }),
+				new Tag({ id: 1, name: 'a', type: 0, count: 1, fetchTimestamp: new Date() }),
+				new Tag({ id: 2, name: 'b', type: 0, count: 1, fetchTimestamp: new Date() }),
 			];
 
 			await store.setMany(tags);

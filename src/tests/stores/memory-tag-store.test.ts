@@ -6,8 +6,9 @@ function createTag(name: string, ageMs = 0) {
 	return new Tag({
 		id: Math.random(),
 		name,
-		fetchTimestamp: Date.now() - ageMs,
 		type: 0,
+		count: 1,
+		fetchTimestamp: new Date(Date.now() - ageMs),
 	});
 }
 

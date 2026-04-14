@@ -13,8 +13,9 @@ describe('BooruClient - store chain', () => {
 			new Tag({
 				id: 1,
 				name: 'cached',
-				fetchTimestamp: new Date(Date.now()),
 				type: 0,
+				count: 1,
+				fetchTimestamp: new Date(Date.now()),
 			}),
 		);
 

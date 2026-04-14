@@ -1,4 +1,4 @@
-import type { GelbooruPostDto } from '../../adapters/gelbooru/dto';
+import type { GelbooruPostDto, GelbooruPostRating } from '../../adapters/gelbooru/dto';
 import { Post } from '../../domain/post';
 import { type PostRating, PostRatings } from '../../domain/post-rating';
 import type { PostMapper } from '../post-mapper';
@@ -8,7 +8,7 @@ const gelbooruRatingsMap = {
 	sensitive: PostRatings.Sensitive,
 	questionable: PostRatings.Questionable,
 	explicit: PostRatings.Explicit,
-} as const satisfies Record<string, PostRating>;
+} as const satisfies Record<GelbooruPostRating, PostRating>;
 
 export class GelbooruPostMapper implements PostMapper<GelbooruPostDto> {
 	fromDto(dto: GelbooruPostDto): Post {

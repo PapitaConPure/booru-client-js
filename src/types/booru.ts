@@ -77,7 +77,7 @@ export interface TagInit {
 	name: string;
 	count: number;
 	type: TagType;
-	fetchTimestamp: Date | number;
+	fetchTimestamp: Date;
 }
 
 export type TagResolvable = Tag | APITagData | TagInit;

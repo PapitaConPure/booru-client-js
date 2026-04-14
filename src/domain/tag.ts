@@ -1,5 +1,4 @@
-import { type TagResolvable, type TagType, TagTypes, ValidTagTypes } from '../types/booru';
-import { decodeEntities } from '../utils/encoding';
+import { type TagInit, type TagType, TagTypes } from '../types/booru';
 
 const TagTypeNames: Record<TagType, string> = {
 	[TagTypes.GENERAL]: 'General',
@@ -19,21 +18,12 @@ export class Tag {
 	readonly type: TagType;
 	readonly fetchTimestamp: Date;
 
-	constructor(data: TagResolvable) {
-		const tagType = data.type != null ? data.type : TagTypes.UNKNOWN;
-
-		if (!ValidTagTypes.has(tagType as TagType)) throw new RangeError('Invalid tag type');
-
+	constructor(data: TagInit) {
 		this.id = data.id;
-		this.name = decodeEntities(data.name);
-		this.count = data.count ?? 1;
-		this.type = tagType as TagType;
-		this.fetchTimestamp =
-			'fetchTimestamp' in data && data.fetchTimestamp != null
-				? new Date(data.fetchTimestamp)
-				: new Date(Date.now());
-
-		Object.freeze(this);
+		this.name = data.name;
+		this.count = data.count;
+		this.type = data.type;
+		this.fetchTimestamp = data.fetchTimestamp;
 	}
 
 	get typeName() {

@@ -1,3 +1,5 @@
+import type { ValuesOf } from '../../types/util';
+
 export type GelbooruPostRating = 'general' | 'sensitive' | 'questionable' | 'explicit';
 
 export interface GelbooruPostDto {
@@ -24,11 +26,22 @@ export interface GelbooruPostsResponseDto {
 	post: GelbooruPostDto[];
 }
 
+export const GelbooruTagTypes = {
+	GENERAL: 0,
+	ARTIST: 1,
+	UNKNOWN: 2,
+	COPYRIGHT: 3,
+	CHARACTER: 4,
+	METADATA: 5,
+	DEPRECATED: 6,
+} as const satisfies Record<string, number>;
+export type GelbooruTagType = ValuesOf<typeof GelbooruTagTypes>;
+
 export interface GelbooruTagDto {
 	id: number;
 	name: string;
 	count: number;
-	type: number;
+	type: GelbooruTagType;
 	ambiguous: number;
 }
 

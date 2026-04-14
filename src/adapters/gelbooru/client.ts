@@ -1,14 +1,21 @@
 import type { Post } from '../../domain/post';
-import { Tag } from '../../domain/tag';
+import type { Tag } from '../../domain/tag';
 import { BooruFetchError, BooruUnknownPostError, BooruUnknownTagError } from '../../errors/booru';
 import type { PostMapper } from '../../mappers/post-mapper';
 import { GelbooruPostMapper } from '../../mappers/post-mapper/gelbooru-post-mapper';
-import type { APITagData, BooruSearchOptions, TagResolvable } from '../../types/booru';
+import type { TagMapper } from '../../mappers/tag-mapper';
+import { GelbooruTagMapper } from '../../mappers/tag-mapper/gelbooru-tag-mapper';
+import type { BooruSearchOptions } from '../../types/booru';
 import { type FetchResult, fetchExt } from '../../utils/fetchExt';
 import { shuffleArray } from '../../utils/misc';
 import type Booru from '../booru';
 import type { GelbooruCredentials } from './credentials';
-import type { GelbooruPostDto, GelbooruPostsResponseDto } from './dto';
+import type {
+	GelbooruPostDto,
+	GelbooruPostsResponseDto,
+	GelbooruTagDto,
+	GelbooruTagsResponseDto,
+} from './dto';
 
 export default class Gelbooru implements Booru<GelbooruCredentials, BooruSearchOptions> {
 	static readonly API_BASE_URL = 'https://gelbooru.com/index.php';
@@ -30,10 +37,19 @@ export default class Gelbooru implements Booru<GelbooruCredentials, BooruSearchO
 	});
 
 	#postMapper: PostMapper<GelbooruPostDto>;
+	#tagMapper: TagMapper<GelbooruTagDto>;
 
-	constructor(options: { postMapper?: PostMapper<GelbooruPostDto> } = {}) {
-		const { postMapper = new GelbooruPostMapper() } = options;
-		this.#postMapper = postMapper ?? new GelbooruPostMapper();
+	constructor(
+		options: {
+			postMapper?: PostMapper<GelbooruPostDto>;
+			tagMapper?: TagMapper<GelbooruTagDto>;
+		} = {},
+	) {
+		const { postMapper = new GelbooruPostMapper(), tagMapper = new GelbooruTagMapper() } =
+			options;
+
+		this.#postMapper = postMapper;
+		this.#tagMapper = tagMapper;
 	}
 
 	async search(
@@ -117,14 +133,14 @@ export default class Gelbooru implements Booru<GelbooruCredentials, BooruSearchO
 		for (let i = 0; i < namesArr.length; i += 100) {
 			const namesBatch = namesArr.slice(i, i + 100).join(' ');
 
-			const response = await Gelbooru.API_TAGS_ENDPOINT.request<{ tag: APITagData[] }>({
+			const response = await Gelbooru.API_TAGS_ENDPOINT.request<GelbooruTagsResponseDto>({
 				api_key: apiKey,
 				user_id: userId,
 				names: namesBatch,
 			});
 
-			const rawTags = Gelbooru.#expectTags(response, { tags: namesBatch });
-			const tags = rawTags.map((t) => new Tag(t));
+			const tagDtos = Gelbooru.#expectTags(response, { tags: namesBatch });
+			const tags = tagDtos.map((dto) => this.#tagMapper.fromDto(dto));
 			fetchedTags.push(...tags);
 		}
 
@@ -196,12 +212,12 @@ export default class Gelbooru implements Booru<GelbooruCredentials, BooruSearchO
 	 * @throws {BooruUnknownTagError}
 	 */
 	static #expectTags(
-		fetchResult: FetchResult<{ tag: APITagData[] }>,
+		fetchResult: FetchResult<GelbooruTagsResponseDto>,
 		options: {
 			dontThrowOnEmptyFetch?: boolean;
 			tags?: string;
 		} = {},
-	): TagResolvable[] {
+	): GelbooruTagDto[] {
 		const { dontThrowOnEmptyFetch = false, tags = null } = options;
 
 		if (!fetchResult.success)
