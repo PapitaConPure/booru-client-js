@@ -9,7 +9,7 @@ import type { BooruSearchOptions } from '../../types/booru';
 import { defineEndpoint, type Endpoint, type FetchFn } from '../../utils/endpoint';
 import { type FetchResult, fetchExt } from '../../utils/fetchExt';
 import { shuffleArray } from '../../utils/misc';
-import type Booru from '../booru';
+import type { Booru } from '../booru';
 import type { DanbooruCredentials } from './credentials';
 import type {
 	DanbooruPostDto,
@@ -18,7 +18,7 @@ import type {
 	DanbooruTagsResponseDto,
 } from './dto';
 
-export default class Danbooru implements Booru<DanbooruCredentials, BooruSearchOptions> {
+export class Danbooru implements Booru<DanbooruCredentials, BooruSearchOptions> {
 	static readonly API_BASE_URL = 'https://danbooru.donmai.us';
 
 	readonly #postMapper: PostMapper<DanbooruPostDto>;

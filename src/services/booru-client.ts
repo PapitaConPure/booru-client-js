@@ -1,9 +1,9 @@
-import type Booru from '../adapters/booru';
+import type { Booru } from '../adapters/booru';
 import type { Post } from '../domain/post';
 import type { Tag } from '../domain/tag';
 import { InvalidOperationError } from '../errors/misc';
 import { MemoryTagStore } from '../stores/memory-tag-store';
-import type TagStore from '../stores/tag-store';
+import type { TagStore } from '../stores/tag-store';
 import type { BooruSearchOptions, CredentialsOf } from '../types/booru';
 import { decodeEntities } from '../utils/encoding';
 

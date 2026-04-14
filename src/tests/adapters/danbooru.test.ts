@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'bun:test';
-import Danbooru from '../../adapters/danbooru/client';
+import { Danbooru } from '../../adapters/danbooru/client';
 import type { FetchFn } from '../../utils/endpoint';
 
 describe('Danbooru Adapter', () => {

@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'bun:test';
-import Gelbooru from '../../adapters/gelbooru/client';
+import { Gelbooru } from '../../adapters/gelbooru/client';
 import type { GelbooruPostsResponseDto } from '../../adapters/gelbooru/dto';
 import type { FetchSuccessResult } from '../../utils/fetchExt';
 

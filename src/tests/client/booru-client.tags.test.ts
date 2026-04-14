@@ -1,5 +1,5 @@
 import { beforeEach, describe, expect, it } from 'bun:test';
-import Gelbooru from '../../adapters/gelbooru/client';
+import { Gelbooru } from '../../adapters/gelbooru/client';
 import type { GelbooruTagsResponseDto } from '../../adapters/gelbooru/dto';
 import { BooruClient } from '../../services/booru-client';
 import type { FetchSuccessResult } from '../../utils/fetchExt';

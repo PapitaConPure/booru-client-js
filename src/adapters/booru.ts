@@ -3,7 +3,7 @@ import type { Tag } from '../domain/tag';
 import type { BooruSearchOptions } from '../types/booru';
 
 /**@description Defines una interface to interact with one of various imageboards.*/
-export default interface Booru<
+export interface Booru<
 	TCredentials = unknown,
 	TSearchOptions extends BooruSearchOptions = BooruSearchOptions,
 > {

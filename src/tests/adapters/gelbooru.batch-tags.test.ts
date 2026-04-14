@@ -1,5 +1,5 @@
 import { describe, it } from 'bun:test';
-import type Gelbooru from '../../adapters/gelbooru/client';
+import type { Gelbooru } from '../../adapters/gelbooru/client';
 import { BooruClient } from '../../services/booru-client';
 
 describe('Gelbooru - batching', () => {

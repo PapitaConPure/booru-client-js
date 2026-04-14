@@ -2,7 +2,7 @@ import type { Tag } from '../domain/tag';
 import type { BooruClient } from '../services/booru-client';
 
 /**@description Represents a repository of {@link Tag}s to be managed by a {@link BooruClient}.*/
-export default interface TagStore {
+export interface TagStore {
 	/**
 	 * @description Obtains multiple {@link Tag}s from this {@link TagStore} based on the provided `names`.
 	 * @param names The names to obtain tags from.

@@ -1,5 +1,5 @@
 import type { Tag } from '../domain/tag';
-import type TagStore from './tag-store';
+import type { TagStore } from './tag-store';
 
 export class MemoryTagStore implements TagStore {
 	static readonly TAGS_CACHE_LIFETIME: number = 4 * 60 * 60e3;

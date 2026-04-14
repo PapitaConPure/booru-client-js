@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'bun:test';
-import type Booru from '../../adapters/booru';
+import type { Booru } from '../../adapters/booru';
 import { Post } from '../../domain/post';
 import { PostRatings } from '../../domain/post-rating';
 import { BooruClient } from '../../services/booru-client';

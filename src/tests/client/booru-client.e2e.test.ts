@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'bun:test';
-import Danbooru from '../../adapters/danbooru/client';
-import Gelbooru from '../../adapters/gelbooru/client';
+import { Danbooru } from '../../adapters/danbooru/client';
+import { Gelbooru } from '../../adapters/gelbooru/client';
 import { BooruClient } from '../../services/booru-client';
 
 const skipE2E = !new Set(['true', 't', '1', 'on']).has(

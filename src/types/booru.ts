@@ -1,4 +1,4 @@
-import type Booru from '../adapters/booru';
+import type { Booru } from '../adapters/booru';
 import type { PostRating } from '../domain/post-rating';
 import type { ValuesOf } from './util';
 

@@ -1,9 +1,9 @@
 import { describe, expect, it } from 'bun:test';
-import Gelbooru from '../../adapters/gelbooru/client';
+import { Gelbooru } from '../../adapters/gelbooru/client';
 import type { GelbooruTagsResponseDto } from '../../adapters/gelbooru/dto';
 import type { Tag } from '../../domain/tag';
 import { BooruClient } from '../../services/booru-client';
-import type TagStore from '../../stores/tag-store';
+import type { TagStore } from '../../stores/tag-store';
 import type { FetchSuccessResult } from '../../utils/fetchExt';
 
 describe('BooruClient - forceFetch', () => {

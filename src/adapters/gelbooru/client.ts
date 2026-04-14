@@ -9,7 +9,7 @@ import type { BooruSearchOptions } from '../../types/booru';
 import { defineEndpoint, type Endpoint, type FetchFn } from '../../utils/endpoint';
 import { type FetchResult, fetchExt } from '../../utils/fetchExt';
 import { shuffleArray } from '../../utils/misc';
-import type Booru from '../booru';
+import type { Booru } from '../booru';
 import type { GelbooruCredentials } from './credentials';
 import type {
 	GelbooruPostDto,
@@ -18,7 +18,7 @@ import type {
 	GelbooruTagsResponseDto,
 } from './dto';
 
-export default class Gelbooru implements Booru<GelbooruCredentials, BooruSearchOptions> {
+export class Gelbooru implements Booru<GelbooruCredentials, BooruSearchOptions> {
 	static readonly API_BASE_URL = 'https://gelbooru.com/index.php';
 
 	readonly #postMapper: PostMapper<GelbooruPostDto>;

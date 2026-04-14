@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'bun:test';
-import type Danbooru from '../../adapters/danbooru/client';
+import type { Danbooru } from '../../adapters/danbooru/client';
 import { BooruClient } from '../../services/booru-client';
 
 describe('Danbooru - batching', () => {
