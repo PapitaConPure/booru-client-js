@@ -23,7 +23,7 @@ export class Tag {
 	constructor(data: TagResolvable) {
 		const tagType = data.type != null ? data.type : TagTypes.UNKNOWN;
 
-		if (!ValidTagTypes.has(tagType as TagType)) throw RangeError('Invalid tag type');
+		if (!ValidTagTypes.has(tagType as TagType)) throw new RangeError('Invalid tag type');
 
 		this.id = data.id;
 		this.name = decodeEntities(data.name);

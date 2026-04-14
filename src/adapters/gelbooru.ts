@@ -59,7 +59,7 @@ export default class Gelbooru implements Booru {
 
 	async fetchPostById(postId: string, credentials: Credentials): Promise<Post> {
 		const { apiKey, userId } = credentials;
-		if (!['string', 'number'].includes(typeof postId)) throw TypeError('Invalid Post ID');
+		if (!['string', 'number'].includes(typeof postId)) throw new TypeError('Invalid Post ID');
 
 		const response = await Gelbooru.POSTS_API.request<{ post: APIPostData[] }>({
 			api_key: apiKey,
@@ -73,7 +73,7 @@ export default class Gelbooru implements Booru {
 	async fetchPostByUrl(postUrl: URL | string, credentials: Credentials): Promise<Post> {
 		const { apiKey, userId } = credentials;
 
-		if (typeof postUrl !== 'string') throw TypeError('Invalid Post URL');
+		if (typeof postUrl !== 'string') throw new TypeError('Invalid Post URL');
 
 		const url = new URL(postUrl);
 		url.searchParams.set('page', 'dapi');

@@ -101,7 +101,7 @@ export class BooruClient {
 	 * @throws {BooruUnknownPostError}
 	 */
 	async fetchPostById(postId: string): Promise<Post | undefined> {
-		if (typeof postId !== 'string') throw TypeError('Post ID must be a string');
+		if (typeof postId !== 'string') throw new TypeError('Post ID must be a string');
 
 		return this.#booru.fetchPostById(postId, this.#getCredentials());
 	}
@@ -114,7 +114,7 @@ export class BooruClient {
 	 * @throws {BooruFetchError}
 	 */
 	async fetchPostByUrl(postUrl: URL | string): Promise<Post | undefined> {
-		if (typeof postUrl !== 'string') throw TypeError('Invalid Post URL');
+		if (typeof postUrl !== 'string') throw new TypeError('Invalid Post URL');
 
 		return this.#booru.fetchPostByUrl(postUrl, this.#getCredentials());
 	}
@@ -127,7 +127,7 @@ export class BooruClient {
 	 * @throws {BooruFetchError}
 	 */
 	async fetchPostTags(post: Post): Promise<Tag[]> {
-		if (!Array.isArray(post?.tags)) throw ReferenceError('Invalid Post');
+		if (!Array.isArray(post?.tags)) throw new ReferenceError('Invalid Post');
 
 		return this.fetchTagsByNames({ names: post.tags });
 	}
@@ -175,7 +175,7 @@ export class BooruClient {
 
 		this.#performAutoCleanup();
 
-		if (tagNames.some((t) => typeof t !== 'string')) throw TypeError('Invalid tags');
+		if (tagNames.some((t) => typeof t !== 'string')) throw new TypeError('Invalid tags');
 
 		const normalizedTagNames = tagNames.map(decodeEntities);
 
@@ -243,11 +243,11 @@ export class BooruClient {
 	 * @throws {TypeError}
 	 */
 	#expectCredentials(credentials: Credentials | undefined): asserts credentials is Credentials {
-		if (!credentials) throw ReferenceError('No credentials were defined');
+		if (!credentials) throw new ReferenceError('No credentials were defined');
 		if (!credentials.apiKey || typeof credentials.apiKey !== 'string')
-			throw TypeError('API Key is invalid');
+			throw new TypeError('API Key is invalid');
 		if (!credentials.userId || !['string', 'number'].includes(typeof credentials.userId))
-			throw TypeError('User ID is invalid');
+			throw new TypeError('User ID is invalid');
 	}
 
 	/**
