@@ -1,12 +1,9 @@
 import { BooruFetchError, BooruUnknownPostError, BooruUnknownTagError } from '../../errors/booru';
+import { GelbooruPostMapper } from '../../mappers/impl/gelbooru-post-mapper';
 import type { PostMapper } from '../../mappers/post-mapper';
-import { Post } from '../../models/post';
+import type { Post } from '../../models/post';
 import { Tag } from '../../models/tag';
-import type {
-	APITagData,
-	BooruSearchOptions,
-	TagResolvable,
-} from '../../types/booru';
+import type { APITagData, BooruSearchOptions, TagResolvable } from '../../types/booru';
 import { type FetchResult, fetchExt } from '../../utils/fetchExt';
 import { shuffleArray } from '../../utils/misc';
 import type Booru from '../booru';
@@ -17,7 +14,6 @@ export default class Gelbooru implements Booru<GelbooruCredentials, BooruSearchO
 	static readonly API_BASE_URL = 'https://gelbooru.com/index.php';
 	static readonly API_POSTS_URL = 'https://gelbooru.com/index.php';
 	static readonly API_TAGS_URL = 'https://gelbooru.com/index.php?page=dapi&s=tag&q=index';
-	static readonly POST_MAPPER: PostMapper<GelbooruPostDto>;
 
 	static readonly API_POSTS_ENDPOINT = Gelbooru.#createEndpoint({
 		page: 'dapi',
@@ -32,6 +28,13 @@ export default class Gelbooru implements Booru<GelbooruCredentials, BooruSearchO
 		q: 'index',
 		json: '1',
 	});
+
+	#postMapper: PostMapper<GelbooruPostDto>;
+
+	constructor(options: { postMapper?: PostMapper<GelbooruPostDto> } = {}) {
+		const { postMapper = new GelbooruPostMapper() } = options;
+		this.#postMapper = postMapper ?? new GelbooruPostMapper();
+	}
 
 	async search(
 		tags: string,
@@ -51,11 +54,11 @@ export default class Gelbooru implements Booru<GelbooruCredentials, BooruSearchO
 		});
 
 		const postDtos = Gelbooru.#expectPosts(fetchResult, { dontThrowOnEmptyFetch: true });
-		const posts = postDtos.map((dto) => Gelbooru.POST_MAPPER.fromDto(dto));
+		const posts = postDtos.map((dto) => this.#postMapper.fromDto(dto));
 
 		if (random) shuffleArray(posts);
 
-		return posts.map((p) => new Post(p));
+		return posts;
 	}
 
 	async fetchPostById(postId: string, credentials: GelbooruCredentials): Promise<Post> {
@@ -70,9 +73,9 @@ export default class Gelbooru implements Booru<GelbooruCredentials, BooruSearchO
 		});
 
 		const [postDto] = Gelbooru.#expectPosts(response) as [GelbooruPostDto];
-		const post = Gelbooru.POST_MAPPER.fromDto(postDto);
+		const post = this.#postMapper.fromDto(postDto);
 
-		return new Post(post);
+		return post;
 	}
 
 	async fetchPostByUrl(postUrl: URL | string, credentials: GelbooruCredentials): Promise<Post> {
@@ -97,9 +100,9 @@ export default class Gelbooru implements Booru<GelbooruCredentials, BooruSearchO
 		});
 
 		const [postDto] = Gelbooru.#expectPosts(response) as [GelbooruPostDto];
-		const post = Gelbooru.POST_MAPPER.fromDto(postDto);
+		const post = this.#postMapper.fromDto(postDto);
 
-		return new Post(post);
+		return post;
 	}
 
 	async fetchTagsByNames(
