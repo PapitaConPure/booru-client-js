@@ -1,7 +1,7 @@
 import './booru-client.test';
 import { expect, it } from 'bun:test';
-import Gelbooru from '../adapters/gelbooru';
-import { BooruClient } from '../services/booru-client';
+import Gelbooru from '../../adapters/gelbooru';
+import { BooruClient } from '../../services/booru-client';
 
 it('auto cleanup triggers based on interval', async () => {
 	let cleaned = false;

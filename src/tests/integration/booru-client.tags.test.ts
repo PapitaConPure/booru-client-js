@@ -1,7 +1,7 @@
 import './booru-client.test';
 import { describe, expect, it } from 'bun:test';
-import Gelbooru from '../adapters/gelbooru';
-import { BooruClient } from '../services/booru-client';
+import Gelbooru from '../../adapters/gelbooru';
+import { BooruClient } from '../../services/booru-client';
 
 const credentials = {
 	apiKey: 'test',
