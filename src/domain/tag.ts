@@ -24,6 +24,8 @@ export class Tag {
 		this.count = data.count;
 		this.type = data.type;
 		this.fetchTimestamp = data.fetchTimestamp;
+
+		Object.freeze(this);
 	}
 
 	get typeName() {

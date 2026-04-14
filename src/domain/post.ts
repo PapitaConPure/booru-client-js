@@ -33,6 +33,8 @@ export class Post {
 		this.previewUrl = data.previewUrl;
 		this.sampleUrl = data.sampleUrl;
 		this.sampleSize = data.sampleSize;
+
+		Object.freeze(this);
 	}
 
 	/**@description Tries to find sources that match a URL pattern, and returns all matches (if any)*/
