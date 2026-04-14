@@ -1,11 +1,13 @@
+export type GelbooruPostRating = 'general' | 'sensitive' | 'questionable' | 'explicit';
+
 export interface GelbooruPostDto {
 	id: number;
 	title: string;
 	tags: string;
 	source: string;
 	score: number;
-	rating: string;
-	created_at: string | number;
+	rating: GelbooruPostRating;
+	created_at: string;
 	creator_id: number;
 	file_url: string;
 	width: number;
