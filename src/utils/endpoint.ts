@@ -10,7 +10,7 @@ export function defineEndpoint(
 	for (const [k, v] of Object.entries(defaultParams)) endpointURL.searchParams.set(k, v);
 
 	return {
-		async request<TSchema>(params: Record<string, unknown>) {
+		async request<TSchema>(params: Record<string, unknown>, init: RequestInit = {}) {
 			const searchUrl = new URL(endpointURL);
 
 			for (const [name, value] of Object.entries(params))
@@ -21,6 +21,7 @@ export function defineEndpoint(
 				init: {
 					method: methodVerb,
 					signal: AbortSignal.timeout(10_000),
+					...init,
 				},
 			});
 		},
