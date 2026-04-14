@@ -72,7 +72,15 @@ export interface TagData {
 	fetchTimestamp: Date | number;
 }
 
-export type TagResolvable = Tag | TagData | APITagData;
+export interface TagInit {
+	id: number;
+	name: string;
+	count: number;
+	type: TagType;
+	fetchTimestamp: Date | number;
+}
+
+export type TagResolvable = Tag | APITagData | TagInit;
 
 export type CredentialsOf<TBooru extends Booru> =
 	TBooru extends Booru<infer TCredentials> ? TCredentials : never;
