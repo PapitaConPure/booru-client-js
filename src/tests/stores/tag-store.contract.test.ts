@@ -1,4 +1,3 @@
-import '../mocks/fetchExt.test';
 import { describe, expect, it } from 'bun:test';
 import { Tag } from '../../domain/tag';
 import type TagStore from '../../stores/tag-store';
