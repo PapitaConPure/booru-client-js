@@ -1,6 +1,6 @@
 import '../mocks/fetchExt.test';
 import { describe, expect, it } from 'bun:test';
-import type Gelbooru from '../../adapters/gelbooru';
+import type Gelbooru from '../../adapters/gelbooru/client';
 import { BooruClient } from '../../services/booru-client';
 
 describe('Gelbooru - batching', () => {

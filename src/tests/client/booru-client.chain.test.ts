@@ -1,6 +1,6 @@
 import '../mocks/fetchExt.test';
 import { describe, expect, it } from 'bun:test';
-import Gelbooru from '../../adapters/gelbooru';
+import Gelbooru from '../../adapters/gelbooru/client';
 import { Tag } from '../../models/tag';
 import { BooruClient } from '../../services/booru-client';
 import { MemoryTagStore } from '../../stores/memory-tag-store';

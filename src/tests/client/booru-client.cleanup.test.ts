@@ -1,6 +1,6 @@
 import '../mocks/fetchExt.test';
 import { expect, it } from 'bun:test';
-import Gelbooru from '../../adapters/gelbooru';
+import Gelbooru from '../../adapters/gelbooru/client';
 import { BooruClient } from '../../services/booru-client';
 
 it('auto cleanup triggers based on interval', async () => {

@@ -1,16 +1,16 @@
-import { BooruFetchError, BooruUnknownPostError, BooruUnknownTagError } from '../errors/booru';
-import { Post } from '../models/post';
-import { Tag } from '../models/tag';
+import { BooruFetchError, BooruUnknownPostError, BooruUnknownTagError } from '../../errors/booru';
+import { Post } from '../../models/post';
+import { Tag } from '../../models/tag';
 import type {
 	APIPostData,
 	APITagData,
 	BooruSearchOptions,
 	PostResolvable,
 	TagResolvable,
-} from '../types/booru';
-import { type FetchResult, fetchExt } from '../utils/fetchExt';
-import { shuffleArray } from '../utils/misc';
-import type Booru from './booru';
+} from '../../types/booru';
+import { type FetchResult, fetchExt } from '../../utils/fetchExt';
+import { shuffleArray } from '../../utils/misc';
+import type Booru from '../booru';
 
 interface GelbooruCredentials {
 	apiKey: string;

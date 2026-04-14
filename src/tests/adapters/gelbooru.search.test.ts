@@ -1,6 +1,6 @@
 import '../mocks/fetchExt.test';
 import { describe, expect, it } from 'bun:test';
-import Gelbooru from '../../adapters/gelbooru';
+import Gelbooru from '../../adapters/gelbooru/client';
 
 describe('Gelbooru adapter - search', () => {
 	it('returns posts mapped to Post model', async () => {
