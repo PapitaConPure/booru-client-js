@@ -97,7 +97,7 @@ export default class Gelbooru implements Booru<GelbooruCredentials, BooruSearchO
 	async fetchPostByUrl(postUrl: URL | string, credentials: GelbooruCredentials): Promise<Post> {
 		const { apiKey, userId } = credentials;
 
-		if (typeof postUrl !== 'string') throw new TypeError('Invalid GelbooruPost URL');
+		if (typeof postUrl !== 'string' && !(postUrl instanceof URL)) throw new TypeError('Invalid Post URL');
 
 		const url = new URL(postUrl);
 		url.searchParams.set('page', 'dapi');
