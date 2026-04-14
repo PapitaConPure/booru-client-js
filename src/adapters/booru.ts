@@ -3,14 +3,14 @@ import type { Tag } from '../models/tag';
 import type { BooruSearchOptions } from '../types/booru';
 
 /**@description Defines una interface to interact with one of various imageboards.*/
-export default interface Booru<TCredentials = unknown> {
+export default interface Booru<TCredentials = unknown, TSearchOptions extends BooruSearchOptions = BooruSearchOptions> {
 	/**
 	 *
 	 * @param tags
 	 * @param options
 	 * @param credentials
 	 */
-	search(tags: string, searchOptions: Required<BooruSearchOptions>, credentials: TCredentials): Promise<Post[]>;
+	search(tags: string | string[], searchOptions: Required<TSearchOptions>, credentials: TCredentials): Promise<Post[]>;
 
 	/**
 	 *

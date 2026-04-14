@@ -11,7 +11,7 @@ interface GelbooruCredentials {
 	userId: string;
 }
 
-export default class Gelbooru implements Booru<GelbooruCredentials> {
+export default class Gelbooru implements Booru<GelbooruCredentials, BooruSearchOptions> {
 	static readonly API_BASE_URL = 'https://gelbooru.com/index.php';
 	static readonly API_POSTS_URL = 'https://gelbooru.com/index.php';
 	static readonly API_TAGS_URL = 'https://gelbooru.com/index.php?page=dapi&s=tag&q=index';
