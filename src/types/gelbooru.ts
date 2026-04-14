@@ -1,3 +1,4 @@
+import type Booru from '../adapters/booru';
 import type { Post } from '../models/post';
 import type { Tag } from '../models/tag';
 import type { ValuesOf } from './util';
@@ -63,10 +64,8 @@ export interface TagData {
 
 export type TagResolvable = Tag | TagData | APITagData;
 
-export interface Credentials {
-	apiKey: string;
-	userId: string;
-}
+export type CredentialsOf<TBooru extends Booru> =
+	TBooru extends Booru<infer TCredentials> ? TCredentials : never;
 
 export interface BooruSearchOptions {
 	limit?: number;
