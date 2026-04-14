@@ -1,11 +1,11 @@
 export interface GelbooruPostDto {
 	id: number;
 	title: string;
-	tags: string[] | string;
-	source: string | string[];
+	tags: string;
+	source: string;
 	score: number;
 	rating: string;
-	created_at: Date | string | number;
+	created_at: string | number;
 	creator_id: number;
 	file_url: string;
 	width: number;
@@ -25,9 +25,9 @@ export interface GelbooruPostsResponseDto {
 export interface GelbooruTagDto {
 	id: number;
 	name: string;
-	count?: number;
-	type?: number;
-	ambiguous?: boolean;
+	count: number;
+	type: number;
+	ambiguous: number;
 }
 
 export interface GelbooruTagsResponseDto {
