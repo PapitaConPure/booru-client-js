@@ -1,15 +1,8 @@
 import type Booru from '../adapters/booru';
 import type { Post } from '../models/post';
+import type { PostRating } from '../models/post-rating';
 import type { Tag } from '../models/tag';
 import type { ValuesOf } from './util';
-
-export const PostRatings = {
-	General: 'general',
-	Sensitive: 'sensitive',
-	Questionable: 'questionable',
-	Explicit: 'explicit',
-} as const;
-export type PostRating = ValuesOf<typeof PostRatings>;
 
 export interface APIPostData {
 	id: number;
@@ -31,7 +24,24 @@ export interface APIPostData {
 	sample_height?: number;
 }
 
-export type PostResolvable = Post | APIPostData;
+export interface PostInit {
+	id: number;
+	title: string;
+	tags: string[];
+	sources?: string[];
+	score: number;
+	rating: PostRating;
+	createdAt: Date;
+	creatorId: number;
+	fileUrl: string;
+	size: [number, number];
+	previewUrl?: string;
+	previewSize?: [number, number];
+	sampleUrl?: string;
+	sampleSize?: [number, number];
+}
+
+export type PostResolvable = Post | APIPostData | PostInit;
 
 export const TagTypes = {
 	GENERAL: 0,
