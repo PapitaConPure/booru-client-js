@@ -14,7 +14,7 @@ export default interface Booru<
 	 * @param credentials
 	 */
 	search(
-		tags: string | string[],
+		tags: string,
 		searchOptions: Required<TSearchOptions>,
 		credentials: TCredentials,
 	): Promise<Post[]>;
@@ -31,7 +31,7 @@ export default interface Booru<
 	 * @param postUrl
 	 * @param credentials
 	 */
-	fetchPostByUrl(postUrl: URL | string, credentials: TCredentials): Promise<Post>;
+	fetchPostByUrl(postUrl: URL, credentials: TCredentials): Promise<Post>;
 
 	/**
 	 *

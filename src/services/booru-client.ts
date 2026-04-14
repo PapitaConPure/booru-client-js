@@ -117,7 +117,9 @@ export class BooruClient<TBooru extends Booru> {
 		if (typeof postUrl !== 'string' && !(postUrl instanceof URL))
 			throw new TypeError('Invalid Post URL');
 
-		return this.#booru.fetchPostByUrl(postUrl, this.#getCredentials());
+		const finalUrl = typeof postUrl === 'string' ? new URL(postUrl) : postUrl;
+
+		return this.#booru.fetchPostByUrl(finalUrl, this.#getCredentials());
 	}
 
 	/**
