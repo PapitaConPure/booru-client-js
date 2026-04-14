@@ -1,6 +1,6 @@
 import { BooruFetchError, BooruUnknownPostError, BooruUnknownTagError } from '../../errors/booru';
-import { GelbooruPostMapper } from '../../mappers/impl/gelbooru-post-mapper';
 import type { PostMapper } from '../../mappers/post-mapper';
+import { GelbooruPostMapper } from '../../mappers/post-mapper/gelbooru-post-mapper';
 import type { Post } from '../../models/post';
 import { Tag } from '../../models/tag';
 import type { APITagData, BooruSearchOptions, TagResolvable } from '../../types/booru';
