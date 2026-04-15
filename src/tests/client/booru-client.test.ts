@@ -1,25 +1,17 @@
 import { describe, expect, it } from 'bun:test';
 import type { Booru } from '../../adapters/booru';
 import { Post } from '../../domain/post';
-import { PostRatings } from '../../domain/post-rating';
 import { BooruClient } from '../../services/booru-client';
 import type { BooruSearchOptions } from '../../types/booru';
 
 describe('BooruClient', () => {
 	it('delegates search to adapter and returns domain posts', async () => {
-		const fakePost = new Post({
+		const fakePost = Post.mock({
 			id: 1,
-			title: '',
-			tags: ['a'],
-			score: 1,
-			rating: PostRatings.General,
-			createdAt: new Date(),
-			creatorId: 1,
-			fileUrl: 'file.jpg',
-			size: [1, 1],
 		});
 
-		const fakeAdapter: Booru<unknown, BooruSearchOptions> = {
+		const fakeAdapter: Booru<'fake', unknown, BooruSearchOptions> = {
+			name: 'fake' as const,
 			search: async () => [fakePost],
 			fetchPostById: async () => fakePost,
 			fetchPostByUrl: async () => fakePost,
