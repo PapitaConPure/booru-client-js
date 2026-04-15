@@ -3,27 +3,70 @@ import type { NameOf, PostInit, PostUrlBuilder } from '../types/booru';
 import { getSourceUrl } from '../utils/misc';
 import { type PostRating, PostRatings } from './post-rating';
 
-/**@class Representa una imagen publicada en un {@linkcode Booru}*/
+/**
+ * @description
+ * Represents a domain entity for a post (image or media) published on a {@linkcode Booru}.
+ *
+ * Encapsulates the canonical data associated with a booru post, independent of the underlying API representation.
+ *
+ * This object is immutable and should be treated as a read-only value.
+ */
 export class Post<TBooru extends Booru = Booru> {
+	/**@description The identifier of the {@link Booru} this post originates from.*/
 	readonly booruName: NameOf<TBooru>;
 
+	/**@description Unique identifier of the {@link Post} within its source booru.*/
 	readonly id: number;
+
+	/**@description Title or caption of the {@link Post}. Rarely set in most booru services.*/
 	readonly title: string;
+
+	/**@description Tag names associated with the {@link Post}.*/
 	readonly tags: string[];
+
+	/**@description Optional list of source URLs referencing the origin of the {@link Post} content.*/
 	readonly sources?: string[];
+
+	/**@description Aggregated score representing the {@link Post}'s popularity.*/
 	readonly score: number;
+
+	/**@description Content rating classification of the {@link Post}.*/
 	readonly rating: PostRating;
+
+	/**@description Timestamp indicating when the {@link Post} was created.*/
 	readonly createdAt: Date;
+
+	/**@description Identifier of the creator/uploader of the {@link Post}.*/
 	readonly creatorId: number;
+
+	/**@description Direct URL to the original media file.*/
 	readonly fileUrl: string;
+
+	/**@description Dimensions of the original media, as `[width, height]`.*/
 	readonly size: [number, number];
+
+	/**@description Optional URL to a preview (thumbnail) representation.*/
 	readonly previewUrl?: string;
+
+	/**@description Dimensions of the preview media as `[width, height]`.*/
 	readonly previewSize?: [number, number];
+
+	/**@description Optional URL to a sample (resized or compressed) representation.*/
 	readonly sampleUrl?: string;
+
+	/**@description Dimensions of the sample media as `[width, height]`.*/
 	readonly sampleSize?: [number, number];
 
+	/**@description Internal service used to construct URLs related to this post.*/
 	readonly #urlBuilder: PostUrlBuilder;
 
+	/**
+	 * @description Constructs a {@link Post} domain entity from normalized initialization data.
+	 *
+	 * URL fields are validated and normalized into {@link URL} instances.
+	 *
+	 * @param data Normalized data used to initialize this post.
+	 */
 	constructor(data: PostInit<TBooru>) {
 		this.booruName = data.booru;
 		this.#urlBuilder = data.urlBuilder;
@@ -82,6 +125,7 @@ export class Post<TBooru extends Booru = Booru> {
 		return undefined;
 	}
 
+	/**Obtains all the sources of this {@link Post} as a string.*/
 	get source() {
 		return this.sources?.join(' ');
 	}
