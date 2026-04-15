@@ -1,3 +1,5 @@
+import { InvalidUrlError } from '../errors/misc';
+
 /**@see {@link https://stackoverflow.com/a/2450976}*/
 export function shuffleArray<T>(array: T[]): void {
 	let currentIndex = array.length;
@@ -22,4 +24,17 @@ export function getSourceUrl(source: string) {
 	if (sourceMatch?.index == null) return null;
 
 	return source.slice(sourceMatch.index, sourceMatch.index + sourceMatch[0].length);
+}
+
+/**
+ * Parses an URL from the specified `value` intended for the named `field`.
+ * @returns The parsed URL.
+ * @throws {InvalidUrlError} If the URL is not valid.
+ */
+export function parseUrlForField(field: string, value: string): URL {
+	try {
+		return new URL(value);
+	} catch {
+		throw new InvalidUrlError(field, value);
+	}
 }

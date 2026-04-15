@@ -19,7 +19,7 @@ describe('Gelbooru Adapter', () => {
 						rating: 'general',
 						created_at: '2026-01-01',
 						creator_id: 1,
-						file_url: 'file.jpg',
+						file_url: 'http://nowhere.test/file.jpg',
 						width: 10,
 						height: 20,
 					},

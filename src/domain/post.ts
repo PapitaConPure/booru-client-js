@@ -1,6 +1,6 @@
 import type { Booru } from '../adapters/booru';
 import type { NameOf, PostInit, PostUrlBuilder } from '../types/booru';
-import { getSourceUrl } from '../utils/misc';
+import { getSourceUrl, parseUrlForField } from '../utils/misc';
 import { type PostRating, PostRatings } from './post-rating';
 
 /**
@@ -40,19 +40,19 @@ export class Post<TBooru extends Booru = Booru> {
 	readonly creatorId: number;
 
 	/**@description Direct URL to the original media file.*/
-	readonly fileUrl: string;
+	readonly fileUrl: URL;
 
 	/**@description Dimensions of the original media, as `[width, height]`.*/
 	readonly size: [number, number];
 
 	/**@description Optional URL to a preview (thumbnail) representation.*/
-	readonly previewUrl?: string;
+	readonly previewUrl?: URL;
 
 	/**@description Dimensions of the preview media as `[width, height]`.*/
 	readonly previewSize?: [number, number];
 
 	/**@description Optional URL to a sample (resized or compressed) representation.*/
-	readonly sampleUrl?: string;
+	readonly sampleUrl?: URL;
 
 	/**@description Dimensions of the sample media as `[width, height]`.*/
 	readonly sampleSize?: [number, number];
@@ -66,6 +66,7 @@ export class Post<TBooru extends Booru = Booru> {
 	 * URL fields are validated and normalized into {@link URL} instances.
 	 *
 	 * @param data Normalized data used to initialize this post.
+	 * @throws {InvalidUrlError} If any provided URL is invalid.
 	 */
 	constructor(data: PostInit<TBooru>) {
 		this.booruName = data.booru;
@@ -79,11 +80,13 @@ export class Post<TBooru extends Booru = Booru> {
 		this.rating = data.rating;
 		this.createdAt = new Date(data.createdAt);
 		this.creatorId = data.creatorId;
-		this.fileUrl = data.fileUrl;
+		this.fileUrl = parseUrlForField('fileUrl', data.fileUrl);
 		this.size = data.size;
-		this.previewUrl = data.previewUrl;
+		this.previewUrl = data.previewUrl
+			? parseUrlForField('previewUrl', data.previewUrl)
+			: undefined;
 		this.previewSize = data.previewSize;
-		this.sampleUrl = data.sampleUrl;
+		this.sampleUrl = data.sampleUrl ? parseUrlForField('sampleUrl', data.sampleUrl) : undefined;
 		this.sampleSize = data.sampleSize;
 
 		Object.freeze(this);

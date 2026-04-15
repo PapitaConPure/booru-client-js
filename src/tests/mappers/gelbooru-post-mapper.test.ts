@@ -14,7 +14,7 @@ describe('GelbooruPostMapper', () => {
 			rating: 'general',
 			created_at: '2026-01-01',
 			creator_id: 10,
-			file_url: 'file.jpg',
+			file_url: 'http://nowhere.test/file.jpg',
 			width: 100,
 			height: 200,
 		} as unknown as GelbooruPostDto;

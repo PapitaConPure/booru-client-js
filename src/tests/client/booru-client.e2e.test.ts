@@ -23,7 +23,7 @@ describe.skipIf(skipE2E)('E2E: search posts', () => {
 		for (const post of posts) {
 			expect(post.id).toBeTypeOf('number');
 			expect(post.tags).toBeInstanceOf(Array);
-			expect(post.fileUrl).toBeTypeOf('string');
+			expect(post.fileUrl).toBeInstanceOf(URL);
 		}
 	});
 
@@ -80,8 +80,8 @@ describe.skipIf(skipE2E)('E2E: adapter normalization', () => {
 		expect(dPost?.tags).toBeArray();
 		expect(gPost?.tags).toBeArray();
 
-		expect(dPost?.fileUrl).toBeString();
-		expect(gPost?.fileUrl).toBeString();
+		expect(dPost?.fileUrl).toBeInstanceOf(URL);
+		expect(gPost?.fileUrl).toBeInstanceOf(URL);
 
 		expect(dPost?.createdAt).toBeInstanceOf(Date);
 		expect(gPost?.createdAt).toBeInstanceOf(Date);

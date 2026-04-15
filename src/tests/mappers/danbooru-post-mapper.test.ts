@@ -16,8 +16,8 @@ describe('DanbooruPostMapper', () => {
 			uploader_id: 10,
 			image_width: 100,
 			image_height: 200,
-			file_url: 'file.jpg',
-			preview_file_url: 'preview.jpg',
+			file_url: 'http://nowhere.test/file.jpg',
+			preview_file_url: 'http://nowhere.test/preview.jpg',
 			has_large: false,
 			large_file_url: null,
 		} as unknown as DanbooruPostDto;
