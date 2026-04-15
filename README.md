@@ -1,6 +1,36 @@
 # booru-fetch
 A simple Booru wrapper mostly for my personal projects. Uses Node fetch API.
 
+## Installation
+<table>
+<tr>
+<td>Manager</td>
+<td>Command</td>
+</tr>
+
+<tr>
+<td>npm</td>
+<td>
+
+```json
+npm install --save @papitaconpure/booru-client
+```
+
+</td>
+</tr>
+
+<tr>
+<td>Bun</td>
+<td>
+
+```cmd
+bun add @papitaconpure/booru-client
+```
+
+</td>
+</tr>
+</table>
+
 ## Basic Usage
 **Gelbooru:**
 ```ts
