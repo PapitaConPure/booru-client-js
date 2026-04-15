@@ -248,7 +248,7 @@ export class Gelbooru implements Booru<typeof booruName, GelbooruCredentials, Bo
 		if (!Array.isArray(fetchResult.data?.tag)) {
 			if (dontThrowOnEmptyFetch) return [];
 			throw new BooruUnknownTagError(
-				`Couldn't fetch tags from Gelbooru${tags ? `. Tried to fetch: ${tags}` : ''}`,
+				`Couldn't fetch tags from Gelbooru${tags ? `. Tried to fetch: ${tags}` : ''}. Received: ${fetchResult}`,
 			);
 		}
 
