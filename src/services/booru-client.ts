@@ -4,7 +4,7 @@ import type { Tag } from '../domain/tag';
 import { InvalidOperationError } from '../errors/misc';
 import { MemoryTagStore } from '../stores/memory-tag-store';
 import type { TagStore } from '../stores/tag-store';
-import type { BooruSearchOptions, CredentialsOf } from '../types/booru';
+import type { BooruClientTagOptions, BooruSearchOptions, CredentialsOf } from '../types/booru';
 import { decodeEntities } from '../utils/encoding';
 
 /**@description Representa una conexión a un sitio Booru.*/
@@ -15,48 +15,62 @@ export class BooruClient<TBooru extends Booru = Booru> {
 	#tagStoreChain: TagStore[];
 	#tagFetchThreshold: number;
 	#manualTagCleanup: boolean;
-	#cleanupIntervalMs: number;
-	#lastCleanup: number;
+	#tagCleanupIntervalMs: number;
+	#lastTagCleanup: number;
 
 	/**
 	 * @description Creates a {@link BooruClient} with the specified `credentials` and various other `options`.
+	 * @param booru The {@link Booru} API this client will consume.
 	 * @param credentials Credentials for API authorization.
+	 */
+	constructor(booru: TBooru, credentials: CredentialsOf<TBooru>);
+
+	/**
+	 * @description Creates a {@link BooruClient} with the specified `credentials` and various other `options`.
 	 * @param booru The {@link Booru} API this client will consume.
 	 * @param options Options to define this client's behaviour.
 	 */
 	constructor(
 		booru: TBooru,
-		credentials: CredentialsOf<TBooru>,
 		options: {
-			/**Allows to define a custom {@link TagStore} chain from which to fetch {@link Tag}s. By default: [{@link MemoryTagStore}] (cache only).*/
-			tagStoreChain?: TagStore[];
-			/**When fetching multiple {@link Tag}s: what amount of these should switch the fetch strategy from "tag by tag" to "store by store". Defaults to 50.*/
-			tagFetchThreshold?: number;
-			/**
-			 * Defines whether the {@link Tag} invalidation process of {@link TagStore}s should be managed manually and externally (``true``)
-			 * or it should instead be this {@link BooruClient}'s concern (false, default).
-			 */
-			manualTagCleanup?: boolean;
-			/**Defines the throttle amount (in milliseconds) for automatic {@link Tag} invalidation if this {@link BooruClient} is auto-managed (`manualTagCleanup`=`false`).*/
-			cleanupIntervalMs?: number;
-		} = {},
+			credentials: CredentialsOf<TBooru>;
+			tags?: BooruClientTagOptions;
+		},
+	);
+
+	constructor(
+		booru: TBooru,
+		arg:
+			| CredentialsOf<TBooru>
+			| {
+					credentials: CredentialsOf<TBooru>;
+					tags?: BooruClientTagOptions;
+			  },
 	) {
+		const options = 'credentials' in arg ? arg : { credentials: arg };
+		const { credentials, tags } = options;
+		const {
+			storeChain: tagStoreChain = [new MemoryTagStore()],
+			fetchThreshold: tagFetchThreshold = 50,
+			cleanOnStartup: cleanTagsOnStartup = false,
+			manualCleanup: manualTagCleanup = false,
+			cleanupIntervalMs: tagCleanupIntervalMs = 5 * 60e3,
+		} = tags ?? {};
+
 		this.#booru = booru;
 		this.setCredentials(credentials);
-
-		const {
-			tagStoreChain = [new MemoryTagStore()],
-			tagFetchThreshold = 50,
-			manualTagCleanup = false,
-			cleanupIntervalMs = 5 * 60e3,
-		} = options;
 
 		this.#tagStoreChain = tagStoreChain;
 		this.#tagFetchThreshold = tagFetchThreshold;
 		this.#manualTagCleanup = manualTagCleanup;
-		this.#cleanupIntervalMs = cleanupIntervalMs;
+		this.#tagCleanupIntervalMs = tagCleanupIntervalMs;
 
-		this.#lastCleanup = 0;
+		if (cleanTagsOnStartup) {
+			this.#performCleanup();
+			this.#lastTagCleanup = Date.now();
+		} else {
+			this.#lastTagCleanup = 0;
+		}
 	}
 
 	addTagStoreFirst(tagStore: TagStore): this {
@@ -330,9 +344,9 @@ export class BooruClient<TBooru extends Booru = Booru> {
 		if (this.#manualTagCleanup) return;
 
 		const now = Date.now();
-		if (now - this.#lastCleanup < this.#cleanupIntervalMs) return;
+		if (now - this.#lastTagCleanup < this.#tagCleanupIntervalMs) return;
 
-		this.#lastCleanup = now;
+		this.#lastTagCleanup = now;
 		await this.#performCleanup(...stores);
 	}
 

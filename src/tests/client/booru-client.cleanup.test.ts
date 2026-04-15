@@ -35,10 +35,12 @@ describe('BooruClient - cleanup', () => {
 					},
 				}),
 			}),
-			{ apiKey: 'x', userId: '1' },
 			{
-				tagStoreChain: [store],
-				cleanupIntervalMs: 0, // force trigger
+				credentials: { apiKey: 'x', userId: '1' },
+				tags: {
+					storeChain: [store],
+					cleanOnStartup: true,
+				},
 			},
 		);
 

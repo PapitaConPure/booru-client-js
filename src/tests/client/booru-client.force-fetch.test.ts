@@ -25,8 +25,10 @@ describe('BooruClient - forceFetch', () => {
 					},
 				}),
 			}),
-			{ apiKey: 'x', userId: '1' },
-			{ tagStoreChain: [store] },
+			{
+				credentials: { apiKey: 'x', userId: '1' },
+				tags: { storeChain: [store] },
+			},
 		);
 
 		await client.fetchTagsByNames({

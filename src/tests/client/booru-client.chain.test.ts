@@ -20,13 +20,12 @@ describe('BooruClient - store chain', () => {
 			}),
 		);
 
-		const client = new BooruClient(
-			new Gelbooru(),
-			{ apiKey: 'x', userId: '1' },
-			{
-				tagStoreChain: [new MemoryTagStore(), persistent],
+		const client = new BooruClient(new Gelbooru(), {
+			credentials: { apiKey: 'x', userId: '1' },
+			tags: {
+				storeChain: [new MemoryTagStore(), persistent],
 			},
-		);
+		});
 
 		const tags = await client.fetchTagsByNames({ names: ['cached'] });
 
@@ -51,8 +50,12 @@ describe('BooruClient - store chain', () => {
 					},
 				}),
 			}),
-			{ apiKey: 'x', userId: '1' },
-			{ tagStoreChain: [store1, store2] },
+			{
+				credentials: { apiKey: 'x', userId: '1' },
+				tags: {
+					storeChain: [store1, store2],
+				},
+			},
 		);
 
 		await client.fetchTagsByNames({ names: ['kishin_sagume'] });
