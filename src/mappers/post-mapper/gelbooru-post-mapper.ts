@@ -1,3 +1,4 @@
+import { Gelbooru } from '../../adapters/gelbooru/client';
 import type { GelbooruPostDto, GelbooruPostRating } from '../../adapters/gelbooru/dto';
 import { Post } from '../../domain/post';
 import { type PostRating, PostRatings } from '../../domain/post-rating';
@@ -10,14 +11,16 @@ const gelbooruRatingsMap = {
 	explicit: PostRatings.Explicit,
 } as const satisfies Record<GelbooruPostRating, PostRating>;
 
-export class GelbooruPostMapper implements PostMapper<GelbooruPostDto> {
-	fromDto(dto: GelbooruPostDto): Post {
+export class GelbooruPostMapper implements PostMapper<GelbooruPostDto, Gelbooru> {
+	fromDto(dto: GelbooruPostDto): Post<Gelbooru> {
 		const sources = dto.source
 			?.split(/\s+/)
 			.map((s) => s.trim())
-			.filter((s) => s != null);
+			.filter((s) => s != null && s.length > 0);
 
-		return new Post({
+		return new Post<Gelbooru>({
+			booru: 'gelbooru',
+			urlBuilder: Gelbooru.postUrlBuilder,
 			id: dto.id,
 			title: dto.title,
 			tags: dto.tags.split(' '),

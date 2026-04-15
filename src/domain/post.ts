@@ -1,9 +1,12 @@
-import type { PostInit } from '../types/booru';
+import type { Booru } from '../adapters/booru';
+import type { NameOf, PostInit, PostUrlBuilder } from '../types/booru';
 import { getSourceUrl } from '../utils/misc';
-import type { PostRating } from './post-rating';
+import { type PostRating, PostRatings } from './post-rating';
 
 /**@class Representa una imagen publicada en un {@linkcode Booru}*/
-export class Post {
+export class Post<TBooru extends Booru = Booru> {
+	readonly booruName: NameOf<TBooru>;
+
 	readonly id: number;
 	readonly title: string;
 	readonly tags: string[];
@@ -19,7 +22,12 @@ export class Post {
 	readonly sampleUrl?: string;
 	readonly sampleSize?: [number, number];
 
-	constructor(data: PostInit) {
+	readonly #urlBuilder: PostUrlBuilder;
+
+	constructor(data: PostInit<TBooru>) {
+		this.booruName = data.booru;
+		this.#urlBuilder = data.urlBuilder;
+
 		this.id = data.id;
 		this.title = data.title;
 		this.tags = data.tags;
@@ -36,6 +44,10 @@ export class Post {
 		this.sampleSize = data.sampleSize;
 
 		Object.freeze(this);
+	}
+
+	get url() {
+		return this.#urlBuilder(this.id);
 	}
 
 	/**@description Tries to find sources that match a URL pattern, and returns all matches (if any)*/
@@ -83,18 +95,42 @@ export class Post {
 		return `[Post ${this.id}] (${this.rating}) ${this.fileUrl}`;
 	}
 
-	static mock() {
-		return new Post({
-			id: 1,
+	static mock(initOverrides: Partial<PostInit> = {}) {
+		const defaultMockInit: PostInit = {
+			id: 4939462,
+			booru: 'gelbooru',
+			urlBuilder: () => '',
 			title: 'title',
-			tags: ['a', 'b', 'c'],
-			sources: ['https://google.com'],
-			score: 0,
-			rating: 'general',
-			createdAt: new Date(),
-			creatorId: 0,
-			fileUrl: '',
-			size: [0, 0],
-		});
+			tags: [
+				'1girl',
+				'chocolate_chip_cookie',
+				'cookie',
+				'cursor',
+				'disembodied_hand',
+				'eyewear_strap',
+				'female_focus',
+				'food',
+				'forehead',
+				'frown',
+				'glasses',
+				'old',
+				'old_woman',
+				'rolling_pin',
+				'serious',
+				'short_hair',
+				'solo',
+				'upper_body',
+				'wrinkled_skin',
+			],
+			sources: ['https://twitter.com/click_burgundy/status/1179386273024417792'],
+			score: 7,
+			rating: PostRatings.Sensitive,
+			createdAt: new Date(2019, 9, 2, 12, 0, 2),
+			creatorId: 6498,
+			fileUrl: 'https://img2.gelbooru.com/images/ce/d7/ced791390bc43829361ae47bd043ba7b.jpg',
+			size: [500, 714],
+		};
+
+		return new Post({ ...defaultMockInit, ...initOverrides });
 	}
 }

@@ -5,7 +5,7 @@ import type { PostMapper } from '../../mappers/post-mapper';
 import { GelbooruPostMapper } from '../../mappers/post-mapper/gelbooru-post-mapper';
 import type { TagMapper } from '../../mappers/tag-mapper';
 import { GelbooruTagMapper } from '../../mappers/tag-mapper/gelbooru-tag-mapper';
-import type { BooruSearchOptions } from '../../types/booru';
+import type { BooruSearchOptions, PostUrlBuilder } from '../../types/booru';
 import { defineEndpoint, type Endpoint, type FetchFn } from '../../utils/endpoint';
 import { type FetchResult, fetchExt } from '../../utils/fetchExt';
 import { shuffleArray } from '../../utils/misc';
@@ -18,17 +18,22 @@ import type {
 	GelbooruTagsResponseDto,
 } from './dto';
 
-export class Gelbooru implements Booru<GelbooruCredentials, BooruSearchOptions> {
+const booruName = 'gelbooru' as const;
+
+export class Gelbooru implements Booru<typeof booruName, GelbooruCredentials, BooruSearchOptions> {
 	static readonly API_BASE_URL = 'https://gelbooru.com/index.php';
 
-	readonly #postMapper: PostMapper<GelbooruPostDto>;
+	static postUrlBuilder: PostUrlBuilder = (postId) =>
+		`https://gelbooru.com/index.php?page=post&s=view&id=${postId}`;
+
+	readonly #postMapper: PostMapper<GelbooruPostDto, Gelbooru>;
 	readonly #tagMapper: TagMapper<GelbooruTagDto>;
 	readonly #apiPostsEndpoint: Endpoint;
 	readonly #apiTagsEndpoint: Endpoint;
 
 	constructor(
 		options: {
-			postMapper?: PostMapper<GelbooruPostDto>;
+			postMapper?: PostMapper<GelbooruPostDto, Gelbooru>;
 			tagMapper?: TagMapper<GelbooruTagDto>;
 			fetchFn?: FetchFn;
 		} = {},
@@ -65,6 +70,10 @@ export class Gelbooru implements Booru<GelbooruCredentials, BooruSearchOptions> 
 			},
 			{ fetchFn },
 		);
+	}
+
+	get name() {
+		return booruName;
 	}
 
 	async search(

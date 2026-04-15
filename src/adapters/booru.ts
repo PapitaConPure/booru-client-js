@@ -4,9 +4,13 @@ import type { BooruSearchOptions } from '../types/booru';
 
 /**@description Defines una interface to interact with one of various imageboards.*/
 export interface Booru<
+	TName extends string = string,
 	TCredentials = unknown,
 	TSearchOptions extends BooruSearchOptions = BooruSearchOptions,
 > {
+	/**@description */
+	get name(): TName;
+
 	/**
 	 *
 	 * @param tags

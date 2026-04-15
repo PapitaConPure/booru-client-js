@@ -5,7 +5,7 @@ import type { PostMapper } from '../../mappers/post-mapper';
 import { DanbooruPostMapper } from '../../mappers/post-mapper/danbooru-post-mapper';
 import type { TagMapper } from '../../mappers/tag-mapper';
 import { DanbooruTagMapper } from '../../mappers/tag-mapper/danbooru-tag-mapper';
-import type { BooruSearchOptions } from '../../types/booru';
+import type { BooruSearchOptions, PostUrlBuilder } from '../../types/booru';
 import { defineEndpoint, type Endpoint, type FetchFn } from '../../utils/endpoint';
 import { type FetchResult, fetchExt } from '../../utils/fetchExt';
 import { shuffleArray } from '../../utils/misc';
@@ -18,10 +18,15 @@ import type {
 	DanbooruTagsResponseDto,
 } from './dto';
 
-export class Danbooru implements Booru<DanbooruCredentials, BooruSearchOptions> {
+const booruName = 'danbooru' as const;
+
+export class Danbooru implements Booru<typeof booruName, DanbooruCredentials, BooruSearchOptions> {
 	static readonly API_BASE_URL = 'https://danbooru.donmai.us';
 
-	readonly #postMapper: PostMapper<DanbooruPostDto>;
+	static postUrlBuilder: PostUrlBuilder = (postId) =>
+		`https://danbooru.donmai.us/posts/${postId}`;
+
+	readonly #postMapper: PostMapper<DanbooruPostDto, Danbooru>;
 	readonly #tagMapper: TagMapper<DanbooruTagDto>;
 	readonly #apiPostsEndpoint: Endpoint;
 	readonly #apiRandomPostsEndpoint: Endpoint;
@@ -29,7 +34,7 @@ export class Danbooru implements Booru<DanbooruCredentials, BooruSearchOptions> 
 
 	constructor(
 		options: {
-			postMapper?: PostMapper<DanbooruPostDto>;
+			postMapper?: PostMapper<DanbooruPostDto, Danbooru>;
 			tagMapper?: TagMapper<DanbooruTagDto>;
 			fetchFn?: FetchFn;
 		} = {},
@@ -63,6 +68,10 @@ export class Danbooru implements Booru<DanbooruCredentials, BooruSearchOptions> 
 			{},
 			{ fetchFn },
 		);
+	}
+
+	get name() {
+		return booruName;
 	}
 
 	async search(

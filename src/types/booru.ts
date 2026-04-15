@@ -2,7 +2,11 @@ import type { Booru } from '../adapters/booru';
 import type { PostRating } from '../domain/post-rating';
 import type { ValuesOf } from './util';
 
-export interface PostInit {
+export type PostUrlBuilder = (postId: number) => string;
+
+export interface PostInit<TBooru extends Booru = Booru> {
+	booru: NameOf<TBooru>;
+	urlBuilder: PostUrlBuilder;
 	id: number;
 	title: string;
 	tags: string[];
@@ -40,7 +44,9 @@ export interface TagInit {
 }
 
 export type CredentialsOf<TBooru extends Booru> =
-	TBooru extends Booru<infer TCredentials> ? TCredentials : never;
+	TBooru extends Booru<string, infer TCredentials> ? TCredentials : never;
+
+export type NameOf<TBooru extends Booru> = TBooru extends Booru<infer TName> ? TName : never;
 
 export interface BooruSearchOptions {
 	limit?: number;

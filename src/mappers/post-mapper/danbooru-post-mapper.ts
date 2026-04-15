@@ -1,3 +1,4 @@
+import { Danbooru } from '../../adapters/danbooru/client';
 import type { DanbooruPostDto, DanbooruPostRating } from '../../adapters/danbooru/dto';
 import { Post } from '../../domain/post';
 import { type PostRating, PostRatings } from '../../domain/post-rating';
@@ -10,14 +11,16 @@ const danbooruRatingsMap = {
 	e: PostRatings.Explicit,
 } as const satisfies Record<DanbooruPostRating, PostRating>;
 
-export class DanbooruPostMapper implements PostMapper<DanbooruPostDto> {
-	fromDto(dto: DanbooruPostDto): Post {
+export class DanbooruPostMapper implements PostMapper<DanbooruPostDto, Danbooru> {
+	fromDto(dto: DanbooruPostDto): Post<Danbooru> {
 		const sources = dto.source
 			.split(/\s+/)
 			.map((s) => s.trim())
-			.filter((s) => s != null);
+			.filter((s) => s != null && s.length > 0);
 
-		return new Post({
+		return new Post<Danbooru>({
+			booru: 'danbooru',
+			urlBuilder: Danbooru.postUrlBuilder,
 			id: dto.id,
 			title: '',
 			tags: dto.tag_string.split(' '),
