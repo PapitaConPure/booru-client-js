@@ -22,7 +22,7 @@ An extensible, zero-dependency imageboard client with multi-layer tag caching.
 <td>npm</td>
 <td>
 
-```json
+```cmd
 npm install --save @papitaconpure/booru-client
 ```
 
