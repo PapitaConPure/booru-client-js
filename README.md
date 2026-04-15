@@ -25,7 +25,6 @@ An extensible, zero-dependency imageboard client with multi-layer tag caching.
 ```cmd
 npm install --save @papitaconpure/booru-client
 ```
-
 </td>
 </tr>
 
@@ -36,7 +35,6 @@ npm install --save @papitaconpure/booru-client
 ```cmd
 bun add @papitaconpure/booru-client
 ```
-
 </td>
 </tr>
 </table>
