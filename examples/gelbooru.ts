@@ -9,7 +9,7 @@ const client = new BooruClient(gelbooru, {
 	userId: process.env.TEST_GELBOORU_USERID!,
 });
 
-//Returns 5 random megumim post with a "General" content rating
+//Return 5 random posts containing the tag "megumin" and a "General" content rating
 const posts = await client.search('megumin rating:general', { limit: 5, random: true });
 
 //Log the id, tags and url of every obtained post
