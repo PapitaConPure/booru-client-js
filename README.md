@@ -9,6 +9,7 @@ An extensible, zero-dependency imageboard client with multi-layer tag caching.
 ![GitHub package.json dependency version](https://img.shields.io/node/v/package-json)
 ![GitHub tag (latest by date)](https://img.shields.io/github/v/tag/PapitaConPure/booru-client)
 ![GitHub repo size](https://img.shields.io/github/repo-size/PapitaConPure/booru-client)
+![npm package minimized gzipped size](https://img.shields.io/bundlejs/size/%40papitaconpure%2Fbooru-client)
 ![Twitter Follow](https://img.shields.io/twitter/follow/PapitaPure?label=%40PapitaPure&style=social&link=https://twitter.com/PapitaPure)
 
 ## Installation
