@@ -57,7 +57,7 @@ export class Post<TBooru extends Booru = Booru> {
 	/**@description Dimensions of the sample media as `[width, height]`.*/
 	readonly sampleSize?: [number, number];
 
-	/**@description Internal service used to construct URLs related to this post.*/
+	/**@description Internal service used to construct the URL this {@link Post} comes from.*/
 	readonly #urlBuilder: PostUrlBuilder;
 
 	/**
@@ -92,6 +92,7 @@ export class Post<TBooru extends Booru = Booru> {
 		Object.freeze(this);
 	}
 
+	/**@description The computed original URL this {@link Post} comes from.*/
 	get url() {
 		return this.#urlBuilder(this.id);
 	}
