@@ -23,7 +23,7 @@ export class Tag {
 		this.name = data.name;
 		this.count = data.count;
 		this.type = data.type;
-		this.fetchTimestamp = data.fetchTimestamp;
+		this.fetchTimestamp = new Date(data.fetchTimestamp);
 
 		Object.freeze(this);
 	}
