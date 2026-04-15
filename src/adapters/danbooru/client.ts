@@ -264,10 +264,7 @@ export class Danbooru implements Booru<typeof booruName, DanbooruCredentials, Bo
 
 		if (!Array.isArray(fetchResult.data)) {
 			if (dontThrowOnEmptyFetch) return [];
-			throw new BooruUnknownTagError(
-				`Couldn't fetch tags from Danbooru.${tags ? `\nTried to fetch: ${tags}` : ''}\nReceived: ${JSON.stringify(fetchResult)}`,
-				{ tags, cause: fetchResult.data },
-			);
+			throw new BooruUnknownTagError({ booruName: 'Danbooru', fetchResult, tags });
 		}
 
 		return fetchResult.data;

@@ -1,3 +1,6 @@
+import type { FetchSuccessResult } from '../utils/fetchExt';
+import { stringify } from '../utils/misc';
+
 /**Base error type for all booru-related failures.*/
 export class BooruError extends Error {
 	constructor(message: string, options?: ErrorOptions) {
@@ -25,10 +28,29 @@ export class BooruUnknownPostError extends BooruError {
 /**Thrown when a requested {@link Tag} cannot be found or resolved.*/
 export class BooruUnknownTagError extends BooruError {
 	tags?: string | null;
+	data?: unknown;
 
-	constructor(message: string, options?: ErrorOptions & { tags?: string | null }) {
-		super(message, options);
+	constructor(
+		options: {
+			booruName?: string;
+			fetchResult?: FetchSuccessResult<unknown>;
+			tags?: string | null;
+		} = {},
+	) {
+		const { booruName = 'a booru adapter', fetchResult, tags } = options;
+
+		super(
+			[
+				`Couldn't fetch tags from ${booruName}.`,
+				tags && `Tried to fetch: ${tags}`,
+				'Received:',
+				stringify(fetchResult?.data),
+			]
+				.filter((t) => t)
+				.join('\n'),
+		);
 		this.name = BooruUnknownTagError.name;
-		this.tags = options?.tags;
+		this.tags = tags;
+		this.data = fetchResult?.data;
 	}
 }
