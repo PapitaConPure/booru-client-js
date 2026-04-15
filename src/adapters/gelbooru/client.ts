@@ -8,7 +8,6 @@ import { GelbooruTagMapper } from '../../mappers/tag-mapper/gelbooru-tag-mapper'
 import type { BooruSearchOptions, PostUrlBuilder } from '../../types/booru';
 import { defineEndpoint, type Endpoint, type FetchFn } from '../../utils/endpoint';
 import { type FetchResult, fetchExt } from '../../utils/fetchExt';
-import { shuffleArray } from '../../utils/misc';
 import type { Booru } from '../booru';
 import type { GelbooruCredentials } from './credentials';
 import type {
@@ -99,17 +98,22 @@ export class Gelbooru implements Booru<typeof booruName, GelbooruCredentials, Bo
 		const { limit, random } = searchOptions;
 		const { apiKey, userId } = credentials;
 
+		const sortRegex = /\bsort:[^\s]+/gi;
+
 		const fetchResult = await this.#apiPostsEndpoint.request<GelbooruPostsResponseDto>({
 			api_key: apiKey,
 			user_id: userId,
 			limit: limit,
-			tags: tags,
+			tags: random
+				? `${tags
+						.split(/s+/)
+						.filter((t) => t.length && !sortRegex.test(t))
+						.join(' ')} sort:random`
+				: tags,
 		});
 
 		const postDtos = Gelbooru.#expectPosts(fetchResult, { dontThrowOnEmptyFetch: true });
 		const posts = postDtos.map((dto) => this.#postMapper.fromDto(dto));
-
-		if (random) shuffleArray(posts);
 
 		return posts;
 	}
