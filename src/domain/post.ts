@@ -7,7 +7,7 @@ import { type PostRating, PostRatings } from './post-rating';
  * @description
  * Represents a domain entity for a post (image or media) published on a {@linkcode Booru}.
  *
- * Encapsulates the canonical data associated with a booru post, independent of the underlying API representation.
+ * Encapsulates canonical data associated with a booru post, independent of the underlying API representation.
  *
  * This object is immutable and should be treated as a read-only value.
  */
