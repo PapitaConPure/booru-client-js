@@ -70,7 +70,6 @@ export interface Booru<
 	 * Validates that the provided credentials are usable for API requests.
 	 *
 	 * @param credentials Credentials to validate.
-	 * @throws {ReferenceError} If credentials are missing.
 	 * @throws {TypeError} If credentials are malformed.
 	 */
 	validateCredentials(credentials: TCredentials): asserts credentials is TCredentials;
