@@ -24,6 +24,8 @@ export interface Booru<
 	 * @param searchOptions Normalized search options.
 	 * @param credentials Credentials used to authorize the request.
 	 * @returns A list of matching {@link Post}s.
+	 * @throws {BooruFetchError} If the request to the API fails.
+	 * @throws {BooruUnknownPostError} It the booru adapter is unable to resolve the API response.
 	 */
 	search(
 		tags: string,
@@ -37,6 +39,8 @@ export interface Booru<
 	 * @param postId Identifier of the post.
 	 * @param credentials Credentials used to authorize the request.
 	 * @returns The matching {@link Post}, or `undefined` if not found.
+	 * @throws {BooruFetchError} If the request to the API fails.
+	 * @throws {BooruUnknownPostError} It the booru adapter is unable to resolve the API response.
 	 */
 	fetchPostById(postId: string, credentials: TCredentials): Promise<Post | undefined>;
 
@@ -46,6 +50,8 @@ export interface Booru<
 	 * @param postUrl URL of the post.
 	 * @param credentials Credentials used to authorize the request.
 	 * @returns The matching {@link Post}, or `undefined` if not found.
+	 * @throws {BooruFetchError} If the request to the API fails.
+	 * @throws {BooruUnknownPostError} It the booru adapter is unable to resolve the API response.
 	 */
 	fetchPostByUrl(postUrl: URL, credentials: TCredentials): Promise<Post | undefined>;
 
@@ -55,6 +61,8 @@ export interface Booru<
 	 * @param names Collection of tag names to retrieve.
 	 * @param credentials Credentials used to authorize the request.
 	 * @returns A list of matching {@link Tag}s.
+	 * @throws {BooruFetchError} If the request to the API fails.
+	 * @throws {BooruUnknownPostError} It the booru adapter is unable to resolve the API response.
 	 */
 	fetchTagsByNames(names: Iterable<string>, credentials: TCredentials): Promise<Tag[]>;
 
