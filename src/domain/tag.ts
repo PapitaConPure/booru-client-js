@@ -67,13 +67,19 @@ export class Tag {
 		return `[Tag ${this.id}] (${this.typeName}) ${this.name} x${this.count}`;
 	}
 
-	static mock() {
-		return new Tag({
+	/**
+	 * @description Creates a mock {@link Post} instance for testing.
+	 * @param initOverrides Overrides for the default initialization parameters.
+	 */
+	static mock(initOverrides: Partial<TagInit> = {}) {
+		const defualtMock: TagInit = {
 			id: 1,
 			name: 'name',
 			count: 1,
 			type: 0,
 			fetchTimestamp: new Date(),
-		});
+		};
+
+		return new Tag({ ...defualtMock, ...initOverrides });
 	}
 }
