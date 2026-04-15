@@ -143,6 +143,10 @@ export class Post<TBooru extends Booru = Booru> {
 		return `[Post ${this.id}] (${this.rating}) ${this.fileUrl}`;
 	}
 
+	/**
+	 * @description Creates a mock {@link Post} instance for testing.
+	 * @param initOverrides Overrides for the default initialization parameters.
+	 */
 	static mock(initOverrides: Partial<PostInit> = {}) {
 		const defaultMockInit: PostInit = {
 			id: 4939462,
