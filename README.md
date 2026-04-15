@@ -37,8 +37,8 @@ const danbooru = new Danbooru();
 
 //Create a Booru client with the adapter and our credentials
 const client = new BooruClient(danbooru, {
-	apiKey: process.env.TEST_DANBOORU_APIKEY!,
-	login: process.env.TEST_DANBOORU_LOGIN!,
+	apiKey: 'your Danbooru API key',
+	login: 'your Danbooru user ID',
 });
 
 //Return the last 3 posts containing the tag "touhou" and a "Sensitive" content rating
