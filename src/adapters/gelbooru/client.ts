@@ -106,7 +106,7 @@ export class Gelbooru implements Booru<typeof booruName, GelbooruCredentials, Bo
 			limit: limit,
 			tags: random
 				? `${tags
-						.split(/s+/)
+						.split(/\s+/)
 						.filter((t) => t.length && !sortRegex.test(t))
 						.join(' ')} sort:random`
 				: tags,
