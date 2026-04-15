@@ -7,19 +7,41 @@ import type { TagStore } from '../stores/tag-store';
 import type { BooruClientTagOptions, BooruSearchOptions, CredentialsOf } from '../types/booru';
 import { decodeEntities } from '../utils/encoding';
 
-/**@description Representa una conexión a un sitio Booru.*/
+/**@description Represents an interface for interacting with a Booru API.*/
 export class BooruClient<TBooru extends Booru = Booru> {
+	/**@description The {@link Booru} adapter used to perform API operations.*/
 	#booru: TBooru;
+
+	/**@description Credentials used for authenticating API requests.*/
 	#credentials: CredentialsOf<TBooru> | undefined;
 
+	/**
+	 * @description Ordered chain of {@link TagStore}s used as cache layers.
+	 * Stores at the beginning of the array are queried first.
+	 */
 	#tagStoreChain: TagStore[];
+
+	/**
+	 * @description Threshold that determines the tag fetching strategy.
+	 * If the number of requested tags is below this value, tags are fetched per name.
+	 * Otherwise, they are fetched per store.
+	 */
 	#tagFetchThreshold: number;
+
+	/**
+	 * @description Whether tag cleanup must be triggered manually.
+	 * When `true`, automatic cleanup is disabled.
+	 */
 	#manualTagCleanup: boolean;
+
+	/**@description Minimum interval (in milliseconds) between automatic cleanup executions.*/
 	#tagCleanupIntervalMs: number;
+
+	/**@description Timestamp (in milliseconds) of the last performed tag cleanup.*/
 	#lastTagCleanup: number;
 
 	/**
-	 * @description Creates a {@link BooruClient} with the specified `credentials` and various other `options`.
+	 * @description Creates a {@link BooruClient} with the specified `credentials`.
 	 * @param booru The {@link Booru} API this client will consume.
 	 * @param credentials Credentials for API authorization.
 	 */
