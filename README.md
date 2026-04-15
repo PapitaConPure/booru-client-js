@@ -1,5 +1,9 @@
-# booru-fetch
-A simple Booru wrapper mostly for my personal projects. Uses Node fetch API.
+<h1 align="center">
+	Booru Client
+</h1>
+<p align="center">
+An extensible, zero-dependency imageboard client with multi-layer tag caching.
+</p>
 
 ## Installation
 <table>
