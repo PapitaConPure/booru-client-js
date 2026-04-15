@@ -14,7 +14,7 @@ export class InvalidUrlError extends Error {
 
 export class InvalidDateError extends Error {
 	constructor(field: string, value: unknown) {
-		super(`Invalid URL for field "${field}": ${value}`);
+		super(`Invalid Date for field "${field}": ${value}`);
 		this.name = InvalidDateError.name;
 	}
 }
