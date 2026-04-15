@@ -20,7 +20,7 @@ An extensible, zero-dependency imageboard client with multi-layer tag caching.
 </tr>
 
 <tr>
-<td>npm</td>
+<td><b>npm</b></td>
 <td>
 
 ```cmd
@@ -30,7 +30,7 @@ npm install --save @papitaconpure/booru-client
 </tr>
 
 <tr>
-<td>Bun</td>
+<td><b>Bun</b></td>
 <td>
 
 ```cmd
@@ -40,7 +40,7 @@ bun add @papitaconpure/booru-client
 </tr>
 <tr>
 
-<td>Deno</td>
+<td><b>Deno</b></td>
 <td>
 
 ```cmd
