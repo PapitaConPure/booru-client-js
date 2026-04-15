@@ -72,7 +72,7 @@ export class Tag {
 	 * @param initOverrides Overrides for the default initialization parameters.
 	 */
 	static mock(initOverrides: Partial<TagInit> = {}) {
-		const defualtMock: TagInit = {
+		const defaultMockInit: TagInit = {
 			id: 1,
 			name: 'name',
 			count: 1,
@@ -80,6 +80,6 @@ export class Tag {
 			fetchTimestamp: new Date(),
 		};
 
-		return new Tag({ ...defualtMock, ...initOverrides });
+		return new Tag({ ...defaultMockInit, ...initOverrides });
 	}
 }
