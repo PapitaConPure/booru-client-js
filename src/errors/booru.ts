@@ -24,8 +24,11 @@ export class BooruUnknownPostError extends BooruError {
 
 /**Thrown when a requested {@link Tag} cannot be found or resolved.*/
 export class BooruUnknownTagError extends BooruError {
-	constructor(message: string, options?: ErrorOptions) {
+	tags?: string | null;
+
+	constructor(message: string, options?: ErrorOptions & { tags?: string | null }) {
 		super(message, options);
 		this.name = BooruUnknownTagError.name;
+		this.tags = options?.tags;
 	}
 }

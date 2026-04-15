@@ -233,7 +233,10 @@ export class Danbooru implements Booru<typeof booruName, DanbooruCredentials, Bo
 
 		if (!Array.isArray(fetchResult.data)) {
 			if (dontThrowOnEmptyFetch) return [];
-			throw new BooruUnknownPostError(`Couldn't fetch posts from Danbooru API`);
+			throw new BooruUnknownPostError(
+				`Couldn't fetch posts from Danbooru API.\nReceived: ${JSON.stringify(fetchResult)}`,
+				{ cause: fetchResult.data },
+			);
 		}
 
 		return fetchResult.data;
@@ -262,7 +265,8 @@ export class Danbooru implements Booru<typeof booruName, DanbooruCredentials, Bo
 		if (!Array.isArray(fetchResult.data)) {
 			if (dontThrowOnEmptyFetch) return [];
 			throw new BooruUnknownTagError(
-				`Couldn't fetch tags from Danbooru.${tags ? `\nTried to fetch: ${tags}` : ''}\nReceived: ${fetchResult}`,
+				`Couldn't fetch tags from Danbooru.${tags ? `\nTried to fetch: ${tags}` : ''}\nReceived: ${JSON.stringify(fetchResult)}`,
+				{ tags, cause: fetchResult.data },
 			);
 		}
 
