@@ -18,11 +18,27 @@ import type {
 	DanbooruTagsResponseDto,
 } from './dto';
 
+interface DanbooruOptions {
+	/**Mapper used to transform Danbooru post DTOs into {@link Post} domain entities.*/
+	postMapper?: PostMapper<DanbooruPostDto, Danbooru>;
+	/**Mapper used to transform Danbooru tag DTOs into {@link Tag} domain entities.*/
+	tagMapper?: TagMapper<DanbooruTagDto>;
+	/**Fetch implementation used for API requests.*/
+	fetchFn?: FetchFn;
+}
+
 const booruName = 'danbooru' as const;
 
+/**
+ * Implementation of the {@link Booru} interface for the Danbooru API.
+ *
+ * @see https://danbooru.donmai.us/wiki_pages/help:api
+ */
 export class Danbooru implements Booru<typeof booruName, DanbooruCredentials, BooruSearchOptions> {
+	/**Base URL for Danbooru's API.*/
 	static readonly API_BASE_URL = 'https://danbooru.donmai.us';
 
+	/**Builds a canonical post URL from a post ID.*/
 	static postUrlBuilder: PostUrlBuilder = (postId) =>
 		`https://danbooru.donmai.us/posts/${postId}`;
 
@@ -32,13 +48,12 @@ export class Danbooru implements Booru<typeof booruName, DanbooruCredentials, Bo
 	readonly #apiRandomPostsEndpoint: Endpoint;
 	readonly #apiTagsEndpoint: Endpoint;
 
-	constructor(
-		options: {
-			postMapper?: PostMapper<DanbooruPostDto, Danbooru>;
-			tagMapper?: TagMapper<DanbooruTagDto>;
-			fetchFn?: FetchFn;
-		} = {},
-	) {
+	/**
+	 * Creates a new {@link Danbooru} adapter.
+	 *
+	 * @param options Defines various configurations for this Danbooru adapter.
+	 */
+	constructor(options: DanbooruOptions = {}) {
 		const {
 			postMapper = new DanbooruPostMapper(),
 			tagMapper = new DanbooruTagMapper(),

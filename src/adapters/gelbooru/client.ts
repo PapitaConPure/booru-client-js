@@ -18,11 +18,27 @@ import type {
 	GelbooruTagsResponseDto,
 } from './dto';
 
+interface GelbooruOptions {
+	/**Mapper used to transform Gelbooru post DTOs into {@link Post} domain entities.*/
+	postMapper?: PostMapper<GelbooruPostDto, Gelbooru>;
+	/**Mapper used to transform Gelbooru tag DTOs into {@link Tag} domain entities.*/
+	tagMapper?: TagMapper<GelbooruTagDto>;
+	/**Fetch implementation used for API requests.*/
+	fetchFn?: FetchFn;
+}
+
 const booruName = 'gelbooru' as const;
 
+/**
+ * Implementation of the {@link Booru} interface for the Gelbooru API.
+ *
+ * @see https://gelbooru.com/index.php?page=wiki&s=view&id=18780
+ */
 export class Gelbooru implements Booru<typeof booruName, GelbooruCredentials, BooruSearchOptions> {
+	/**Base URL for Gelbooru's API endpoints.*/
 	static readonly API_BASE_URL = 'https://gelbooru.com/index.php';
 
+	/**Builds a canonical post URL from a post ID.*/
 	static postUrlBuilder: PostUrlBuilder = (postId) =>
 		`https://gelbooru.com/index.php?page=post&s=view&id=${postId}`;
 
@@ -31,13 +47,12 @@ export class Gelbooru implements Booru<typeof booruName, GelbooruCredentials, Bo
 	readonly #apiPostsEndpoint: Endpoint;
 	readonly #apiTagsEndpoint: Endpoint;
 
-	constructor(
-		options: {
-			postMapper?: PostMapper<GelbooruPostDto, Gelbooru>;
-			tagMapper?: TagMapper<GelbooruTagDto>;
-			fetchFn?: FetchFn;
-		} = {},
-	) {
+	/**
+	 * Creates a new {@link Gelbooru} adapter.
+	 *
+	 * @param options Defines various configurations for this Gelbooru adapter.
+	 */
+	constructor(options: GelbooruOptions = {}) {
 		const {
 			postMapper = new GelbooruPostMapper(),
 			tagMapper = new GelbooruTagMapper(),
