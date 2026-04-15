@@ -44,7 +44,7 @@ describe('MemoryTagStore', () => {
 	});
 
 	it('does not return expired tags', async () => {
-		const expired = createTag('old', MemoryTagStore.TAGS_CACHE_LIFETIME + 1000);
+		const expired = createTag('old', store.ttl + 1000);
 
 		await store.setOne(expired);
 		const result = await store.getOne('old');
@@ -54,7 +54,7 @@ describe('MemoryTagStore', () => {
 
 	it('cleans expired tags during getMany', async () => {
 		const valid = createTag('new');
-		const expired = createTag('old', MemoryTagStore.TAGS_CACHE_LIFETIME + 1000);
+		const expired = createTag('old', store.ttl + 1000);
 
 		await store.setMany([valid, expired]);
 
@@ -65,7 +65,7 @@ describe('MemoryTagStore', () => {
 	});
 
 	it('cleanup removes expired tags', async () => {
-		const expired = createTag('old', MemoryTagStore.TAGS_CACHE_LIFETIME + 1000);
+		const expired = createTag('old', store.ttl + 1000);
 
 		await store.setOne(expired);
 		await store.cleanup?.();

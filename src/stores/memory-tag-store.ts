@@ -2,12 +2,19 @@ import type { Tag } from '../domain/tag';
 import type { TagStore } from './tag-store';
 
 export class MemoryTagStore implements TagStore {
-	static readonly TAGS_CACHE_LIFETIME: number = 4 * 60 * 60e3;
-
+	#ttl: number;
 	#cache: Map<string, Tag>;
 
-	constructor() {
+	constructor(options: {
+		/**Interval of time in which cached {@link Tag}s will expire, in milliseconds. Defaults to 4 minutes.*/
+		ttl?: number;
+	} = {}) {
+		const {
+			ttl = 4 * 60 * 60e3,
+		} = options;
+
 		this.#cache = new Map<string, Tag>();
+		this.#ttl = ttl;
 	}
 
 	async getMany(names: Iterable<string>): Promise<Tag[]> {
@@ -39,8 +46,13 @@ export class MemoryTagStore implements TagStore {
 		const now = Date.now();
 
 		for (const [key, tag] of this.#cache.entries())
-			if (now - +tag.fetchTimestamp > MemoryTagStore.TAGS_CACHE_LIFETIME)
+			if (now - +tag.fetchTimestamp > this.#ttl)
 				this.#cache.delete(key);
+	}
+
+	/**@description Interval of time in which cached {@link Tag}s will expire, in milliseconds.*/
+	get ttl() {
+		return this.#ttl;
 	}
 
 	/**@description Cleans up a stored {@link Tag} if it hasn't been cached in a while.*/
@@ -48,7 +60,7 @@ export class MemoryTagStore implements TagStore {
 		const now = Date.now();
 		const tag = this.#cache.get(name);
 
-		if (tag && now - +tag.fetchTimestamp > MemoryTagStore.TAGS_CACHE_LIFETIME)
+		if (tag && now - +tag.fetchTimestamp > this.#ttl)
 			this.#cache.delete(name);
 	}
 }
