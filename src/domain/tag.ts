@@ -1,4 +1,5 @@
 import { type TagInit, type TagType, TagTypes } from '../types/booru';
+import { parseValidDate } from '../utils/misc';
 
 const TagTypeNames: Record<TagType, string> = {
 	[TagTypes.GENERAL]: 'General',
@@ -48,7 +49,7 @@ export class Tag {
 		this.name = data.name;
 		this.count = data.count;
 		this.type = data.type;
-		this.fetchTimestamp = new Date(data.fetchTimestamp);
+		this.fetchTimestamp = parseValidDate('fetchTimestamp', data.fetchTimestamp);
 
 		Object.freeze(this);
 	}
