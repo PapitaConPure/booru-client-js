@@ -2,13 +2,13 @@ import type { Post } from '../domain/post';
 import type { Tag } from '../domain/tag';
 import type { BooruSearchOptions } from '../types/booru';
 
-/**@description Defines una interface to interact with one of various imageboards.*/
+/**Defines una interface to interact with one of various imageboards.*/
 export interface Booru<
 	TName extends string = string,
 	TCredentials = unknown,
 	TSearchOptions extends BooruSearchOptions = BooruSearchOptions,
 > {
-	/**@description */
+	/** */
 	get name(): TName;
 
 	/**

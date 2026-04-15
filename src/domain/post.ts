@@ -4,7 +4,6 @@ import { getSourceUrl, parseUrlForField } from '../utils/misc';
 import { type PostRating, PostRatings } from './post-rating';
 
 /**
- * @description
  * Represents a domain entity for a post (image or media) published on a {@linkcode Booru}.
  *
  * Encapsulates canonical data associated with a booru post, independent of the underlying API representation.
@@ -12,56 +11,56 @@ import { type PostRating, PostRatings } from './post-rating';
  * This object is immutable and should be treated as a read-only value.
  */
 export class Post<TBooru extends Booru = Booru> {
-	/**@description The identifier of the {@link Booru} this post originates from.*/
+	/**The identifier of the {@link Booru} this post originates from.*/
 	readonly booruName: NameOf<TBooru>;
 
-	/**@description Unique identifier of the {@link Post} within its source booru.*/
+	/**Unique identifier of the {@link Post} within its source booru.*/
 	readonly id: number;
 
-	/**@description Title or caption of the {@link Post}. Rarely set in most booru services.*/
+	/**Title or caption of the {@link Post}. Rarely set in most booru services.*/
 	readonly title: string;
 
-	/**@description Tag names associated with the {@link Post}.*/
+	/**Tag names associated with the {@link Post}.*/
 	readonly tags: string[];
 
-	/**@description Optional list of source URLs referencing the origin of the {@link Post} content.*/
+	/**Optional list of source URLs referencing the origin of the {@link Post} content.*/
 	readonly sources?: string[];
 
-	/**@description Aggregated score representing the {@link Post}'s popularity.*/
+	/**Aggregated score representing the {@link Post}'s popularity.*/
 	readonly score: number;
 
-	/**@description Content rating classification of the {@link Post}.*/
+	/**Content rating classification of the {@link Post}.*/
 	readonly rating: PostRating;
 
-	/**@description Timestamp indicating when the {@link Post} was created.*/
+	/**Timestamp indicating when the {@link Post} was created.*/
 	readonly createdAt: Date;
 
-	/**@description Identifier of the creator/uploader of the {@link Post}.*/
+	/**Identifier of the creator/uploader of the {@link Post}.*/
 	readonly creatorId: number;
 
-	/**@description Direct URL to the original media file.*/
+	/**Direct URL to the original media file.*/
 	readonly fileUrl: URL;
 
-	/**@description Dimensions of the original media, as `[width, height]`.*/
+	/**Dimensions of the original media, as `[width, height]`.*/
 	readonly size: [number, number];
 
-	/**@description Optional URL to a preview (thumbnail) representation.*/
+	/**Optional URL to a preview (thumbnail) representation.*/
 	readonly previewUrl?: URL;
 
-	/**@description Dimensions of the preview media as `[width, height]`.*/
+	/**Dimensions of the preview media as `[width, height]`.*/
 	readonly previewSize?: [number, number];
 
-	/**@description Optional URL to a sample (resized or compressed) representation.*/
+	/**Optional URL to a sample (resized or compressed) representation.*/
 	readonly sampleUrl?: URL;
 
-	/**@description Dimensions of the sample media as `[width, height]`.*/
+	/**Dimensions of the sample media as `[width, height]`.*/
 	readonly sampleSize?: [number, number];
 
-	/**@description Internal service used to construct the URL this {@link Post} comes from.*/
+	/**Internal service used to construct the URL this {@link Post} comes from.*/
 	readonly #urlBuilder: PostUrlBuilder;
 
 	/**
-	 * @description Constructs a {@link Post} domain entity from normalized initialization data.
+	 * Constructs a {@link Post} domain entity from normalized initialization data.
 	 *
 	 * URL fields are validated and normalized into {@link URL} instances.
 	 *
@@ -92,18 +91,17 @@ export class Post<TBooru extends Booru = Booru> {
 		Object.freeze(this);
 	}
 
-	/**@description The computed original URL this {@link Post} comes from.*/
+	/**The computed original URL this {@link Post} comes from.*/
 	get url() {
 		return this.#urlBuilder(this.id);
 	}
 
-	/**@description Tries to find sources that match a URL pattern, and returns all matches (if any)*/
+	/**Tries to find sources that match a URL pattern, and returns all matches (if any)*/
 	findUrlSources() {
 		return this.sources?.map(getSourceUrl).filter((s) => s != null);
 	}
 
 	/**
-	 * @description
 	 * Finds and returns the first source that matches a URL pattern.
 	 *
 	 * If no URL source is found, `undefined` is returned
@@ -113,7 +111,6 @@ export class Post<TBooru extends Booru = Booru> {
 	}
 
 	/**
-	 * @description
 	 * Finds and returns the last source that matches a URL pattern.
 	 *
 	 * If no URL source is found, `undefined` is returned.
@@ -144,7 +141,7 @@ export class Post<TBooru extends Booru = Booru> {
 	}
 
 	/**
-	 * @description Creates a mock {@link Post} instance for testing.
+	 * Creates a mock {@link Post} instance for testing.
 	 * @param initOverrides Overrides for the default initialization parameters.
 	 */
 	static mock(initOverrides: Partial<PostInit> = {}) {

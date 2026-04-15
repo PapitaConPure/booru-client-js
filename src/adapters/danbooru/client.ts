@@ -198,7 +198,7 @@ export class Danbooru implements Booru<typeof booruName, DanbooruCredentials, Bo
 	}
 
 	/**
-	 * @description Asserts that the status code of a response is 200 and that the {@link Post} data is valid before returning it.
+	 * Asserts that the status code of a response is 200 and that the {@link Post} data is valid before returning it.
 	 * @throws {BooruFetchError}
 	 * @throws {BooruUnknownPostError}
 	 */
@@ -225,7 +225,7 @@ export class Danbooru implements Booru<typeof booruName, DanbooruCredentials, Bo
 	}
 
 	/**
-	 * @description Asserts that the status code of a response is 200 and that the {@link Tag} data is valid before returning it.
+	 * Asserts that the status code of a response is 200 and that the {@link Tag} data is valid before returning it.
 	 * @throws {BooruFetchError}
 	 * @throws {BooruUnknownTagError}
 	 */

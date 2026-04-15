@@ -7,48 +7,48 @@ import type { TagStore } from '../stores/tag-store';
 import type { BooruClientTagOptions, BooruSearchOptions, CredentialsOf } from '../types/booru';
 import { decodeEntities } from '../utils/encoding';
 
-/**@description Represents an interface for interacting with a Booru API.*/
+/**Represents an interface for interacting with a Booru API.*/
 export class BooruClient<TBooru extends Booru = Booru> {
-	/**@description The {@link Booru} adapter used to perform API operations.*/
+	/**The {@link Booru} adapter used to perform API operations.*/
 	#booru: TBooru;
 
-	/**@description Credentials used for authenticating API requests.*/
+	/**Credentials used for authenticating API requests.*/
 	#credentials: CredentialsOf<TBooru> | undefined;
 
 	/**
-	 * @description Ordered chain of {@link TagStore}s used as cache layers.
+	 * Ordered chain of {@link TagStore}s used as cache layers.
 	 * Stores at the beginning of the array are queried first.
 	 */
 	#tagStoreChain: TagStore[];
 
 	/**
-	 * @description Threshold that determines the tag fetching strategy.
+	 * Threshold that determines the tag fetching strategy.
 	 * If the number of requested tags is below this value, tags are fetched per name.
 	 * Otherwise, they are fetched per store.
 	 */
 	#tagFetchThreshold: number;
 
 	/**
-	 * @description Whether tag cleanup must be triggered manually.
+	 * Whether tag cleanup must be triggered manually.
 	 * When `true`, automatic cleanup is disabled.
 	 */
 	#manualTagCleanup: boolean;
 
-	/**@description Minimum interval (in milliseconds) between automatic cleanup executions.*/
+	/**Minimum interval (in milliseconds) between automatic cleanup executions.*/
 	#tagCleanupIntervalMs: number;
 
-	/**@description Timestamp (in milliseconds) of the last performed tag cleanup.*/
+	/**Timestamp (in milliseconds) of the last performed tag cleanup.*/
 	#lastTagCleanup: number;
 
 	/**
-	 * @description Creates a {@link BooruClient} with the specified `credentials`.
+	 * Creates a {@link BooruClient} with the specified `credentials`.
 	 * @param booru The {@link Booru} API this client will consume.
 	 * @param credentials Credentials for API authorization.
 	 */
 	constructor(booru: TBooru, credentials: CredentialsOf<TBooru>);
 
 	/**
-	 * @description Creates a {@link BooruClient} with the specified `credentials` and various other `options`.
+	 * Creates a {@link BooruClient} with the specified `credentials` and various other `options`.
 	 * @param booru The {@link Booru} API this client will consume.
 	 * @param options Options to define this client's behaviour.
 	 */
@@ -111,7 +111,7 @@ export class BooruClient<TBooru extends Booru = Booru> {
 	}
 
 	/**
-	 * @description Searches a {@link Booru} to retrieve {@linkcode Post}s, results can be transformed based on the `searchOptions` provided.
+	 * Searches a {@link Booru} to retrieve {@linkcode Post}s, results can be transformed based on the `searchOptions` provided.
 	 * @param tags Tags to search
 	 * @param searchOptions Search options
 	 * @returns An array containing the posts found during the search.
@@ -129,7 +129,7 @@ export class BooruClient<TBooru extends Booru = Booru> {
 	}
 
 	/**
-	 * @description Obtains a {@link Post} from a {@link Booru}, based on the supplied ID.
+	 * Obtains a {@link Post} from a {@link Booru}, based on the supplied ID.
 	 * @returns The obtained post, or `undefined` if no post was found with that ID.
 	 * @throws {ReferenceError}
 	 * @throws {TypeError}
@@ -143,7 +143,7 @@ export class BooruClient<TBooru extends Booru = Booru> {
 	}
 
 	/**
-	 * @description Obtains a {@link Post} from a {@link Booru}'s URL.
+	 * Obtains a {@link Post} from a {@link Booru}'s URL.
 	 * @returns The obtained post, or `undefined` if no post exists on that URL.
 	 * @throws {ReferenceError}
 	 * @throws {TypeError}
@@ -159,7 +159,7 @@ export class BooruClient<TBooru extends Booru = Booru> {
 	}
 
 	/**
-	 * @description Retrieves the {@linkcode Tag}s associated with the given {@linkcode Post}.
+	 * Retrieves the {@linkcode Tag}s associated with the given {@linkcode Post}.
 	 * @returns An array containing the tags that were retrieved from the post.
 	 * @throws {ReferenceError}
 	 * @throws {TypeError}
@@ -172,7 +172,7 @@ export class BooruClient<TBooru extends Booru = Booru> {
 	}
 
 	/**
-	 * @description Retrieves the {@linkcode Tag}s of a {@link Post} identified by its URL.
+	 * Retrieves the {@linkcode Tag}s of a {@link Post} identified by its URL.
 	 * @returns An array containing the tags that were retrieved from the post.
 	 * @throws {ReferenceError}
 	 * @throws {TypeError}
@@ -184,7 +184,7 @@ export class BooruClient<TBooru extends Booru = Booru> {
 	}
 
 	/**
-	 * @description Retrieves the {@linkcode Tag}s of a {@link Post} identified by its ID.
+	 * Retrieves the {@linkcode Tag}s of a {@link Post} identified by its ID.
 	 * @returns An array containing the tags that were retrieved from the post.
 	 * @throws {ReferenceError}
 	 * @throws {TypeError}
@@ -196,7 +196,7 @@ export class BooruClient<TBooru extends Booru = Booru> {
 	}
 
 	/**
-	 * @description Obtains {@link Tag}s by their names. Uses the configured {@link TagStore} chain as sequential cache layers before actually making an API call.
+	 * Obtains {@link Tag}s by their names. Uses the configured {@link TagStore} chain as sequential cache layers before actually making an API call.
 	 *
 	 * Missing tags are fetched from the configured {@link Booru}'s API and stored back into the cache.
 	 * @returns An array containing every obtained tag.
@@ -238,7 +238,7 @@ export class BooruClient<TBooru extends Booru = Booru> {
 	}
 
 	/**
-	 * @description Sets the credentials used for all {@link Booru} API calls.
+	 * Sets the credentials used for all {@link Booru} API calls.
 	 * @param credentials Credentials for API authorization.
 	 * @throws {ReferenceError}
 	 * @throws {TypeError}
@@ -250,7 +250,7 @@ export class BooruClient<TBooru extends Booru = Booru> {
 	}
 
 	/**
-	 * @description Performs a cleanup of all managed {@link TagStore}s so that invalid or stale tags can be re-fetched from the API or a store deeper in the chain.
+	 * Performs a cleanup of all managed {@link TagStore}s so that invalid or stale tags can be re-fetched from the API or a store deeper in the chain.
 	 *
 	 * Only call manually if this {@link BooruClient} was created using `manualTagCleanup: true`.
 	 * @param stores The stores to clean up.
@@ -266,7 +266,7 @@ export class BooruClient<TBooru extends Booru = Booru> {
 	}
 
 	/**
-	 * @description Asserts that valid credentials are available for API requests and returns them.
+	 * Asserts that valid credentials are available for API requests and returns them.
 	 * @throws {ReferenceError}
 	 * @throws {TypeError}
 	 */
@@ -276,7 +276,7 @@ export class BooruClient<TBooru extends Booru = Booru> {
 	}
 
 	/**
-	 * @description Validates credentials structure and ensures they are usable for API requests.
+	 * Validates credentials structure and ensures they are usable for API requests.
 	 * @param credentials Credentials to validate.
 	 * @throws {ReferenceError}
 	 * @throws {TypeError}
@@ -289,7 +289,7 @@ export class BooruClient<TBooru extends Booru = Booru> {
 	}
 
 	/**
-	 * @description Obtains tags by tag names, using {@link TagStore} layers on a name by name basis.
+	 * Obtains tags by tag names, using {@link TagStore} layers on a name by name basis.
 	 * @param normalizedTagNames The tag names from which to obtain tag objects.
 	 * @returns An object, containing:
 	 * * `storedTags`: Tags that could be obtained from a store layer.
@@ -325,7 +325,7 @@ export class BooruClient<TBooru extends Booru = Booru> {
 	}
 
 	/**
-	 * @description Obtains tags by tag names, using {@link TagStore} layers on a store by store basis.
+	 * Obtains tags by tag names, using {@link TagStore} layers on a store by store basis.
 	 * @param normalizedTagNames The tag names from which to obtain tag objects.
 	 * @returns An object, containing:
 	 * * `storedTags`: Tags that could be obtained from a store layer.
@@ -357,7 +357,7 @@ export class BooruClient<TBooru extends Booru = Booru> {
 	}
 
 	/**
-	 * @description Calls `cleanup()` on all the provided {@link TagStore}s, or the whole chain if no stores were specified.
+	 * Calls `cleanup()` on all the provided {@link TagStore}s, or the whole chain if no stores were specified.
 	 *
 	 * Managed by this {@link BooruClient} and throttled based on configuration during initialization.
 	 * @param stores The stores to clean up.
@@ -373,7 +373,7 @@ export class BooruClient<TBooru extends Booru = Booru> {
 	}
 
 	/**
-	 * @description Calls `cleanup()` on all the provided {@link TagStore}s, or the whole chain if no stores were specified.
+	 * Calls `cleanup()` on all the provided {@link TagStore}s, or the whole chain if no stores were specified.
 	 * @param stores The stores to clean up.
 	 */
 	async #performCleanup(...stores: TagStore[]) {

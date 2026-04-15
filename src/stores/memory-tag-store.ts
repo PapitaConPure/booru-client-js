@@ -49,12 +49,12 @@ export class MemoryTagStore implements TagStore {
 			if (now - +tag.fetchTimestamp > this.#ttl) this.#cache.delete(key);
 	}
 
-	/**@description Interval of time in which cached {@link Tag}s will expire, in milliseconds.*/
+	/**Interval of time in which cached {@link Tag}s will expire, in milliseconds.*/
 	get ttl() {
 		return this.#ttl;
 	}
 
-	/**@description Cleans up a stored {@link Tag} if it hasn't been cached in a while.*/
+	/**Cleans up a stored {@link Tag} if it hasn't been cached in a while.*/
 	#cleanIfExpired(name: string) {
 		const now = Date.now();
 		const tag = this.#cache.get(name);
