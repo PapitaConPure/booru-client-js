@@ -2,20 +2,28 @@ import type { Post } from '../domain/post';
 import type { Tag } from '../domain/tag';
 import type { BooruSearchOptions } from '../types/booru';
 
-/**Defines una interface to interact with one of various imageboards.*/
+/**
+ * Defines a contract for interacting with a booru (imageboard) service.
+ *
+ * Implementations are responsible for adapting external API responses into the respective known, normalized domain entities:
+ * * {@link Post}
+ * * {@link Tag}
+ */
 export interface Booru<
 	TName extends string = string,
 	TCredentials = unknown,
 	TSearchOptions extends BooruSearchOptions = BooruSearchOptions,
 > {
-	/** */
+	/**Unique identifier of this booru implementation.*/
 	get name(): TName;
 
 	/**
+	 * Searches {@link Post}s matching the provided tag query.
 	 *
-	 * @param tags
-	 * @param options
-	 * @param credentials
+	 * @param tags Space-separated tag query string.
+	 * @param searchOptions Normalized search options.
+	 * @param credentials Credentials used to authorize the request.
+	 * @returns A list of matching {@link Post}s.
 	 */
 	search(
 		tags: string,
@@ -24,29 +32,38 @@ export interface Booru<
 	): Promise<Post[]>;
 
 	/**
+	 * Fetches a {@link Post} by its unique identifier.
 	 *
-	 * @param postId
-	 * @param credentials
+	 * @param postId Identifier of the post.
+	 * @param credentials Credentials used to authorize the request.
+	 * @returns The matching {@link Post}, or `undefined` if not found.
 	 */
 	fetchPostById(postId: string, credentials: TCredentials): Promise<Post | undefined>;
 
 	/**
+	 * Fetches a {@link Post} from its canonical URL.
 	 *
-	 * @param postUrl
-	 * @param credentials
+	 * @param postUrl URL of the post.
+	 * @param credentials Credentials used to authorize the request.
+	 * @returns The matching {@link Post}, or `undefined` if not found.
 	 */
 	fetchPostByUrl(postUrl: URL, credentials: TCredentials): Promise<Post | undefined>;
 
 	/**
+	 * Fetches {@link Tag}s by their names.
 	 *
-	 * @param names
-	 * @param credentials
+	 * @param names Collection of tag names to retrieve.
+	 * @param credentials Credentials used to authorize the request.
+	 * @returns A list of matching {@link Tag}s.
 	 */
 	fetchTagsByNames(names: Iterable<string>, credentials: TCredentials): Promise<Tag[]>;
 
 	/**
+	 * Validates that the provided credentials are usable for API requests.
 	 *
-	 * @param credentials
+	 * @param credentials Credentials to validate.
+	 * @throws {ReferenceError} If credentials are missing.
+	 * @throws {TypeError} If credentials are malformed.
 	 */
 	validateCredentials(credentials: TCredentials): asserts credentials is TCredentials;
 }
