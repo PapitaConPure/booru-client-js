@@ -38,6 +38,16 @@ bun add @papitaconpure/booru-client
 ```
 </td>
 </tr>
+<tr>
+
+<td>Deno</td>
+<td>
+
+```cmd
+deno add npm:@papitaconpure/booru-client
+```
+</td>
+</tr>
 </table>
 
 ## Basic Usage
