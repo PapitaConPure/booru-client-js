@@ -1,3 +1,4 @@
+/**Thrown when an operation is not allowed in the current context.*/
 export class InvalidOperationError extends Error {
 	constructor(message: string, options?: ErrorOptions) {
 		super(message, options);
@@ -5,6 +6,7 @@ export class InvalidOperationError extends Error {
 	}
 }
 
+/**Thrown when a `value` cannot be parsed into a valid URL for a specific `field`.*/
 export class InvalidUrlError extends Error {
 	constructor(field: string, value: unknown) {
 		super(`Invalid URL for field "${field}": ${value}`);
@@ -12,6 +14,7 @@ export class InvalidUrlError extends Error {
 	}
 }
 
+/**Thrown when a `value` cannot be parsed into a valid Date for a specific `field`.*/
 export class InvalidDateError extends Error {
 	constructor(field: string, value: unknown) {
 		super(`Invalid Date for field "${field}": ${value}`);
