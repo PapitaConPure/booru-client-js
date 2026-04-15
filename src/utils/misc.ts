@@ -15,6 +15,14 @@ export function shuffleArray<T>(array: T[]): void {
 	}
 }
 
+export function stringify(value: string) {
+	try {
+		return JSON.stringify(value);
+	} catch {
+		return `${value}`;
+	}
+}
+
 export function getSourceUrl(source: string) {
 	if (!source) return null;
 
