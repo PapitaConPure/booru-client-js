@@ -5,13 +5,13 @@ export class MemoryTagStore implements TagStore {
 	#ttl: number;
 	#cache: Map<string, Tag>;
 
-	constructor(options: {
-		/**Interval of time in which cached {@link Tag}s will expire, in milliseconds. Defaults to 4 minutes.*/
-		ttl?: number;
-	} = {}) {
-		const {
-			ttl = 4 * 60 * 60e3,
-		} = options;
+	constructor(
+		options: {
+			/**Interval of time in which cached {@link Tag}s will expire, in milliseconds. Defaults to 4 minutes.*/
+			ttl?: number;
+		} = {},
+	) {
+		const { ttl = 4 * 60 * 60e3 } = options;
 
 		this.#cache = new Map<string, Tag>();
 		this.#ttl = ttl;
@@ -46,8 +46,7 @@ export class MemoryTagStore implements TagStore {
 		const now = Date.now();
 
 		for (const [key, tag] of this.#cache.entries())
-			if (now - +tag.fetchTimestamp > this.#ttl)
-				this.#cache.delete(key);
+			if (now - +tag.fetchTimestamp > this.#ttl) this.#cache.delete(key);
 	}
 
 	/**@description Interval of time in which cached {@link Tag}s will expire, in milliseconds.*/
@@ -60,7 +59,6 @@ export class MemoryTagStore implements TagStore {
 		const now = Date.now();
 		const tag = this.#cache.get(name);
 
-		if (tag && now - +tag.fetchTimestamp > this.#ttl)
-			this.#cache.delete(name);
+		if (tag && now - +tag.fetchTimestamp > this.#ttl) this.#cache.delete(name);
 	}
 }
