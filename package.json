@@ -1,6 +1,6 @@
 {
   "name": "@papitaconpure/booru-client",
-  "version": "0.3.2",
+  "version": "0.4.0",
   "description": "A simple Booru wrapper mostly for my personal projects. Uses Node fetch API.",
   "type": "module",
   "main": "./dist/index.js",
