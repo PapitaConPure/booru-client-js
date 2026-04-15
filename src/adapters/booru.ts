@@ -62,7 +62,7 @@ export interface Booru<
 	 * @param credentials Credentials used to authorize the request.
 	 * @returns A list of matching {@link Tag}s.
 	 * @throws {BooruFetchError} If the request to the API fails.
-	 * @throws {BooruUnknownPostError} It the booru adapter is unable to resolve the API response.
+	 * @throws {BooruUnknownTagError} It the booru adapter is unable to resolve the API response.
 	 */
 	fetchTagsByNames(names: Iterable<string>, credentials: TCredentials): Promise<Tag[]>;
 

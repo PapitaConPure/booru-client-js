@@ -115,9 +115,10 @@ export class BooruClient<TBooru extends Booru = Booru> {
 	 * @param tags Tags to search
 	 * @param searchOptions Search options
 	 * @returns An array containing the posts found during the search.
-	 * @throws {ReferenceError}
-	 * @throws {TypeError}
-	 * @throws {BooruFetchError}
+	 * @throws {ReferenceError} If no credentials were defined.
+	 * @throws {TypeError} If the supplied credentials are invalid.
+	 * @throws {BooruFetchError} If the request to the API fails.
+	 * @throws {BooruUnknownPostError} It the booru adapter is unable to resolve the API response.
 	 */
 	async search(tags: string | string[], searchOptions: BooruSearchOptions = {}): Promise<Post[]> {
 		if (Array.isArray(tags)) tags = tags.join(' ');
@@ -131,10 +132,10 @@ export class BooruClient<TBooru extends Booru = Booru> {
 	/**
 	 * Obtains a {@link Post} from a {@link Booru}, based on the supplied ID.
 	 * @returns The obtained post, or `undefined` if no post was found with that ID.
-	 * @throws {ReferenceError}
-	 * @throws {TypeError}
-	 * @throws {BooruFetchError}
-	 * @throws {BooruUnknownPostError}
+	 * @throws {ReferenceError} If no credentials were defined.
+	 * @throws {TypeError} If the supplied ID or credentials are invalid.
+	 * @throws {BooruFetchError} If the request to the API fails.
+	 * @throws {BooruUnknownPostError} It the booru adapter is unable to resolve the API response.
 	 */
 	async fetchPostById(postId: string): Promise<Post | undefined> {
 		if (typeof postId !== 'string') throw new TypeError('Post ID must be a string');
@@ -145,9 +146,10 @@ export class BooruClient<TBooru extends Booru = Booru> {
 	/**
 	 * Obtains a {@link Post} from a {@link Booru}'s URL.
 	 * @returns The obtained post, or `undefined` if no post exists on that URL.
-	 * @throws {ReferenceError}
-	 * @throws {TypeError}
-	 * @throws {BooruFetchError}
+	 * @throws {ReferenceError} If no credentials were defined.
+	 * @throws {TypeError} If the supplied URL or credentials are invalid.
+	 * @throws {BooruFetchError} If the request to the API fails.
+	 * @throws {BooruUnknownPostError} It the booru adapter is unable to resolve the API response.
 	 */
 	async fetchPostByUrl(postUrl: URL | string): Promise<Post | undefined> {
 		if (typeof postUrl !== 'string' && !(postUrl instanceof URL))
@@ -161,9 +163,10 @@ export class BooruClient<TBooru extends Booru = Booru> {
 	/**
 	 * Retrieves the {@linkcode Tag}s associated with the given {@linkcode Post}.
 	 * @returns An array containing the tags that were retrieved from the post.
-	 * @throws {ReferenceError}
-	 * @throws {TypeError}
-	 * @throws {BooruFetchError}
+	 * @throws {ReferenceError} If no credentials were defined.
+	 * @throws {TypeError} If the supplied tags or credentials are invalid.
+	 * @throws {BooruFetchError} If the request to the API fails.
+	 * @throws {BooruUnknownPostError} It the booru adapter is unable to resolve the API response.
 	 */
 	async fetchPostTags(post: Post): Promise<Tag[]> {
 		if (!Array.isArray(post?.tags)) throw new ReferenceError('Invalid Post');
@@ -174,9 +177,10 @@ export class BooruClient<TBooru extends Booru = Booru> {
 	/**
 	 * Retrieves the {@linkcode Tag}s of a {@link Post} identified by its URL.
 	 * @returns An array containing the tags that were retrieved from the post.
-	 * @throws {ReferenceError}
-	 * @throws {TypeError}
-	 * @throws {BooruFetchError}
+	 * @throws {ReferenceError} If no credentials were defined.
+	 * @throws {TypeError} If the supplied tags or credentials are invalid.
+	 * @throws {BooruFetchError} If the request to the API fails.
+	 * @throws {BooruUnknownPostError} It the booru adapter is unable to resolve the API response.
 	 */
 	async fetchPostTagsByUrl(postUrl: string): Promise<Tag[] | undefined> {
 		const post = await this.fetchPostByUrl(postUrl);
@@ -186,9 +190,11 @@ export class BooruClient<TBooru extends Booru = Booru> {
 	/**
 	 * Retrieves the {@linkcode Tag}s of a {@link Post} identified by its ID.
 	 * @returns An array containing the tags that were retrieved from the post.
-	 * @throws {ReferenceError}
-	 * @throws {TypeError}
-	 * @throws {BooruFetchError}
+	 * @throws {ReferenceError} If no credentials were defined.
+	 * @throws {TypeError} If the supplied tags or credentials are invalid.
+	 * @throws {BooruFetchError} If the request to the API fails.
+	 * @throws {BooruUnknownPostError} It the booru adapter is unable to resolve the API response while finding a post.
+	 * @throws {BooruUnknownTagError} It the booru adapter is unable to resolve the API response while retrieving the post tags.
 	 */
 	async fetchPostTagsById(postId: string): Promise<Tag[] | undefined> {
 		const post = await this.fetchPostById(postId);
@@ -200,9 +206,10 @@ export class BooruClient<TBooru extends Booru = Booru> {
 	 *
 	 * Missing tags are fetched from the configured {@link Booru}'s API and stored back into the cache.
 	 * @returns An array containing every obtained tag.
-	 * @throws {ReferenceError}
-	 * @throws {TypeError}
-	 * @throws {BooruFetchError}
+	 * @throws {ReferenceError} If no credentials were defined.
+	 * @throws {TypeError} If the supplied tags or credentials are invalid.
+	 * @throws {BooruFetchError} If the request to the API fails.
+	 * @throws {BooruUnknownTagError} It the booru adapter is unable to resolve the API response.
 	 */
 	async fetchTagsByNames(options: {
 		/**The tag names to fetch.*/
@@ -240,8 +247,8 @@ export class BooruClient<TBooru extends Booru = Booru> {
 	/**
 	 * Sets the credentials used for all {@link Booru} API calls.
 	 * @param credentials Credentials for API authorization.
-	 * @throws {ReferenceError}
-	 * @throws {TypeError}
+	 * @throws {ReferenceError} If no credentials were defined.
+	 * @throws {TypeError} If the supplied credentials are invalid.
 	 */
 	setCredentials(credentials: CredentialsOf<TBooru>): this {
 		this.#expectCredentials(credentials);
@@ -267,8 +274,8 @@ export class BooruClient<TBooru extends Booru = Booru> {
 
 	/**
 	 * Asserts that valid credentials are available for API requests and returns them.
-	 * @throws {ReferenceError}
-	 * @throws {TypeError}
+	 * @throws {ReferenceError} If no credentials were defined.
+	 * @throws {TypeError} If the supplied credentials are invalid.
 	 */
 	#getCredentials(): CredentialsOf<TBooru> {
 		this.#expectCredentials(this.#credentials);
@@ -278,8 +285,8 @@ export class BooruClient<TBooru extends Booru = Booru> {
 	/**
 	 * Validates credentials structure and ensures they are usable for API requests.
 	 * @param credentials Credentials to validate.
-	 * @throws {ReferenceError}
-	 * @throws {TypeError}
+	 * @throws {ReferenceError} If no credentials were defined.
+	 * @throws {TypeError} If the supplied credentials are invalid.
 	 */
 	#expectCredentials(
 		credentials: CredentialsOf<TBooru> | undefined,
