@@ -1,7 +1,7 @@
 {
   "name": "@papitaconpure/booru-client",
   "version": "1.0.0",
-  "description": "A simple Booru wrapper mostly for my personal projects. Uses Node fetch API.",
+  "description": "An extensible, zero-dependency imageboard client with multi-layer tag caching.",
   "type": "module",
   "main": "./dist/index.js",
   "types": "./dist/index.d.ts",
@@ -15,15 +15,17 @@
     "dist"
   ],
   "scripts": {
-    "build": "bun build ./src/index.ts --outdir ./dist --target=node",
-    "dev": "bun run src/index.ts",
-    "types": "tsc",
-    "check": "tsc --noEmit",
     "lint": "bunx biome lint",
     "lint:fix": "bunx biome lint --write",
     "format": "bunx biome format",
     "format:fix": "bunx biome format --write",
-    "prepublish": "bun run lint:fix && bun run format:fix && npm run build && npm run types"
+    "dev": "bun run src/index.ts",
+    "check": "tsc --noEmit",
+    "fix": "bun run lint:fix && bun run format:fix",
+    "build": "bun build ./src/index.ts --outdir ./dist --target=node",
+    "types": "tsc",
+    "prepare": "npm run build && npm run types",
+    "postversion": "git push --follow-tags"
   },
   "engines": {
     "node": ">=18"
