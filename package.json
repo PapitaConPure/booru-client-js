@@ -19,7 +19,11 @@
     "dev": "bun run src/index.ts",
     "types": "tsc",
     "check": "tsc --noEmit",
-    "prepublish": "npm run build && npm run types"
+    "lint": "bunx biome lint",
+    "lint:fix": "bunx biome lint --write",
+    "format": "bunx biome format",
+    "format:fix": "bunx biome format --write",
+    "prepublish": "bun run lint:fix && bun run format:fix && npm run build && npm run types"
   },
   "engines": {
     "node": ">=18"
