@@ -3,11 +3,8 @@ import { Tag } from '../../domain/tag';
 import { MemoryTagStore } from '../../stores/memory-tag-store';
 
 function createTag(name: string, ageMs = 0) {
-	return new Tag({
-		id: Math.random(),
+	return Tag.mock({
 		name,
-		type: 0,
-		count: 1,
 		fetchTimestamp: new Date(Date.now() - ageMs),
 	});
 }

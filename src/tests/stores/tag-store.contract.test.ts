@@ -5,13 +5,7 @@ import type { TagStore } from '../../stores/tag-store';
 function runContract(store: TagStore) {
 	return describe('TagStore contract', () => {
 		it('supports setOne + getOne roundtrip', async () => {
-			const tag = new Tag({
-				id: 1,
-				name: 'test',
-				type: 0,
-				count: 1,
-				fetchTimestamp: new Date(),
-			});
+			const tag = Tag.mock({ name: 'test' });
 
 			await store.setOne(tag);
 			const result = await store.getOne('test');
@@ -20,10 +14,7 @@ function runContract(store: TagStore) {
 		});
 
 		it('supports setMany + getMany roundtrip', async () => {
-			const tags = [
-				new Tag({ id: 1, name: 'a', type: 0, count: 1, fetchTimestamp: new Date() }),
-				new Tag({ id: 2, name: 'b', type: 0, count: 1, fetchTimestamp: new Date() }),
-			];
+			const tags = [Tag.mock({ id: 1, name: 'a' }), Tag.mock({ id: 2, name: 'b' })];
 
 			await store.setMany(tags);
 

@@ -10,15 +10,7 @@ import type { FetchSuccessResult } from '../../utils/fetchExt';
 describe('BooruClient - store chain', () => {
 	it('falls back to deeper stores', async () => {
 		const persistent = new FakeTagStore();
-		await persistent.setOne(
-			new Tag({
-				id: 1,
-				name: 'cached',
-				type: 0,
-				count: 1,
-				fetchTimestamp: new Date(Date.now()),
-			}),
-		);
+		await persistent.setOne(Tag.mock({ name: 'cached' }));
 
 		const client = new BooruClient(new Gelbooru(), {
 			credentials: { apiKey: 'x', userId: '1' },
