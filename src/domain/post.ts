@@ -26,7 +26,7 @@ export class Post {
 		this.sources = data.sources;
 		this.score = data.score;
 		this.rating = data.rating;
-		this.createdAt = data.createdAt;
+		this.createdAt = new Date(data.createdAt);
 		this.creatorId = data.creatorId;
 		this.fileUrl = data.fileUrl;
 		this.size = data.size;
@@ -72,6 +72,15 @@ export class Post {
 
 	get source() {
 		return this.sources?.join(' ');
+	}
+
+	[Symbol.toPrimitive](hint: string) {
+		if (hint === 'string' || hint === 'default') return this.toString();
+		return this.id;
+	}
+
+	toString() {
+		return `[Post ${this.id}] (${this.rating}) ${this.fileUrl}`;
 	}
 
 	static mock() {
