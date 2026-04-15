@@ -6,8 +6,15 @@ export class InvalidOperationError extends Error {
 }
 
 export class InvalidUrlError extends Error {
-	constructor(field: string, value: string) {
+	constructor(field: string, value: unknown) {
 		super(`Invalid URL for field "${field}": ${value}`);
 		this.name = InvalidUrlError.name;
+	}
+}
+
+export class InvalidDateError extends Error {
+	constructor(field: string, value: unknown) {
+		super(`Invalid URL for field "${field}": ${value}`);
+		this.name = InvalidDateError.name;
 	}
 }

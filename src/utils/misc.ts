@@ -1,4 +1,4 @@
-import { InvalidUrlError } from '../errors/misc';
+import { InvalidDateError, InvalidUrlError } from '../errors/misc';
 
 /**@see {@link https://stackoverflow.com/a/2450976}*/
 export function shuffleArray<T>(array: T[]): void {
@@ -37,4 +37,17 @@ export function parseUrlForField(field: string, value: string): URL {
 	} catch {
 		throw new InvalidUrlError(field, value);
 	}
+}
+
+/**
+ * Parses a Date from the specified `value` intended for the named `field`.
+ * @returns The parsed Date.
+ * @throws {InvalidDateError} If the Date is not valid.
+ */
+export function parseValidDate(field: string, value: Date | string | number): Date {
+	const date = new Date(value);
+
+	if (Number.isNaN(date.getTime())) throw new InvalidDateError(field, value);
+
+	return date;
 }
