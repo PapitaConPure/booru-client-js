@@ -17,7 +17,7 @@ export function shuffleArray<T>(array: T[]): void {
 
 export function stringify(value: string) {
 	try {
-		return JSON.stringify(value);
+		return JSON.stringify(value, null, 2);
 	} catch {
 		return `${value}`;
 	}
