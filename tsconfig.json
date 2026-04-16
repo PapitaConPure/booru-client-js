@@ -12,6 +12,7 @@
     "verbatimModuleSyntax": true,
 
     //package
+    "rootDir": "src",
     "outDir": "dist",
     "declaration": true,
     "emitDeclarationOnly": false,

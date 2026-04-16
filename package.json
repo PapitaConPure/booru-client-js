@@ -23,7 +23,7 @@
     "check": "tsc --noEmit",
     "fix": "bun run lint:fix && bun run format:fix",
     "build": "bun build ./src/index.ts --outdir ./dist --target=node",
-    "types": "tsc",
+    "types": "tsc -p tsconfig.build.json",
     "preversion": "npm run check",
     "prepare": "npm run build && npm run types",
     "postversion": "git push --follow-tags"
