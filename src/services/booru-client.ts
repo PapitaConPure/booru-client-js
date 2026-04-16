@@ -226,19 +226,19 @@ export class BooruClient<TBooru extends Booru = Booru> {
 		const normalizedTagNames = tagNames.map(decodeEntities);
 
 		if (forceFetch) {
-			const fetched = await this.#booru.fetchTagsByNames(
+			const fetchedTags = await this.#booru.fetchTagsByNames(
 				normalizedTagNames,
 				this.#getCredentials(),
 			);
 
-			if (fetched.length) {
-				await Promise.all(this.#tagStoreChain.map((s) => s.setMany(fetched)));
-			}
+			if (fetchedTags.length)
+				await Promise.all(this.#tagStoreChain.map((s) => s.setMany(fetchedTags)));
 
-			return fetched;
+			return fetchedTags;
 		}
 
-		const { storedTags, missingTagNames } = normalizedTagNames.length < this.#tagFetchThreshold
+		const { storedTags, missingTagNames } =
+			normalizedTagNames.length < this.#tagFetchThreshold
 				? await this.#fetchTagsByNamePerTag(normalizedTagNames)
 				: await this.#fetchTagsByNamePerStore(normalizedTagNames);
 
