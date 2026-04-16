@@ -11,6 +11,7 @@ import type {
 	TagFetchApproach,
 } from '../types/booru';
 import { decodeEntities } from '../utils/encoding';
+import { TagCoordinator } from './tag-coordinator';
 import { TagResolver } from './tag-resolver';
 
 /**Represents an interface for interacting with a Booru API.*/
@@ -22,6 +23,8 @@ export class BooruClient<TBooru extends Booru = Booru> {
 	#credentials: CredentialsOf<TBooru> | undefined;
 
 	#tagResolver: TagResolver;
+
+	#tagCoordinator: TagCoordinator;
 
 	/**
 	 * Ordered chain of {@link TagStore}s used as cache layers.
@@ -82,8 +85,10 @@ export class BooruClient<TBooru extends Booru = Booru> {
 		this.#booru = booru;
 		this.setCredentials(credentials);
 
-		const tagFetchApproach: TagFetchApproach = (names) => this.#booru.fetchTagsByNames(names, this.#getCredentials());
+		const tagFetchApproach: TagFetchApproach = (names) =>
+			this.#booru.fetchTagsByNames(names, this.#getCredentials());
 		this.#tagResolver = new TagResolver(tagStoreChain, tagFetchApproach, tags);
+		this.#tagCoordinator = new TagCoordinator(this.#tagResolver);
 
 		this.#tagStoreChain = tagStoreChain;
 		this.#manualTagCleanup = manualTagCleanup;
@@ -239,7 +244,7 @@ export class BooruClient<TBooru extends Booru = Booru> {
 			return fetchedTags;
 		}
 
-		return this.#tagResolver.resolveMany(normalizedTagNames);
+		return this.#tagCoordinator.getMany(normalizedTagNames);
 	}
 
 	/**
