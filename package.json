@@ -39,7 +39,7 @@
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/PapitaConPure/booru-client.git"
+    "url": "git+https://github.com/PapitaConPure/booru-client-js.git"
   },
   "keywords": [
     "gelbooru",
@@ -49,7 +49,7 @@
   "author": "PapitaConPure",
   "license": "MIT",
   "bugs": {
-    "url": "https://github.com/PapitaConPure/booru-client/issues"
+    "url": "https://github.com/PapitaConPure/booru-client-js/issues"
   },
-  "homepage": "https://github.com/PapitaConPure/booru-client#readme"
+  "homepage": "https://github.com/PapitaConPure/booru-client-js#readme"
 }
