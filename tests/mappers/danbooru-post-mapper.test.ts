@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'bun:test';
-import type { DanbooruPostDto } from '../../adapters/danbooru/dto';
-import { DanbooruPostMapper } from '../../mappers/post-mapper/danbooru-post-mapper';
+import type { DanbooruPostDto } from '../../src/adapters/danbooru/dto';
+import { DanbooruPostMapper } from '../../src/mappers/post-mapper/danbooru-post-mapper';
 
 describe('DanbooruPostMapper', () => {
 	it('maps dto to Post correctly', () => {

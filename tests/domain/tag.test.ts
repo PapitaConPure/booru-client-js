@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'bun:test';
-import { Tag } from '../../domain/tag';
-import { TagTypes } from '../../types/booru';
+import { Tag } from '../../src/domain/tag';
+import { TagTypes } from '../../src/types/booru';
 
 describe('Tag', () => {
 	it('constructs correctly', () => {

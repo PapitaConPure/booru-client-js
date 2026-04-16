@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'bun:test';
-import type { Danbooru } from '../../adapters/danbooru/client';
-import { BooruClient } from '../../services/booru-client';
+import type { Danbooru } from '../../src/adapters/danbooru/client';
+import { BooruClient } from '../../src/services/booru-client';
 
 describe('Danbooru - batching', () => {
 	it('splits large tag requests into multiple API calls', async () => {

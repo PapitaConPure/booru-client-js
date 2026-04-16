@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'bun:test';
-import type { GelbooruPostDto } from '../../adapters/gelbooru/dto';
-import { GelbooruPostMapper } from '../../mappers/post-mapper/gelbooru-post-mapper';
+import type { GelbooruPostDto } from '../../src/adapters/gelbooru/dto';
+import { GelbooruPostMapper } from '../../src/mappers/post-mapper/gelbooru-post-mapper';
 
 describe('GelbooruPostMapper', () => {
 	it('maps dto to Post correctly', () => {

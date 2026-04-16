@@ -1,8 +1,8 @@
 import { describe, expect, it } from 'bun:test';
-import type { Booru } from '../../adapters/booru';
-import { Post } from '../../domain/post';
-import { BooruClient } from '../../services/booru-client';
-import type { BooruSearchOptions } from '../../types/booru';
+import type { Booru } from '../../src/adapters/booru';
+import { Post } from '../../src/domain/post';
+import { BooruClient } from '../../src/services/booru-client';
+import type { BooruSearchOptions } from '../../src/types/booru';
 
 describe('BooruClient', () => {
 	it('delegates search to adapter and returns domain posts', async () => {

@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'bun:test';
-import { Post } from '../../domain/post';
+import { Post } from '../../src/domain/post';
 
 describe('Post', () => {
 	it('constructs correctly', () => {

@@ -1,6 +1,6 @@
 import { beforeEach, describe, expect, it } from 'bun:test';
-import { Tag } from '../../domain/tag';
-import { MemoryTagStore } from '../../stores/memory-tag-store';
+import { Tag } from '../../src/domain/tag';
+import { MemoryTagStore } from '../../src/stores/memory-tag-store';
 
 function createTag(name: string, ageMs = 0) {
 	return Tag.mock({

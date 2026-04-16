@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'bun:test';
-import { Danbooru } from '../../adapters/danbooru/client';
-import type { FetchFn } from '../../utils/endpoint';
+import { Danbooru } from '../../src/adapters/danbooru/client';
+import type { FetchFn } from '../../src/utils/endpoint';
 
 describe('Danbooru Adapter', () => {
 	it('search returns mapped posts', async () => {

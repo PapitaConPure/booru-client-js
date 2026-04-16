@@ -1,7 +1,7 @@
 import { describe, expect, it } from 'bun:test';
-import { Danbooru } from '../../adapters/danbooru/client';
-import { Gelbooru } from '../../adapters/gelbooru/client';
-import { BooruClient } from '../../services/booru-client';
+import { Danbooru } from '../../src/adapters/danbooru/client';
+import { Gelbooru } from '../../src/adapters/gelbooru/client';
+import { BooruClient } from '../../src/services/booru-client';
 
 const skipE2E = !new Set(['true', 't', '1', 'on']).has(
 	process.env.TEST_PERFORM_E2E?.toLowerCase() as string,

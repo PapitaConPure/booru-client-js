@@ -1,7 +1,7 @@
 import { describe, expect, it } from 'bun:test';
-import type { FetchFn } from '../../utils/endpoint';
-import { defineEndpoint } from '../../utils/endpoint';
-import type { FetchSuccessResult } from '../../utils/fetchExt';
+import type { FetchFn } from '../../src/utils/endpoint';
+import { defineEndpoint } from '../../src/utils/endpoint';
+import type { FetchSuccessResult } from '../../src/utils/fetchExt';
 
 describe('defineEndpoint', () => {
 	it('builds URL correctly', async () => {

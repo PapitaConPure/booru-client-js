@@ -1,10 +1,10 @@
 import { describe, expect, it } from 'bun:test';
-import { Gelbooru } from '../../adapters/gelbooru/client';
-import type { GelbooruTagsResponseDto } from '../../adapters/gelbooru/dto';
-import type { Tag } from '../../domain/tag';
-import { BooruClient } from '../../services/booru-client';
-import type { TagStore } from '../../stores/tag-store';
-import type { FetchSuccessResult } from '../../utils/fetchExt';
+import { Gelbooru } from '../../src/adapters/gelbooru/client';
+import type { GelbooruTagsResponseDto } from '../../src/adapters/gelbooru/dto';
+import type { Tag } from '../../src/domain/tag';
+import { BooruClient } from '../../src/services/booru-client';
+import type { TagStore } from '../../src/stores/tag-store';
+import type { FetchSuccessResult } from '../../src/utils/fetchExt';
 
 describe('BooruClient - forceFetch', () => {
 	it('bypasses cache layers when forceFetch is true', async () => {

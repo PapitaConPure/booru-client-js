@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'bun:test';
-import { Tag } from '../../domain/tag';
-import type { TagStore } from '../../stores/tag-store';
+import { Tag } from '../../src/domain/tag';
+import type { TagStore } from '../../src/stores/tag-store';
 
 function runContract(store: TagStore) {
 	return describe('TagStore contract', () => {
@@ -25,6 +25,6 @@ function runContract(store: TagStore) {
 	});
 }
 
-import { MemoryTagStore } from '../../stores/memory-tag-store';
+import { MemoryTagStore } from '../../src/stores/memory-tag-store';
 
 runContract(new MemoryTagStore());

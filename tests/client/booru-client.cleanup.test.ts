@@ -1,8 +1,8 @@
 import { describe, expect, it } from 'bun:test';
-import { Gelbooru } from '../../adapters/gelbooru/client';
-import type { GelbooruTagsResponseDto } from '../../adapters/gelbooru/dto';
-import { BooruClient } from '../../services/booru-client';
-import type { FetchSuccessResult } from '../../utils/fetchExt';
+import { Gelbooru } from '../../src/adapters/gelbooru/client';
+import type { GelbooruTagsResponseDto } from '../../src/adapters/gelbooru/dto';
+import { BooruClient } from '../../src/services/booru-client';
+import type { FetchSuccessResult } from '../../src/utils/fetchExt';
 
 describe('BooruClient - cleanup', () => {
 	it('auto cleanup triggers based on interval', async () => {

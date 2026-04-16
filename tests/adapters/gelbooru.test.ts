@@ -1,7 +1,7 @@
 import { describe, expect, it } from 'bun:test';
-import { Gelbooru } from '../../adapters/gelbooru/client';
-import type { GelbooruPostsResponseDto } from '../../adapters/gelbooru/dto';
-import type { FetchSuccessResult } from '../../utils/fetchExt';
+import { Gelbooru } from '../../src/adapters/gelbooru/client';
+import type { GelbooruPostsResponseDto } from '../../src/adapters/gelbooru/dto';
+import type { FetchSuccessResult } from '../../src/utils/fetchExt';
 
 describe('Gelbooru Adapter', () => {
 	it('search returns mapped posts', async () => {

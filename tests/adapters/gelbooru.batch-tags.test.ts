@@ -1,6 +1,6 @@
 import { describe, it } from 'bun:test';
-import type { Gelbooru } from '../../adapters/gelbooru/client';
-import { BooruClient } from '../../services/booru-client';
+import type { Gelbooru } from '../../src/adapters/gelbooru/client';
+import { BooruClient } from '../../src/services/booru-client';
 
 describe('Gelbooru - batching', () => {
 	it('splits large tag requests into multiple batches', async () => {
