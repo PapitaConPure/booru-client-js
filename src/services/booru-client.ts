@@ -4,8 +4,14 @@ import type { Tag } from '../domain/tag';
 import { InvalidOperationError } from '../errors/misc';
 import { MemoryTagStore } from '../stores/memory-tag-store';
 import type { TagStore } from '../stores/tag-store';
-import type { BooruClientTagOptions, BooruSearchOptions, CredentialsOf } from '../types/booru';
+import type {
+	BooruClientTagOptions,
+	BooruSearchOptions,
+	CredentialsOf,
+	TagFetchApproach,
+} from '../types/booru';
 import { decodeEntities } from '../utils/encoding';
+import { TagResolver } from './tag-resolver';
 
 /**Represents an interface for interacting with a Booru API.*/
 export class BooruClient<TBooru extends Booru = Booru> {
@@ -15,18 +21,13 @@ export class BooruClient<TBooru extends Booru = Booru> {
 	/**Credentials used for authenticating API requests.*/
 	#credentials: CredentialsOf<TBooru> | undefined;
 
+	#tagResolver: TagResolver;
+
 	/**
 	 * Ordered chain of {@link TagStore}s used as cache layers.
 	 * Stores at the beginning of the array are queried first.
 	 */
 	#tagStoreChain: TagStore[];
-
-	/**
-	 * Threshold that determines the tag fetching strategy.
-	 * If the number of requested tags is below this value, tags are fetched per name.
-	 * Otherwise, they are fetched per store.
-	 */
-	#tagFetchThreshold: number;
 
 	/**
 	 * Whether tag cleanup must be triggered manually.
@@ -70,20 +71,21 @@ export class BooruClient<TBooru extends Booru = Booru> {
 			  },
 	) {
 		const options = 'credentials' in arg ? arg : { credentials: arg };
-		const { credentials, tags } = options;
+		const { credentials, tags = {} } = options;
 		const {
 			storeChain: tagStoreChain = [new MemoryTagStore()],
-			fetchThreshold: tagFetchThreshold = 50,
 			cleanOnStartup: cleanTagsOnStartup = false,
 			manualCleanup: manualTagCleanup = false,
 			cleanupIntervalMs: tagCleanupIntervalMs = 5 * 60e3,
-		} = tags ?? {};
+		} = tags;
 
 		this.#booru = booru;
 		this.setCredentials(credentials);
 
+		const tagFetchApproach: TagFetchApproach = (names) => this.#booru.fetchTagsByNames(names, this.#getCredentials());
+		this.#tagResolver = new TagResolver(tagStoreChain, tagFetchApproach, tags);
+
 		this.#tagStoreChain = tagStoreChain;
-		this.#tagFetchThreshold = tagFetchThreshold;
 		this.#manualTagCleanup = manualTagCleanup;
 		this.#tagCleanupIntervalMs = tagCleanupIntervalMs;
 
@@ -237,22 +239,7 @@ export class BooruClient<TBooru extends Booru = Booru> {
 			return fetchedTags;
 		}
 
-		const { storedTags, missingTagNames } =
-			normalizedTagNames.length < this.#tagFetchThreshold
-				? await this.#fetchTagsByNamePerTag(normalizedTagNames)
-				: await this.#fetchTagsByNamePerStore(normalizedTagNames);
-
-		if (!missingTagNames.length) return storedTags;
-
-		const fetchedTags = await this.#booru.fetchTagsByNames(
-			missingTagNames,
-			this.#getCredentials(),
-		);
-
-		if (fetchedTags.length)
-			await Promise.all(this.#tagStoreChain.map((tagStore) => tagStore.setMany(fetchedTags)));
-
-		return [...storedTags, ...fetchedTags];
+		return this.#tagResolver.resolveMany(normalizedTagNames);
 	}
 
 	/**
@@ -304,74 +291,6 @@ export class BooruClient<TBooru extends Booru = Booru> {
 	): asserts credentials is CredentialsOf<TBooru> {
 		if (credentials == null) throw new ReferenceError('No credentials were defined');
 		return this.#booru.validateCredentials(credentials);
-	}
-
-	/**
-	 * Obtains tags by tag names, using {@link TagStore} layers on a name by name basis.
-	 * @param normalizedTagNames The tag names from which to obtain tag objects.
-	 * @returns An object, containing:
-	 * * `storedTags`: Tags that could be obtained from a store layer.
-	 * * `missingTagNames`: Tag names that weren't available on any store.
-	 */
-	async #fetchTagsByNamePerTag(
-		normalizedTagNames: string[],
-	): Promise<{ storedTags: Tag[]; missingTagNames: string[] }> {
-		const results = await Promise.all(
-			normalizedTagNames.map(async (tagName) => {
-				for (const tagStore of this.#tagStoreChain) {
-					const storedTag = await tagStore.getOne(tagName);
-					if (storedTag) return storedTag;
-				}
-				return null;
-			}),
-		);
-
-		const storedTagsMap = new Map<string, Tag>();
-		const missingTagNames: string[] = [];
-
-		for (const [i, name] of normalizedTagNames.entries()) {
-			const tag = results[i];
-
-			if (tag) storedTagsMap.set(tag.name, tag);
-			else missingTagNames.push(name);
-		}
-
-		return {
-			storedTags: [...storedTagsMap.values()],
-			missingTagNames,
-		};
-	}
-
-	/**
-	 * Obtains tags by tag names, using {@link TagStore} layers on a store by store basis.
-	 * @param normalizedTagNames The tag names from which to obtain tag objects.
-	 * @returns An object, containing:
-	 * * `storedTags`: Tags that could be obtained from a store layer.
-	 * * `missingTagNames`: Tag names that weren't available on any store.
-	 */
-	async #fetchTagsByNamePerStore(
-		normalizedTagNames: string[],
-	): Promise<{ storedTags: Tag[]; missingTagNames: string[] }> {
-		const normalizedTagNamesToGet = new Set(normalizedTagNames);
-		const storedTagsMap = new Map<string, Tag>();
-
-		for (const tagStore of this.#tagStoreChain) {
-			if (!normalizedTagNamesToGet.size) break;
-
-			const storedTags = await tagStore.getMany(normalizedTagNamesToGet);
-
-			for (const storedTag of storedTags) {
-				if (storedTagsMap.has(storedTag.name)) continue;
-
-				storedTagsMap.set(storedTag.name, storedTag);
-				normalizedTagNamesToGet.delete(storedTag.name);
-			}
-		}
-
-		return {
-			storedTags: [...storedTagsMap.values()],
-			missingTagNames: [...normalizedTagNamesToGet],
-		};
 	}
 
 	/**
