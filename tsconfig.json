@@ -24,7 +24,12 @@
     // Some stricter flags (disabled by default)
     "noUnusedLocals": false,
     "noUnusedParameters": false,
-    "noPropertyAccessFromIndexSignature": false
+    "noPropertyAccessFromIndexSignature": false,
+
+    // For examples
+    "paths": {
+      "@papitaconpure/booru-client": ["./src"]
+    }
   },
   "include": ["src", "examples"]
 }
