@@ -5,6 +5,7 @@
     "lib": ["ES2022"],
     "module": "esnext",
     "moduleDetection": "force",
+    "types": ["bun"],
 
     // Bundler mode
     "moduleResolution": "bundler",
@@ -32,5 +33,5 @@
       "@papitaconpure/booru-client": ["./src"]
     }
   },
-  "include": ["src", "test", "examples"]
+  "include": ["src", "tests", "examples"]
 }
