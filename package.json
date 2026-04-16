@@ -20,7 +20,7 @@
     "format": "bunx biome format",
     "format:fix": "bunx biome format --write",
     "dev": "bun run src/index.ts",
-    "check": "tsc --noEmit",
+    "check": "tsc -p tsconfig.build.json --noEmit",
     "fix": "bun run lint:fix && bun run format:fix",
     "build": "bun build ./src/index.ts --outdir ./dist --target=node",
     "types": "tsc -p tsconfig.build.json",
