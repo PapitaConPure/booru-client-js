@@ -1,3 +1,9 @@
+![GitHub package.json dependency version](https://img.shields.io/node/v/package-json)
+![GitHub tag (latest by date)](https://img.shields.io/github/v/tag/PapitaConPure/booru-client)
+![GitHub repo size](https://img.shields.io/github/repo-size/PapitaConPure/booru-client)
+![npm package minimized gzipped size](https://img.shields.io/bundlejs/size/%40papitaconpure%2Fbooru-client)
+![Twitter Follow](https://img.shields.io/twitter/follow/PapitaPure?label=%40PapitaPure&style=social&link=https://twitter.com/PapitaPure)
+
 <h1 align="center">
 	Booru Client JS
 </h1>
@@ -5,12 +11,7 @@
 An extensible, zero-dependency imageboard client with multi-layer tag caching for Javascript.
 </p>
 
-
-![GitHub package.json dependency version](https://img.shields.io/node/v/package-json)
-![GitHub tag (latest by date)](https://img.shields.io/github/v/tag/PapitaConPure/booru-client)
-![GitHub repo size](https://img.shields.io/github/repo-size/PapitaConPure/booru-client)
-![npm package minimized gzipped size](https://img.shields.io/bundlejs/size/%40papitaconpure%2Fbooru-client)
-![Twitter Follow](https://img.shields.io/twitter/follow/PapitaPure?label=%40PapitaPure&style=social&link=https://twitter.com/PapitaPure)
+<br>
 
 ## Installation
 <table>
@@ -102,3 +103,5 @@ for(const post of posts) {
 	});
 }
 ```
+
+For more advanced usage, please [check out all of the examples](https://github.com/PapitaConPure/booru-client-js/blob/de0400d23ced275016a8b6da36c207b18fc6767d/examples).
