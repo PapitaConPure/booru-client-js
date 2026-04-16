@@ -24,7 +24,6 @@ export class GelbooruTagMapper implements TagMapper<GelbooruTagDto> {
 			name: dto.name,
 			type: gelbooruTagTypesMap[dto.type],
 			count: dto.count,
-			fetchTimestamp: new Date(Date.now()),
 		});
 	}
 }

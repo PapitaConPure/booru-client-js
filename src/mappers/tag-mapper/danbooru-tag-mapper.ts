@@ -22,7 +22,6 @@ export class DanbooruTagMapper implements TagMapper<DanbooruTagDto> {
 			name: dto.name,
 			type: dto.is_deprecated ? TagTypes.DEPRECATED : danbooruTagTypesMap[dto.category],
 			count: dto.post_count,
-			fetchTimestamp: new Date(dto.created_at),
 		});
 	}
 }
