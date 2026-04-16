@@ -12,7 +12,7 @@ export interface Endpoint {
 export function defineEndpoint(
 	methodVerb: 'get' | 'post' | 'put' | 'patch' | 'delete',
 	baseUrl: URL | string,
-	defaultParams: Record<string, string>,
+	defaultParams: Record<string, string> = {},
 	endpointOptions: {
 		fetchFn?: FetchFn;
 	} = {},
