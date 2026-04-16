@@ -67,7 +67,7 @@ export interface TagInit {
 	name: string;
 	count: number;
 	type: TagType;
-	fetchTimestamp: Date;
+	fetchTimestamp?: Date;
 }
 
 export type CredentialsOf<TBooru extends Booru> =

@@ -48,7 +48,10 @@ export class Tag {
 		this.name = data.name;
 		this.count = data.count;
 		this.type = data.type;
-		this.fetchTimestamp = parseValidDate('fetchTimestamp', data.fetchTimestamp);
+		this.fetchTimestamp =
+			data.fetchTimestamp != null
+				? parseValidDate('fetchTimestamp', data.fetchTimestamp)
+				: new Date();
 
 		Object.freeze(this);
 	}
@@ -77,7 +80,6 @@ export class Tag {
 			name: 'name',
 			count: 1,
 			type: 0,
-			fetchTimestamp: new Date(),
 		};
 
 		return new Tag({ ...defaultMockInit, ...initOverrides });
