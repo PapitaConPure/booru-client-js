@@ -17,14 +17,14 @@ import { TagResolver } from './tag-resolver';
 /**Represents an interface for interacting with a Booru API.*/
 export class BooruClient<TBooru extends Booru = Booru> {
 	/**The {@link Booru} adapter used to perform API operations.*/
-	#booru: TBooru;
+	readonly #booru: TBooru;
 
 	/**Credentials used for authenticating API requests.*/
 	#credentials: CredentialsOf<TBooru> | undefined;
 
-	#tagResolver: TagResolver;
+	readonly #tagResolver: TagResolver;
 
-	#tagCoordinator: TagCoordinator;
+	readonly #tagCoordinator: TagCoordinator;
 
 	/**
 	 * Ordered chain of {@link TagStore}s used as cache layers.
@@ -36,10 +36,10 @@ export class BooruClient<TBooru extends Booru = Booru> {
 	 * Whether tag cleanup must be triggered manually.
 	 * When `true`, automatic cleanup is disabled.
 	 */
-	#manualTagCleanup: boolean;
+	readonly #manualTagCleanup: boolean;
 
 	/**Minimum interval (in milliseconds) between automatic cleanup executions.*/
-	#tagCleanupIntervalMs: number;
+	readonly #tagCleanupIntervalMs: number;
 
 	/**Timestamp (in milliseconds) of the last performed tag cleanup.*/
 	#lastTagCleanup: number;
