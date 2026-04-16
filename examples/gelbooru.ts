@@ -1,4 +1,4 @@
-import { BooruClient, Gelbooru } from '../src';
+import { BooruClient, Gelbooru } from '@papitaconpure/booru-client';
 
 //Instance a Booru adapter
 const gelbooru = new Gelbooru();

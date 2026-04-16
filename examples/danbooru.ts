@@ -1,4 +1,4 @@
-import { BooruClient, Danbooru } from '../src';
+import { BooruClient, Danbooru } from '@papitaconpure/booru-client';
 
 //Instance a Booru adapter
 const danbooru = new Danbooru();
