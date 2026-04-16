@@ -1,8 +1,8 @@
 <h1 align="center">
-	Booru Client
+	Booru Client JS
 </h1>
 <p align="center">
-An extensible, zero-dependency imageboard client with multi-layer tag caching.
+An extensible, zero-dependency imageboard client with multi-layer tag caching for Javascript.
 </p>
 
 
