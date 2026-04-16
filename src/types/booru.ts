@@ -1,5 +1,6 @@
 import type { Booru } from '../adapters/booru';
 import type { PostRating } from '../domain/post-rating';
+import type { Tag } from '../domain/tag';
 import type { TagStore } from '../stores/tag-store';
 import type { ValuesOf } from './util';
 
@@ -74,3 +75,5 @@ export type CredentialsOf<TBooru extends Booru> =
 	TBooru extends Booru<string, infer TCredentials extends {}> ? TCredentials : never;
 
 export type NameOf<TBooru extends Booru> = TBooru extends Booru<infer TName> ? TName : never;
+
+export type TagFetchApproach = (names: string[]) => Promise<Tag[]>;
