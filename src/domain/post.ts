@@ -1,6 +1,6 @@
 import type { Booru } from '../adapters/booru';
 import type { NameOf, PostInit, PostUrlBuilder } from '../types/booru';
-import { getSourceUrl, parseUrlForField } from '../utils/misc';
+import { getSourceUrl, parseUrlForField, parseValidDate } from '../utils/misc';
 import { type PostRating, PostRatings } from './post-rating';
 
 /**
@@ -77,7 +77,7 @@ export class Post<TBooru extends Booru = Booru> {
 		this.sources = data.sources;
 		this.score = data.score;
 		this.rating = data.rating;
-		this.createdAt = new Date(data.createdAt);
+		this.createdAt = parseValidDate('createdAt', data.createdAt);
 		this.creatorId = data.creatorId;
 		this.fileUrl = parseUrlForField('fileUrl', data.fileUrl);
 		this.size = data.size;
