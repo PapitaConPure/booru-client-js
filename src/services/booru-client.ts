@@ -85,11 +85,6 @@ export class BooruClient<TBooru extends Booru = Booru> {
 		this.#booru = booru;
 		this.setCredentials(credentials);
 
-		const tagFetchApproach: TagFetchApproach = (names) =>
-			this.#booru.fetchTagsByNames(names, this.#getCredentials());
-		this.#tagResolver = new TagResolver(tagStoreChain, tagFetchApproach, tags);
-		this.#tagCoordinator = new TagCoordinator(this.#tagResolver);
-
 		this.#tagStoreChain = tagStoreChain;
 		this.#manualTagCleanup = manualTagCleanup;
 		this.#tagCleanupIntervalMs = tagCleanupIntervalMs;
@@ -97,9 +92,13 @@ export class BooruClient<TBooru extends Booru = Booru> {
 		if (cleanTagsOnStartup) {
 			this.#performCleanup();
 			this.#lastTagCleanup = Date.now();
-		} else {
-			this.#lastTagCleanup = 0;
-		}
+		} else this.#lastTagCleanup = 0;
+
+		const tagStoreGetter = () => this.#tagStoreChain;
+		const tagFetchApproach: TagFetchApproach = (names) =>
+			this.#booru.fetchTagsByNames(names, this.#getCredentials());
+		this.#tagResolver = new TagResolver(tagStoreGetter, tagFetchApproach, tags);
+		this.#tagCoordinator = new TagCoordinator(this.#tagResolver);
 	}
 
 	addTagStoreFirst(tagStore: TagStore): this {

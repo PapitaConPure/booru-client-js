@@ -3,7 +3,13 @@ import type { TagStore } from '../stores/tag-store';
 import type { BooruClientTagOptions, TagFetchApproach } from '../types/booru';
 
 export class TagResolver {
-	readonly #storeChain: TagStore[];
+	/**
+	 * Ordered chain of {@link TagStore}s used as cache layers.
+	 * Stores at the beginning of the array are queried first.
+	 */
+	readonly #getTagStoreChain: () => TagStore[];
+
+	/**Approach used to fetch from the API when a tag name isn't found in any store.*/
 	readonly #fetchFromApi: TagFetchApproach;
 
 	/**
@@ -14,13 +20,13 @@ export class TagResolver {
 	readonly #tagFetchThreshold: number;
 
 	constructor(
-		stores: TagStore[],
+		tagStoreGetter: () => TagStore[],
 		fetchFromApi: TagFetchApproach,
 		options: BooruClientTagOptions,
 	) {
 		const { fetchThreshold = 50 } = options;
 
-		this.#storeChain = stores;
+		this.#getTagStoreChain = tagStoreGetter;
 		this.#fetchFromApi = fetchFromApi;
 
 		this.#tagFetchThreshold = fetchThreshold;
@@ -29,58 +35,60 @@ export class TagResolver {
 	async resolveMany(normalizedTagNames: string[]): Promise<Tag[]> {
 		if (!normalizedTagNames.length) return [];
 
-		const foundTags = new Map<string, Tag>();
+		const uniqueTagNames = new Set(normalizedTagNames);
 
-		const { storedTags, missingTagNames } =
-			normalizedTagNames.length < this.#tagFetchThreshold
-				? await this.#fetchTagsByNamePerTag(normalizedTagNames)
-				: await this.#fetchTagsByNamePerStore(normalizedTagNames);
+		const { foundTagsMap, missingTagNames } =
+			uniqueTagNames.size < this.#tagFetchThreshold
+				? await this.#fetchTagsByNamePerTag(uniqueTagNames)
+				: await this.#fetchTagsByNamePerStore(uniqueTagNames);
 
-		if (!missingTagNames.length) return storedTags;
+		if (!missingTagNames.size) return [...foundTagsMap.values()];
 
 		const fetchedTags = await this.#fetchFromApi([...missingTagNames]);
 
-		if (fetchedTags.length) {
-			await Promise.all(this.#storeChain.map((s) => s.setMany(fetchedTags)));
+		if (!fetchedTags.length) return [...foundTagsMap.values()];
 
-			for (const tag of fetchedTags) foundTags.set(tag.name, tag);
-		}
+		const tagStoreChain = this.#getTagStoreChain();
+		await Promise.all(tagStoreChain.map((s) => s.setMany(fetchedTags)));
 
-		return normalizedTagNames.map((n) => foundTags.get(n)).filter((n) => n != null);
+		const resultingTags = new Map<string, Tag>();
+
+		for (const tag of foundTagsMap.values()) resultingTags.set(tag.name, tag);
+
+		for (const tag of fetchedTags)
+			if (uniqueTagNames.has(tag.name)) resultingTags.set(tag.name, tag);
+
+		return [...resultingTags.values()];
 	}
 
 	/**
 	 * Obtains tags by tag names, using {@link TagStore} layers on a name by name basis.
 	 * @param normalizedTagNames The tag names from which to obtain tag objects.
 	 * @returns An object, containing:
-	 * * `storedTags`: Tags that could be obtained from a store layer.
+	 * * `foundTags`: Tags that could be obtained from a store layer.
 	 * * `missingTagNames`: Tag names that weren't available on any store.
 	 */
 	async #fetchTagsByNamePerTag(
-		normalizedTagNames: string[],
-	): Promise<{ storedTags: Tag[]; missingTagNames: string[] }> {
-		const results = await Promise.all(
-			normalizedTagNames.map(async (tagName) => {
-				for (const tagStore of this.#storeChain) {
-					const storedTag = await tagStore.getOne(tagName);
-					if (storedTag) return storedTag;
-				}
-				return null;
-			}),
-		);
+		normalizedTagNames: Set<string>,
+	): Promise<{ foundTagsMap: Map<string, Tag>; missingTagNames: Set<string> }> {
+		const missingTagNames = new Set<string>();
+		const foundTagsMap = new Map<string, Tag>();
+		const tagStoreChain = this.#getTagStoreChain();
 
-		const storedTagsMap = new Map<string, Tag>();
-		const missingTagNames: string[] = [];
+		for (const name of normalizedTagNames) {
+			let tag: Tag | undefined;
 
-		for (const [i, name] of normalizedTagNames.entries()) {
-			const tag = results[i];
+			for (const store of tagStoreChain) {
+				tag = await store.getOne(name);
+				if (tag) break;
+			}
 
-			if (tag) storedTagsMap.set(tag.name, tag);
-			else missingTagNames.push(name);
+			if (tag) foundTagsMap.set(name, tag);
+			else missingTagNames.add(name);
 		}
 
 		return {
-			storedTags: [...storedTagsMap.values()],
+			foundTagsMap,
 			missingTagNames,
 		};
 	}
@@ -89,31 +97,32 @@ export class TagResolver {
 	 * Obtains tags by tag names, using {@link TagStore} layers on a store by store basis.
 	 * @param normalizedTagNames The tag names from which to obtain tag objects.
 	 * @returns An object, containing:
-	 * * `storedTags`: Tags that could be obtained from a store layer.
+	 * * `foundTags`: Tags that could be obtained from a store layer.
 	 * * `missingTagNames`: Tag names that weren't available on any store.
 	 */
 	async #fetchTagsByNamePerStore(
-		normalizedTagNames: string[],
-	): Promise<{ storedTags: Tag[]; missingTagNames: string[] }> {
+		normalizedTagNames: Set<string>,
+	): Promise<{ foundTagsMap: Map<string, Tag>; missingTagNames: Set<string> }> {
 		const normalizedTagNamesToGet = new Set(normalizedTagNames);
-		const storedTagsMap = new Map<string, Tag>();
+		const foundTagsMap = new Map<string, Tag>();
+		const tagStoreChain = this.#getTagStoreChain();
 
-		for (const tagStore of this.#storeChain) {
+		for (const tagStore of tagStoreChain) {
 			if (!normalizedTagNamesToGet.size) break;
 
-			const storedTags = await tagStore.getMany(normalizedTagNamesToGet);
+			const foundTags = await tagStore.getMany(normalizedTagNamesToGet);
 
-			for (const storedTag of storedTags) {
-				if (storedTagsMap.has(storedTag.name)) continue;
+			for (const storedTag of foundTags) {
+				if (foundTagsMap.has(storedTag.name)) continue;
 
-				storedTagsMap.set(storedTag.name, storedTag);
+				foundTagsMap.set(storedTag.name, storedTag);
 				normalizedTagNamesToGet.delete(storedTag.name);
 			}
 		}
 
 		return {
-			storedTags: [...storedTagsMap.values()],
-			missingTagNames: [...normalizedTagNamesToGet],
+			foundTagsMap,
+			missingTagNames: normalizedTagNamesToGet,
 		};
 	}
 }
