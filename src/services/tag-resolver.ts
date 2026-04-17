@@ -65,7 +65,7 @@ export class TagResolver {
 	 * Obtains tags by tag names, using {@link TagStore} layers on a name by name basis.
 	 * @param normalizedTagNames The tag names from which to obtain tag objects.
 	 * @returns An object, containing:
-	 * * `foundTags`: Tags that could be obtained from a store layer.
+	 * * `foundTagsMap`: Map of Tag names to Tags that were obtained from a store layer.
 	 * * `missingTagNames`: Tag names that weren't available on any store.
 	 */
 	async #fetchTagsByNamePerTag(
@@ -97,7 +97,7 @@ export class TagResolver {
 	 * Obtains tags by tag names, using {@link TagStore} layers on a store by store basis.
 	 * @param normalizedTagNames The tag names from which to obtain tag objects.
 	 * @returns An object, containing:
-	 * * `foundTags`: Tags that could be obtained from a store layer.
+	 * * `foundTagsMap`: Map of Tag names to Tags that were obtained from a store layer.
 	 * * `missingTagNames`: Tag names that weren't available on any store.
 	 */
 	async #fetchTagsByNamePerStore(
