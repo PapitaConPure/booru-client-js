@@ -7,7 +7,7 @@ export class TagResolver {
 	 * Ordered chain of {@link TagStore}s used as cache layers.
 	 * Stores at the beginning of the array are queried first.
 	 */
-	readonly #getTagStoreChain: () => TagStore[];
+	readonly #getTagStoreChain: () => readonly TagStore[];
 
 	/**Approach used to fetch from the API when a tag name isn't found in any store.*/
 	readonly #fetchFromApi: TagFetchApproach;
