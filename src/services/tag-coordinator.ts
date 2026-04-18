@@ -49,6 +49,8 @@ export class TagCoordinator {
 	/**Stores the handle for the scheduled flush timer (if any) so that {@link flushNow} can cancel it on a whim.*/
 	#flushTimer: NodeJS.Timeout | null;
 
+	#resolutionTimeoutMs: number;
+
 	/**Base {@link Tag} request batching delay (in milliseconds) to apply when the batch size is small.*/
 	#baseGraceWindowMs: number;
 
@@ -63,6 +65,7 @@ export class TagCoordinator {
 			baseBatchingGraceWindowMs = 0,
 			maxBatchingGraceWindowMs = 5,
 			maxConcurrentTags = 100,
+			resolutionTimeoutMs = 20_000,
 		} = options;
 
 		this.#resolver = resolver;
@@ -73,6 +76,12 @@ export class TagCoordinator {
 		this.#isFlushing = false;
 		this.#flushTimer = null;
 
+		if (resolutionTimeoutMs < 1_000)
+			console.warn(
+				'Tag resolution timeout is too low! It will be increased to a minimum of 1000ms (1 second).',
+			);
+
+		this.#resolutionTimeoutMs = Math.max(1000, resolutionTimeoutMs);
 		this.#maxConcurrentTags = maxConcurrentTags;
 		this.#maxGraceWindowMs = Math.max(0, maxBatchingGraceWindowMs);
 		this.#baseGraceWindowMs = Math.min(
@@ -112,12 +121,34 @@ export class TagCoordinator {
 		const newResolver: TagTask = { resolve: () => undefined, reject: () => undefined };
 
 		const newTagRequest = new Promise<MaybeTag>((resolve, reject) => {
-			newResolver.resolve = resolve;
-			newResolver.reject = reject;
+			let timeoutHandle: NodeJS.Timeout | undefined;
+			if (this.#resolutionTimeoutMs > 0) {
+				timeoutHandle = setTimeout(() => {
+					reject(new Error(`Tag resolution timeout: ${name}`));
+				}, this.#resolutionTimeoutMs);
+			}
 
-			setTimeout(() => {
-				reject(new Error(`Tag resolution timeout: ${name}`));
-			}, 5000);
+			const cleanup = () => {
+				if (timeoutHandle) clearTimeout(timeoutHandle);
+				timeoutHandle = undefined;
+			};
+
+			if (this.#resolutionTimeoutMs > 0) {
+				timeoutHandle = setTimeout(() => {
+					cleanup();
+					reject(new Error(`Tag resolution timeout: ${name}`));
+				}, this.#resolutionTimeoutMs);
+			}
+
+			newResolver.resolve = (tag) => {
+				cleanup();
+				resolve(tag);
+			};
+
+			newResolver.reject = (err) => {
+				cleanup();
+				reject(err);
+			};
 		});
 
 		this.#ongoingTagRequests.set(name, newTagRequest);
