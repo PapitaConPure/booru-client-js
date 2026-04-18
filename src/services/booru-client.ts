@@ -80,7 +80,6 @@ export class BooruClient<TBooru extends Booru = Booru> {
 			cleanOnStartup: cleanTagsOnStartup = false,
 			manualCleanup: manualTagCleanup = false,
 			cleanupIntervalMs: tagCleanupIntervalMs = 5 * 60e3,
-			batchingGraceWindowMs: tagBatchingGraceWindowMs = 5,
 		} = tags;
 
 		this.#booru = booru;
@@ -99,7 +98,7 @@ export class BooruClient<TBooru extends Booru = Booru> {
 		const tagFetchApproach: TagFetchApproach = (names) =>
 			this.#booru.fetchTagsByNames(names, this.#getCredentials());
 		this.#tagResolver = new TagResolver(tagStoreGetter, tagFetchApproach, tags);
-		this.#tagCoordinator = new TagCoordinator(this.#tagResolver, tagBatchingGraceWindowMs);
+		this.#tagCoordinator = new TagCoordinator(this.#tagResolver, tags);
 	}
 
 	addTagStoreFirst(tagStore: TagStore): this {

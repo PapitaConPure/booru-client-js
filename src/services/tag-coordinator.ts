@@ -1,4 +1,5 @@
 import type { Tag } from '../domain/tag';
+import type { TagCoordinationOptions } from '../types/booru';
 import type { TagResolver } from './tag-resolver';
 
 type MaybeTag = Tag | undefined;
@@ -57,15 +58,20 @@ export class TagCoordinator {
 	/**Maximum amount of time the dynamic batching grace window is allowed to reach, in milliseconds.*/
 	#maxGraceWindowMs: number;
 
-	constructor(resolver: TagResolver, baseBatchingGraceWindowMs: number) {
+	constructor(resolver: TagResolver, options: TagCoordinationOptions = {}) {
+		const { baseBatchingGraceWindowMs = 0, maxBatchingGraceWindowMs = 5 } = options;
+
 		this.#resolver = resolver;
 		this.#ongoingTagRequests = new Map();
 		this.#pendingNames = new Set();
 		this.#pendingFanout = new Map();
 		this.#flushScheduled = false;
 		this.#flushTimer = null;
-		this.#baseGraceWindowMs = Math.min(Math.max(0, baseBatchingGraceWindowMs), 10_000);
-		this.#maxGraceWindowMs = Math.max(5, this.#baseGraceWindowMs);
+		this.#maxGraceWindowMs = Math.max(0, maxBatchingGraceWindowMs);
+		this.#baseGraceWindowMs = Math.min(
+			Math.max(0, baseBatchingGraceWindowMs),
+			this.#maxGraceWindowMs,
+		);
 	}
 
 	async getMany(names: string[]): Promise<Tag[]> {
