@@ -48,12 +48,16 @@ export class TagCoordinator {
 	 */
 	#flushScheduled: boolean;
 
-	constructor(resolver: TagResolver) {
+	/**Time window (in milliseconds) during which incoming {@link Tag} requests are batched before being resolved.*/
+	#graceWindowMs: number;
+
+	constructor(resolver: TagResolver, batchingGraceWindowMs: number) {
 		this.#resolver = resolver;
 		this.#ongoingTagRequests = new Map();
 		this.#pendingNames = new Set();
 		this.#pendingFanout = new Map();
 		this.#flushScheduled = false;
+		this.#graceWindowMs = batchingGraceWindowMs;
 	}
 
 	async getMany(names: string[]): Promise<Tag[]> {
@@ -96,7 +100,7 @@ export class TagCoordinator {
 		if (this.#flushScheduled) return;
 		this.#flushScheduled = true;
 
-		queueMicrotask(() => this.#flushTags());
+		setTimeout(() => this.#flushTags(), this.#graceWindowMs);
 	}
 
 	async #flushTags() {

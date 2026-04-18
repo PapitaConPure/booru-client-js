@@ -1,6 +1,6 @@
 import type { Tag } from '../domain/tag';
 import type { TagStore } from '../stores/tag-store';
-import type { BooruClientTagOptions, TagFetchApproach } from '../types/booru';
+import type { TagFetchApproach, TagResolutionOptions } from '../types/booru';
 
 /**
  * Resolves {@link Tag}s by coordinating {@link TagStore} cache layers and an API fallback to a certain booru.
@@ -37,7 +37,7 @@ export class TagResolver {
 	constructor(
 		tagStoreGetter: () => TagStore[],
 		fetchFromApi: TagFetchApproach,
-		options: BooruClientTagOptions,
+		options: TagResolutionOptions,
 	) {
 		const { fetchThreshold = 50 } = options;
 
