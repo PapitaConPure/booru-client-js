@@ -38,6 +38,8 @@ export interface TagCoordinationOptions {
 	maxBatchingGraceWindowMs?: number;
 	/**Defines the maximum amount of concurrent request allowed in a single batch operation.*/
 	maxConcurrentTags?: number;
+	/**Defines the maximum time (in milliseconds) to wait before rejecting the resolution of a {@link Tag} request. Defaults to 20k (20 seconds).*/
+	resolutionTimeoutMs?: number;
 }
 
 export interface BooruClientTagOptions extends TagResolutionOptions, TagCoordinationOptions {}
