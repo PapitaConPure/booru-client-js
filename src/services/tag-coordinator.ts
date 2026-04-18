@@ -62,8 +62,15 @@ export class TagCoordinator {
 	/**Maximum {@link Tag} request batching delay (in milliseconds) to apply when the batch size is not small at all.*/
 	#maxGraceWindowMs: number;
 
+	/**Defines the maximum amount of concurrent request allowed in a single batch operation.*/
+	#maxConcurrentTags: number;
+
 	constructor(resolver: TagResolver, options: TagCoordinationOptions = {}) {
-		const { baseBatchingGraceWindowMs = 0, maxBatchingGraceWindowMs = 5 } = options;
+		const {
+			baseBatchingGraceWindowMs = 0,
+			maxBatchingGraceWindowMs = 5,
+			maxConcurrentTags = 100,
+		} = options;
 
 		this.#resolver = resolver;
 
@@ -74,6 +81,7 @@ export class TagCoordinator {
 		this.#isFlushing = false;
 		this.#flushTimer = null;
 
+		this.#maxConcurrentTags = maxConcurrentTags;
 		this.#maxGraceWindowMs = Math.max(0, maxBatchingGraceWindowMs);
 		this.#baseGraceWindowMs = Math.min(
 			Math.max(0, baseBatchingGraceWindowMs),
@@ -146,6 +154,13 @@ export class TagCoordinator {
 
 	/**Schedules a batch flush with an adaptive delay determined by {@link #calcAdaptiveDelay}.*/
 	#scheduleTagFlush() {
+		const size = this.#pendingNames.size;
+
+		if (size >= this.#maxConcurrentTags) {
+			this.flushNow();
+			return;
+		}
+
 		if (this.#flushScheduled) return;
 		this.#flushScheduled = true;
 

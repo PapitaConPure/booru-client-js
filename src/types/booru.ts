@@ -36,6 +36,8 @@ export interface TagCoordinationOptions {
 	baseBatchingGraceWindowMs?: number;
 	/**Defines the maximum amount of time the dynamic batching grace window is allowed to reach, in milliseconds. Defaults to 5.*/
 	maxBatchingGraceWindowMs?: number;
+	/**Defines the maximum amount of concurrent request allowed in a single batch operation.*/
+	maxConcurrentTags?: number;
 }
 
 export interface BooruClientTagOptions extends TagResolutionOptions, TagCoordinationOptions {}
