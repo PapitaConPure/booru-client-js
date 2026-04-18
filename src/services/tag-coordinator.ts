@@ -5,11 +5,19 @@ type MaybeTag = Tag | undefined;
 
 export class TagCoordinator {
 	readonly #resolver: TagResolver;
-	readonly #inFlight: Map<string, Promise<MaybeTag>>;
+
+	readonly #ongoingTagRequests: Map<string, Promise<MaybeTag>>;
+
+	#pendingNames: Set<string>;
+	#pendingResolvers: Map<string, ((tag: MaybeTag) => void)[]>;
+	#flushScheduled: boolean;
 
 	constructor(resolver: TagResolver) {
 		this.#resolver = resolver;
-		this.#inFlight = new Map();
+		this.#ongoingTagRequests = new Map();
+		this.#pendingNames = new Set();
+		this.#pendingResolvers = new Map();
+		this.#flushScheduled = false;
 	}
 
 	async getMany(names: string[]): Promise<Tag[]> {
@@ -20,21 +28,72 @@ export class TagCoordinator {
 	}
 
 	async getOne(name: string): Promise<MaybeTag> {
-		const existing = this.#inFlight.get(name);
-		if (existing) return existing;
+		const ongoingTagRequest = this.#ongoingTagRequests.get(name);
+		if (ongoingTagRequest) return ongoingTagRequest;
 
-		const promise = this.#resolveOne(name);
-		this.#inFlight.set(name, promise);
+		let resolveFn!: (tag: MaybeTag) => void;
 
-		promise.finally(() => {
-			this.#inFlight.delete(name);
+		const newTagRequest = new Promise<MaybeTag>((resolve) => {
+			resolveFn = resolve;
 		});
 
-		return promise;
+		this.#ongoingTagRequests.set(name, newTagRequest);
+
+		const pendingResolvers = this.#pendingResolvers.get(name);
+
+		if (pendingResolvers) pendingResolvers.push(resolveFn);
+		else this.#pendingResolvers.set(name, [resolveFn]);
+
+		this.#pendingNames.add(name);
+
+		this.#scheduleTagFlush();
+
+		newTagRequest.finally(() => {
+			this.#ongoingTagRequests.delete(name);
+		});
+
+		return newTagRequest;
 	}
 
-	async #resolveOne(name: string): Promise<MaybeTag> {
-		const results = await this.#resolver.resolveMany([name]);
-		return results[0];
+	#scheduleTagFlush() {
+		if (this.#flushScheduled) return;
+		this.#flushScheduled = true;
+
+		//Flush after sync exec
+		queueMicrotask(() => this.#flushTags());
+	}
+
+	async #flushTags() {
+		this.#flushScheduled = false;
+
+		const pendingNames = this.#pendingNames;
+		if (!pendingNames.size) return;
+
+		const resolversMap = this.#pendingResolvers;
+
+		this.#pendingNames = new Set();
+		this.#pendingResolvers = new Map();
+
+		let resultingTags: Tag[] = [];
+		try {
+			resultingTags = await this.#resolver.resolveMany([...pendingNames]);
+		} catch (err) {
+			for (const [, resolvers] of resolversMap)
+				for (const resolve of resolvers) resolve(undefined);
+			throw err;
+		}
+
+		const resultsMap = new Map<string, Tag>();
+		for (const resultingTag of resultingTags) resultsMap.set(resultingTag.name, resultingTag);
+
+		//Resolve pending requests
+		for (const pendingName of pendingNames) {
+			const maybeTag = resultsMap.get(pendingName);
+			const resolvers = resolversMap.get(pendingName);
+
+			if (!resolvers) continue;
+
+			for (const resolveFn of resolvers) resolveFn(maybeTag);
+		}
 	}
 }
