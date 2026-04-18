@@ -185,7 +185,7 @@ export class TagCoordinator {
 
 				for (const name of pendingNames) this.#ongoingTagRequests.delete(name);
 
-				throw err;
+				return;
 			}
 
 			const resultsMap = new Map<string, Tag>();
@@ -201,10 +201,10 @@ export class TagCoordinator {
 
 				for (const resolver of resolvers) resolver.resolve(maybeTag);
 			}
+		} catch {
 		} finally {
 			this.#isFlushing = false;
 
-			//IMPORTANT: This must be done in case a request comes in mid-flush. DO NOT REMOVE
 			if (this.#pendingNames.size) this.#scheduleTagFlush();
 		}
 	}
