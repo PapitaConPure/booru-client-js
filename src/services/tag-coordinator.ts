@@ -3,6 +3,11 @@ import type { TagResolver } from './tag-resolver';
 
 type MaybeTag = Tag | undefined;
 
+interface TagTask {
+	resolve(tag: MaybeTag): void;
+	reject(err: unknown): void;
+}
+
 /**
  * Coordinates {@link Tag} resolution across concurrent requests in order to reduce redundant store lookups and API calls within a certain time frame.
  *
@@ -32,15 +37,22 @@ export class TagCoordinator {
 	 * Maps {@link Tag} names to corresponding functions that will resolve them eventually.
 	 *
 	 * Multiple resolvers may exist for a single name due to other concurrent callers.
+	 * @see https://dev.to/nk_sk_6f24fdd730188b284bf/understanding-fan-out-in-system-design-p3c
 	 */
-	#pendingResolvers: Map<string, ((tag: MaybeTag) => void)[]>;
+	#pendingFanout: Map<string, TagTask[]>;
+
+	/**
+	 * Indicates whether a batch flush has already been scheduled (`true`) or not (`false`).
+	 *
+	 * Prevents multiple flushes from being scheduled at the same time.
+	 */
 	#flushScheduled: boolean;
 
 	constructor(resolver: TagResolver) {
 		this.#resolver = resolver;
 		this.#ongoingTagRequests = new Map();
 		this.#pendingNames = new Set();
-		this.#pendingResolvers = new Map();
+		this.#pendingFanout = new Map();
 		this.#flushScheduled = false;
 	}
 
@@ -55,18 +67,19 @@ export class TagCoordinator {
 		const ongoingTagRequest = this.#ongoingTagRequests.get(name);
 		if (ongoingTagRequest) return ongoingTagRequest;
 
-		let resolveFn!: (tag: MaybeTag) => void;
+		const newResolver: TagTask = { resolve: () => undefined, reject: () => undefined };
 
-		const newTagRequest = new Promise<MaybeTag>((resolve) => {
-			resolveFn = resolve;
+		const newTagRequest = new Promise<MaybeTag>((resolve, reject) => {
+			newResolver.resolve = resolve;
+			newResolver.reject = reject;
 		});
 
 		this.#ongoingTagRequests.set(name, newTagRequest);
 
-		const pendingResolvers = this.#pendingResolvers.get(name);
+		const pendingResolvers = this.#pendingFanout.get(name);
 
-		if (pendingResolvers) pendingResolvers.push(resolveFn);
-		else this.#pendingResolvers.set(name, [resolveFn]);
+		if (pendingResolvers) pendingResolvers.push(newResolver);
+		else this.#pendingFanout.set(name, [newResolver]);
 
 		this.#pendingNames.add(name);
 
@@ -83,7 +96,6 @@ export class TagCoordinator {
 		if (this.#flushScheduled) return;
 		this.#flushScheduled = true;
 
-		//Flush after sync exec
 		queueMicrotask(() => this.#flushTags());
 	}
 
@@ -93,17 +105,20 @@ export class TagCoordinator {
 		const pendingNames = this.#pendingNames;
 		if (!pendingNames.size) return;
 
-		const resolversMap = this.#pendingResolvers;
+		const resolversMap = this.#pendingFanout;
 
 		this.#pendingNames = new Set();
-		this.#pendingResolvers = new Map();
+		this.#pendingFanout = new Map();
 
 		let resultingTags: Tag[] = [];
 		try {
 			resultingTags = await this.#resolver.resolveMany(pendingNames);
 		} catch (err) {
 			for (const [, resolvers] of resolversMap)
-				for (const resolve of resolvers) resolve(undefined);
+				for (const resolver of resolvers) resolver.reject(err);
+
+			for (const name of pendingNames) this.#ongoingTagRequests.delete(name);
+
 			throw err;
 		}
 
@@ -117,7 +132,7 @@ export class TagCoordinator {
 
 			if (!resolvers) continue;
 
-			for (const resolveFn of resolvers) resolveFn(maybeTag);
+			for (const resolver of resolvers) resolver.resolve(maybeTag);
 		}
 	}
 }
