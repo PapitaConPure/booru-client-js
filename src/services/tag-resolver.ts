@@ -24,7 +24,14 @@ export class TagResolver {
 	 */
 	readonly #getTagStoreChain: () => readonly TagStore[];
 
-	/**Approach used to fetch from the API when a tag name isn't found in any store.*/
+	/**
+	 * Approach used to fetch from the API when a tag name isn't found in any store.
+	 * @remarks The returned Promise may reject with:
+	 * * {@link ReferenceError} If no credentials were defined.
+	 * * {@link TypeError} If the supplied credentials are invalid.
+	 * * {@link BooruFetchError} If the request to the API fails.
+	 * * {@link BooruUnknownTagError} If the booru adapter is unable to resolve the API response.
+	 */
 	readonly #fetchFromApi: TagFetchApproach;
 
 	/**
@@ -47,6 +54,18 @@ export class TagResolver {
 		this.#tagFetchThreshold = fetchThreshold;
 	}
 
+	/**
+	 * Obtains {@link Tag}s by their names. Uses the configured {@link TagStore} chain as sequential cache layers before actually making an API call.
+	 *
+	 * Missing tags are fetched based on the configured {@link TagFetchApproach} and stored back into the cache.
+	 * @param normalizedTagNames The unique, normalized tag names to resolve.
+	 * @returns An array containing the tags that were retrieved. Omits missing tags.
+	 * @remarks The returned Promise may reject with:
+	 * * {@link ReferenceError} If no credentials were defined.
+	 * * {@link TypeError} If the supplied credentials are invalid.
+	 * * {@link BooruFetchError} If the request to the API fails.
+	 * * {@link BooruUnknownTagError} If the booru adapter is unable to resolve the API response.
+	 */
 	async resolveMany(normalizedTagNames: Set<string>): Promise<Tag[]> {
 		if (!normalizedTagNames.size) return [];
 

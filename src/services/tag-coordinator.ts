@@ -13,12 +13,9 @@ interface TagTask {
  * Coordinates {@link Tag} resolution across concurrent requests in order to reduce redundant store lookups and API calls within a certain time frame.
  *
  * Responsible for:
- * * Deduplicating in-flight requests for the same tag
- * * Batching multiple tag requests within the same microtask
- * * Delegating resolution to {@link TagResolver}
- *
- * Separate requests for the same tag name merge into a single Promise.
- * Multiple tag requests issued within the same synchronous execution frame are batched into a single {@link TagResolver.resolveMany} call.
+ * * Deduplicating in-flight requests for the same {@link Tag}
+ * * Dynamically batching multiple {@link Tag} requests within the configured grace time window into a single {@link TagResolver.resolveMany} call
+ * * Distributing each resolved {@link Tag} resolution to all awaiting callers requesting that name within a batch.
  *
  * @see https://compositecode.blog/2025/07/03/go-concurrency-patternssingleflight-pattern/
  * @see https://oneuptime.com/blog/post/2026-01-25-prevent-duplicate-api-requests-deduplication-go/view
@@ -35,7 +32,7 @@ export class TagCoordinator {
 	#pendingNames: Set<string>;
 
 	/**
-	 * Maps {@link Tag} names to corresponding functions that will resolve or reject them eventually.
+	 * Maps {@link Tag} names to corresponding tasks that will either resolve or reject them eventually.
 	 *
 	 * Multiple tasks may exist for a single name due to other concurrent callers.
 	 * @see https://dev.to/nk_sk_6f24fdd730188b284bf/understanding-fan-out-in-system-design-p3c
@@ -56,13 +53,13 @@ export class TagCoordinator {
 	 */
 	#isFlushing: boolean;
 
-	/**Handle for he scheduled flush (if any).*/
+	/**Stores the handle for the scheduled flush timer (if any) so that {@link flushNow} can cancel it on a whim.*/
 	#flushTimer: NodeJS.Timeout | null;
 
-	/**Time window (in milliseconds) during which incoming {@link Tag} requests are batched before being resolved.*/
+	/**Base {@link Tag} request batching delay (in milliseconds) to apply when the batch size is small.*/
 	#baseGraceWindowMs: number;
 
-	/**Maximum amount of time the dynamic batching grace window is allowed to reach, in milliseconds.*/
+	/**Maximum {@link Tag} request batching delay (in milliseconds) to apply when the batch size is not small at all.*/
 	#maxGraceWindowMs: number;
 
 	constructor(resolver: TagResolver, options: TagCoordinationOptions = {}) {
@@ -84,6 +81,13 @@ export class TagCoordinator {
 		);
 	}
 
+	/**
+	 * Retrieves multiple {@link Tag}s by name. Internally calls to {@link getOne} for batching and deduplication.
+	 *
+	 * @param names The tag names to get.
+	 * @returns The resolved tags, or an empty array if no tags could be resolved.
+	 * @remarks Any error thrown by {@link TagResolver.resolveMany} will be propagated by rejecting all pending tasks for this batch.
+	 */
 	async getMany(names: string[]): Promise<Tag[]> {
 		const promises = names.map((name) => this.getOne(name));
 		const results = await Promise.all(promises);
@@ -91,6 +95,16 @@ export class TagCoordinator {
 		return results.filter((t) => t != null);
 	}
 
+	/**
+	 * Retrieves a single {@link Tag} by name.
+	 *
+	 * If a request for the same {@link Tag} is already in progress, that request is reused.
+	 * Otherwise, the request is queued for the next batch.
+	 *
+	 * @param name The tag name to get.
+	 * @returns The resolved tag, or `undefined` if it couldn't be resolved.
+	 * @remarks Any error thrown by {@link TagResolver.resolveMany} will be propagated by rejecting all pending tasks for this batch.
+	 */
 	async getOne(name: string): Promise<MaybeTag> {
 		const ongoingTagRequest = this.#ongoingTagRequests.get(name);
 		if (ongoingTagRequest) return ongoingTagRequest;
@@ -120,6 +134,7 @@ export class TagCoordinator {
 		return newTagRequest;
 	}
 
+	/**Cancels any scheduled flush delay and triggers resolution instantly, forcing immediate execution of the currently pending batch.*/
 	flushNow() {
 		if (this.#flushTimer) {
 			clearTimeout(this.#flushTimer);
@@ -129,6 +144,7 @@ export class TagCoordinator {
 		this.#flushTags();
 	}
 
+	/**Schedules a batch flush with an adaptive delay determined by {@link #calcAdaptiveDelay}.*/
 	#scheduleTagFlush() {
 		if (this.#flushScheduled) return;
 		this.#flushScheduled = true;
@@ -141,6 +157,10 @@ export class TagCoordinator {
 		}, delay);
 	}
 
+	/**
+	 * Resolves all pending {@link Tag} requests in a single batch. Calls {@link TagResolver.resolveMany} with the whole batch.
+	 * @remarks Any error thrown by {@link TagResolver.resolveMany} will be propagated by rejecting all pending tasks for this batch.
+	 */
 	async #flushTags() {
 		if (this.#isFlushing) return;
 		this.#isFlushing = true;
@@ -183,10 +203,18 @@ export class TagCoordinator {
 			}
 		} finally {
 			this.#isFlushing = false;
+
+			//IMPORTANT: This must be done in case a request comes in mid-flush. DO NOT REMOVE
 			if (this.#pendingNames.size) this.#scheduleTagFlush();
 		}
 	}
 
+	/**
+	 * Computes the batching delay based on current batch size.
+	 *
+	 * Larger batches receive longer delays to maximize coalescing efficiency, while small batches prioritize low latency.
+	 * @returns The delay in milliseconds.
+	 */
 	#calcAdaptiveDelay(): number {
 		const size = this.#pendingNames.size;
 
