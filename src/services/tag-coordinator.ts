@@ -49,6 +49,13 @@ export class TagCoordinator {
 	 */
 	#flushScheduled: boolean;
 
+	/**
+	 * Indicates whether a batch flush is happening NOW (`true`) or not (`false`).
+	 *
+	 * Prevents multiple flushes from happening at the same time.
+	 */
+	#isFlushing: boolean;
+
 	/**Handle for he scheduled flush (if any).*/
 	#flushTimer: NodeJS.Timeout | null;
 
@@ -62,11 +69,14 @@ export class TagCoordinator {
 		const { baseBatchingGraceWindowMs = 0, maxBatchingGraceWindowMs = 5 } = options;
 
 		this.#resolver = resolver;
+
 		this.#ongoingTagRequests = new Map();
 		this.#pendingNames = new Set();
 		this.#pendingTagTasks = new Map();
 		this.#flushScheduled = false;
+		this.#isFlushing = false;
 		this.#flushTimer = null;
+
 		this.#maxGraceWindowMs = Math.max(0, maxBatchingGraceWindowMs);
 		this.#baseGraceWindowMs = Math.min(
 			Math.max(0, baseBatchingGraceWindowMs),
@@ -110,6 +120,15 @@ export class TagCoordinator {
 		return newTagRequest;
 	}
 
+	flushNow() {
+		if (this.#flushTimer) {
+			clearTimeout(this.#flushTimer);
+			this.#flushTimer = null;
+		}
+
+		this.#flushTags();
+	}
+
 	#scheduleTagFlush() {
 		if (this.#flushScheduled) return;
 		this.#flushScheduled = true;
@@ -123,50 +142,49 @@ export class TagCoordinator {
 	}
 
 	async #flushTags() {
-		this.#flushScheduled = false;
+		if (this.#isFlushing) return;
+		this.#isFlushing = true;
 
-		const pendingNames = this.#pendingNames;
-		if (!pendingNames.size) return;
-
-		const resolversMap = this.#pendingTagTasks;
-
-		this.#pendingNames = new Set();
-		this.#pendingTagTasks = new Map();
-
-		let resultingTags: Tag[] = [];
 		try {
-			resultingTags = await this.#resolver.resolveMany(pendingNames);
-		} catch (err) {
-			for (const [, resolvers] of resolversMap)
-				for (const resolver of resolvers) resolver.reject(err);
+			this.#flushScheduled = false;
 
-			for (const name of pendingNames) this.#ongoingTagRequests.delete(name);
+			const pendingNames = this.#pendingNames;
+			if (!pendingNames.size) return;
 
-			throw err;
+			const resolversMap = this.#pendingTagTasks;
+
+			this.#pendingNames = new Set();
+			this.#pendingTagTasks = new Map();
+
+			let resultingTags: Tag[] = [];
+			try {
+				resultingTags = await this.#resolver.resolveMany(pendingNames);
+			} catch (err) {
+				for (const [, resolvers] of resolversMap)
+					for (const resolver of resolvers) resolver.reject(err);
+
+				for (const name of pendingNames) this.#ongoingTagRequests.delete(name);
+
+				throw err;
+			}
+
+			const resultsMap = new Map<string, Tag>();
+			for (const resultingTag of resultingTags)
+				resultsMap.set(resultingTag.name, resultingTag);
+
+			//Resolve pending requests
+			for (const pendingName of pendingNames) {
+				const maybeTag = resultsMap.get(pendingName);
+				const resolvers = resolversMap.get(pendingName);
+
+				if (!resolvers) continue;
+
+				for (const resolver of resolvers) resolver.resolve(maybeTag);
+			}
+		} finally {
+			this.#isFlushing = false;
+			if (this.#pendingNames.size) this.#scheduleTagFlush();
 		}
-
-		const resultsMap = new Map<string, Tag>();
-		for (const resultingTag of resultingTags) resultsMap.set(resultingTag.name, resultingTag);
-
-		//Resolve pending requests
-		for (const pendingName of pendingNames) {
-			const maybeTag = resultsMap.get(pendingName);
-			const resolvers = resolversMap.get(pendingName);
-
-			if (!resolvers) continue;
-
-			for (const resolver of resolvers) resolver.resolve(maybeTag);
-		}
-	}
-
-	flushNow() {
-		if (this.#flushTimer) {
-			clearTimeout(this.#flushTimer);
-			this.#flushTimer = null;
-		}
-
-		this.#flushScheduled = false;
-		this.#flushTags();
 	}
 
 	#calcAdaptiveDelay(): number {
