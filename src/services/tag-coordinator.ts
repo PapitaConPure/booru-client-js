@@ -40,7 +40,7 @@ export class TagCoordinator {
 	 * Multiple tasks may exist for a single name due to other concurrent callers.
 	 * @see https://dev.to/nk_sk_6f24fdd730188b284bf/understanding-fan-out-in-system-design-p3c
 	 */
-	#pendingFanout: Map<string, TagTask[]>;
+	#pendingTagTasks: Map<string, TagTask[]>;
 
 	/**
 	 * Indicates whether a batch flush has already been scheduled (`true`) or not (`false`).
@@ -64,7 +64,7 @@ export class TagCoordinator {
 		this.#resolver = resolver;
 		this.#ongoingTagRequests = new Map();
 		this.#pendingNames = new Set();
-		this.#pendingFanout = new Map();
+		this.#pendingTagTasks = new Map();
 		this.#flushScheduled = false;
 		this.#flushTimer = null;
 		this.#maxGraceWindowMs = Math.max(0, maxBatchingGraceWindowMs);
@@ -94,10 +94,10 @@ export class TagCoordinator {
 
 		this.#ongoingTagRequests.set(name, newTagRequest);
 
-		const pendingResolvers = this.#pendingFanout.get(name);
+		const pendingResolvers = this.#pendingTagTasks.get(name);
 
 		if (pendingResolvers) pendingResolvers.push(newResolver);
-		else this.#pendingFanout.set(name, [newResolver]);
+		else this.#pendingTagTasks.set(name, [newResolver]);
 
 		this.#pendingNames.add(name);
 
@@ -128,10 +128,10 @@ export class TagCoordinator {
 		const pendingNames = this.#pendingNames;
 		if (!pendingNames.size) return;
 
-		const resolversMap = this.#pendingFanout;
+		const resolversMap = this.#pendingTagTasks;
 
 		this.#pendingNames = new Set();
-		this.#pendingFanout = new Map();
+		this.#pendingTagTasks = new Map();
 
 		let resultingTags: Tag[] = [];
 		try {
