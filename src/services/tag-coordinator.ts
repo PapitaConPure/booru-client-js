@@ -1,9 +1,11 @@
 import type { Tag } from '../domain/tag';
 import type { TagResolver } from './tag-resolver';
 
+type MaybeTag = Tag | undefined;
+
 export class TagCoordinator {
 	readonly #resolver: TagResolver;
-	readonly #inFlight: Map<string, Promise<Tag | undefined>>;
+	readonly #inFlight: Map<string, Promise<MaybeTag>>;
 
 	constructor(resolver: TagResolver) {
 		this.#resolver = resolver;
@@ -14,10 +16,10 @@ export class TagCoordinator {
 		const promises = names.map((name) => this.getOne(name));
 		const results = await Promise.all(promises);
 
-		return results.filter((t): t is Tag => t !== undefined);
+		return results.filter((t) => t != null);
 	}
 
-	async getOne(name: string): Promise<Tag | undefined> {
+	async getOne(name: string): Promise<MaybeTag> {
 		const existing = this.#inFlight.get(name);
 		if (existing) return existing;
 
@@ -31,7 +33,7 @@ export class TagCoordinator {
 		return promise;
 	}
 
-	async #resolveOne(name: string): Promise<Tag | undefined> {
+	async #resolveOne(name: string): Promise<MaybeTag> {
 		const results = await this.#resolver.resolveMany([name]);
 		return results[0];
 	}
