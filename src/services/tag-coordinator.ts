@@ -48,16 +48,24 @@ export class TagCoordinator {
 	 */
 	#flushScheduled: boolean;
 
-	/**Time window (in milliseconds) during which incoming {@link Tag} requests are batched before being resolved.*/
-	#graceWindowMs: number;
+	/**Handle for he scheduled flush (if any).*/
+	#flushTimer: NodeJS.Timeout | null;
 
-	constructor(resolver: TagResolver, batchingGraceWindowMs: number) {
+	/**Time window (in milliseconds) during which incoming {@link Tag} requests are batched before being resolved.*/
+	#baseGraceWindowMs: number;
+
+	/**Maximum amount of time the dynamic batching grace window is allowed to reach, in milliseconds.*/
+	#maxGraceWindowMs: number;
+
+	constructor(resolver: TagResolver, baseBatchingGraceWindowMs: number) {
 		this.#resolver = resolver;
 		this.#ongoingTagRequests = new Map();
 		this.#pendingNames = new Set();
 		this.#pendingFanout = new Map();
 		this.#flushScheduled = false;
-		this.#graceWindowMs = batchingGraceWindowMs;
+		this.#flushTimer = null;
+		this.#baseGraceWindowMs = Math.min(Math.max(0, baseBatchingGraceWindowMs), 10_000);
+		this.#maxGraceWindowMs = Math.max(5, this.#baseGraceWindowMs);
 	}
 
 	async getMany(names: string[]): Promise<Tag[]> {
@@ -100,7 +108,12 @@ export class TagCoordinator {
 		if (this.#flushScheduled) return;
 		this.#flushScheduled = true;
 
-		setTimeout(() => this.#flushTags(), this.#graceWindowMs);
+		const delay = this.#calcAdaptiveDelay();
+
+		this.#flushTimer = setTimeout(() => {
+			this.#flushTimer = null;
+			this.#flushTags();
+		}, delay);
 	}
 
 	async #flushTags() {
@@ -138,5 +151,25 @@ export class TagCoordinator {
 
 			for (const resolver of resolvers) resolver.resolve(maybeTag);
 		}
+	}
+
+	flushNow() {
+		if (this.#flushTimer) {
+			clearTimeout(this.#flushTimer);
+			this.#flushTimer = null;
+		}
+
+		this.#flushScheduled = false;
+		this.#flushTags();
+	}
+
+	#calcAdaptiveDelay(): number {
+		const size = this.#pendingNames.size;
+
+		if (size <= 5) return this.#baseGraceWindowMs;
+		if (size <= 20) return Math.max(1, this.#baseGraceWindowMs);
+		if (size <= 50) return Math.max(3, this.#baseGraceWindowMs);
+
+		return this.#maxGraceWindowMs;
 	}
 }
