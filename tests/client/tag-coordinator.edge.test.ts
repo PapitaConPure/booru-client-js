@@ -74,8 +74,7 @@ describe('TagCoordinator - edge cases & robustness', () => {
 		const p2 = coordinator.getOne('b');
 		const p3 = coordinator.getOne('c');
 
-		for (let i = 0; i < 10; i++)
-			coordinator.flushNow();
+		for (let i = 0; i < 10; i++) coordinator.flushNow();
 
 		const results = await Promise.all([p1, p2, p3]);
 

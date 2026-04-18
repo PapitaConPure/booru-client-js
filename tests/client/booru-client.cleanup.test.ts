@@ -123,7 +123,7 @@ describe('BooruClient - cleanup behavior', () => {
 		});
 
 		await client.fetchTagsByNames({ names: ['a'] });
-		
+
 		await new Promise((r) => setTimeout(r, store.ttl + 10));
 
 		await store.cleanup();
