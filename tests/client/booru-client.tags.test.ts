@@ -1,4 +1,5 @@
 import { beforeEach, describe, expect, it } from 'bun:test';
+import { type Booru, Post, Tag } from '@papitaconpure/booru-client';
 import { Gelbooru } from '../../src/adapters/gelbooru/client';
 import type { GelbooruTagsResponseDto } from '../../src/adapters/gelbooru/dto';
 import { BooruClient } from '../../src/services/booru-client';
@@ -43,5 +44,81 @@ describe('BooruClient - tag fetching', () => {
 		const second = await client.fetchTagsByNames({ names: ['kishin_sagume'] });
 
 		expect(second.length).toBe(1);
+	});
+});
+
+function createMockBooru() {
+	let calls = 0;
+
+	const booru: Booru = {
+		get name() {
+			return 'mock';
+		},
+
+		async search() {
+			return [];
+		},
+
+		async fetchPostById() {
+			return undefined;
+		},
+
+		async fetchPostByUrl() {
+			return undefined;
+		},
+
+		async fetchTagsByNames(names) {
+			calls++;
+			return [...names].map((name, id) => Tag.mock({ id, name }));
+		},
+
+		validateCredentials() {
+			return;
+		},
+	};
+
+	return {
+		booru,
+		getCalls: () => calls,
+	};
+}
+
+describe('BooruClient - fetchPostTags integration', () => {
+	it('fetchPostTags goes through full pipeline correctly', async () => {
+		const mock = createMockBooru();
+
+		const client = new BooruClient(mock.booru, {
+			credentials: { apiKey: 'x', userId: '1' },
+		});
+
+		const post = Post.mock({
+			tags: ['a', 'b'],
+		});
+
+		const tags = await client.fetchPostTags(post);
+
+		expect(tags.map((t) => t.name)).toEqual(['a', 'b']);
+		expect(mock.getCalls()).toBe(1);
+	});
+
+	it('fetchPostTags + fetchTagsByNames share batching behavior', async () => {
+		const mock = createMockBooru();
+
+		const client = new BooruClient(mock.booru, {
+			credentials: { apiKey: 'x', userId: '1' },
+			tags: {
+				baseBatchingGraceWindowMs: 0,
+				maxBatchingGraceWindowMs: 5,
+			},
+		});
+
+		const post = Post.mock({ tags: ['a'] });
+
+		const p1 = client.fetchPostTags(post);
+		const p2 = client.fetchTagsByNames({ names: ['b'] });
+
+		await Promise.all([p1, p2]);
+
+		expect(mock.getCalls()).toBe(1);
 	});
 });

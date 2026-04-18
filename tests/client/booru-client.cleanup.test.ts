@@ -1,7 +1,10 @@
 import { describe, expect, it } from 'bun:test';
+import type { Booru } from '../../src/adapters/booru';
 import { Gelbooru } from '../../src/adapters/gelbooru/client';
 import type { GelbooruTagsResponseDto } from '../../src/adapters/gelbooru/dto';
+import { Tag } from '../../src/domain/tag';
 import { BooruClient } from '../../src/services/booru-client';
+import { MemoryTagStore } from '../../src/stores/memory-tag-store';
 import type { FetchSuccessResult } from '../../src/utils/fetchExt';
 
 describe('BooruClient - cleanup', () => {
@@ -47,5 +50,86 @@ describe('BooruClient - cleanup', () => {
 		await client.fetchTagsByNames({ names: ['test'] });
 
 		expect(cleaned).toBe(true);
+	});
+});
+
+function createMockBooru() {
+	let calls = 0;
+
+	const booru: Booru = {
+		get name() {
+			return 'mock';
+		},
+
+		async search() {
+			return [];
+		},
+
+		async fetchPostById() {
+			return undefined;
+		},
+
+		async fetchPostByUrl() {
+			return undefined;
+		},
+
+		async fetchTagsByNames(names) {
+			calls++;
+			return [...names].map((name, id) => Tag.mock({ id, name }));
+		},
+
+		validateCredentials() {
+			return;
+		},
+	};
+
+	return {
+		booru,
+		getCalls: () => calls,
+	};
+}
+
+describe('BooruClient - cleanup behavior', () => {
+	it('auto cleanup does not break batching', async () => {
+		const mock = createMockBooru();
+		const store = new MemoryTagStore();
+
+		const client = new BooruClient(mock.booru, {
+			credentials: { apiKey: 'x', userId: '1' },
+			tags: {
+				storeChain: [store],
+				baseBatchingGraceWindowMs: 0,
+				maxBatchingGraceWindowMs: 5,
+			},
+		});
+
+		const p1 = client.fetchTagsByNames({ names: ['a'] });
+		const p2 = client.fetchTagsByNames({ names: ['b'] });
+
+		await Promise.all([p1, p2]);
+
+		expect(mock.getCalls()).toBe(1);
+	});
+
+	it('after cleanup tags are re-fetched correctly', async () => {
+		const mock = createMockBooru();
+		const store = new MemoryTagStore({ ttl: 10 });
+
+		const client = new BooruClient(mock.booru, {
+			credentials: { apiKey: 'x', userId: '1' },
+			tags: {
+				storeChain: [store],
+			},
+		});
+
+		await client.fetchTagsByNames({ names: ['a'] });
+		
+		await new Promise((r) => setTimeout(r, store.ttl + 10));
+
+		await store.cleanup();
+
+		await client.fetchTagsByNames({ names: ['a'] });
+
+		expect(mock.getCalls()).toBe(2);
 	});
 });
