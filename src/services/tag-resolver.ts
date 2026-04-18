@@ -2,6 +2,21 @@ import type { Tag } from '../domain/tag';
 import type { TagStore } from '../stores/tag-store';
 import type { BooruClientTagOptions, TagFetchApproach } from '../types/booru';
 
+/**
+ * Resolves {@link Tag}s by coordinating {@link TagStore} cache layers and an API fallback to a certain booru.
+ *
+ * Responsible for:
+ * * Querying a chain of {@link TagStore}s as cache layers
+ * * Determining whether to fetch tags per-name or per-store based on a threshold
+ * * Fetching missing tags from the API when not found in any store
+ * * Writing fetched tags back into all cache layers
+ *
+ * The {@link Tag} resolution process follows this order:
+ * 1. Try to fetch tags from cache layers (ideally, faster {@link TagStore}s are configured to go first in the chain)
+ * 2. Identify missing tag names
+ * 3. Tro to fetch missing tags from a booru
+ * 4. Store fetched tags in all cache layers
+ */
 export class TagResolver {
 	/**
 	 * Ordered chain of {@link TagStore}s used as cache layers.

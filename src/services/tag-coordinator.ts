@@ -3,12 +3,36 @@ import type { TagResolver } from './tag-resolver';
 
 type MaybeTag = Tag | undefined;
 
+/**
+ * Coordinates {@link Tag} resolution across concurrent requests in order to reduce redundant store lookups and API calls within a certain time frame.
+ *
+ * Responsible for:
+ * * Deduplicating in-flight requests for the same tag
+ * * Batching multiple tag requests within the same microtask
+ * * Delegating resolution to {@link TagResolver}
+ *
+ * Separate requests for the same tag name merge into a single Promise.
+ * Multiple tag requests issued within the same synchronous execution frame are batched into a single {@link TagResolver.resolveMany} call.
+ *
+ * @see https://compositecode.blog/2025/07/03/go-concurrency-patternssingleflight-pattern/
+ * @see https://oneuptime.com/blog/post/2026-01-25-prevent-duplicate-api-requests-deduplication-go/view
+ * @see https://medium.com/@mr.sourav.raj/request-hedging-vs-request-coalescing-a-software-engineers-guide-to-optimizing-distributed-fdcc6590ba9d
+ */
 export class TagCoordinator {
+	/**Underlying {@link TagResolver} responsible for ultimately fetching tags from stores/API.*/
 	readonly #resolver: TagResolver;
 
+	/**Tracks ongoing {@link Tag} requests by name so that their results can be reused in duplicate requests.*/
 	readonly #ongoingTagRequests: Map<string, Promise<MaybeTag>>;
 
+	/**Set of {@link Tag} names queued for the next batch resolution.*/
 	#pendingNames: Set<string>;
+
+	/**
+	 * Maps {@link Tag} names to corresponding functions that will resolve them eventually.
+	 *
+	 * Multiple resolvers may exist for a single name due to other concurrent callers.
+	 */
 	#pendingResolvers: Map<string, ((tag: MaybeTag) => void)[]>;
 	#flushScheduled: boolean;
 
