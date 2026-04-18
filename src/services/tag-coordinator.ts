@@ -34,9 +34,9 @@ export class TagCoordinator {
 	#pendingNames: Set<string>;
 
 	/**
-	 * Maps {@link Tag} names to corresponding functions that will resolve them eventually.
+	 * Maps {@link Tag} names to corresponding functions that will resolve or reject them eventually.
 	 *
-	 * Multiple resolvers may exist for a single name due to other concurrent callers.
+	 * Multiple tasks may exist for a single name due to other concurrent callers.
 	 * @see https://dev.to/nk_sk_6f24fdd730188b284bf/understanding-fan-out-in-system-design-p3c
 	 */
 	#pendingFanout: Map<string, TagTask[]>;
