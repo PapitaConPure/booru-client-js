@@ -10,7 +10,7 @@
 	},
 	"formatter": {
 		"enabled": true,
-		"includes": ["src/**/*.ts"],
+		"includes": ["src/**/*.ts", "tests/**/*.ts"],
 		"indentStyle": "tab",
 		"indentWidth": 4,
 		"attributePosition": "auto",
@@ -25,7 +25,7 @@
 	},
 	"linter": {
 		"enabled": true,
-		"includes": ["src/**/*.ts"],
+		"includes": ["src/**/*.ts", "tests/**/*.ts"],
 		"rules": {
 			"recommended": true,
 			"style": {
