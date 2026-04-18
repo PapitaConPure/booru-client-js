@@ -1,6 +1,6 @@
 {
   "name": "@papitaconpure/booru-client",
-  "version": "1.4.2",
+  "version": "1.4.3",
   "description": "An extensible, zero-dependency imageboard client with multi-layer tag caching.",
   "type": "module",
   "main": "./dist/index.js",
