@@ -40,13 +40,6 @@ export class TagCoordinator {
 	#pendingTagTasks: Map<string, TagTask[]>;
 
 	/**
-	 * Indicates whether a batch flush has already been scheduled (`true`) or not (`false`).
-	 *
-	 * Prevents multiple flushes from being scheduled at the same time.
-	 */
-	#flushScheduled: boolean;
-
-	/**
 	 * Indicates whether a batch flush is happening NOW (`true`) or not (`false`).
 	 *
 	 * Prevents multiple flushes from happening at the same time.
@@ -77,7 +70,6 @@ export class TagCoordinator {
 		this.#ongoingTagRequests = new Map();
 		this.#pendingNames = new Set();
 		this.#pendingTagTasks = new Map();
-		this.#flushScheduled = false;
 		this.#isFlushing = false;
 		this.#flushTimer = null;
 
@@ -122,6 +114,10 @@ export class TagCoordinator {
 		const newTagRequest = new Promise<MaybeTag>((resolve, reject) => {
 			newResolver.resolve = resolve;
 			newResolver.reject = reject;
+
+			setTimeout(() => {
+				reject(new Error(`Tag resolution timeout: ${name}`));
+			}, 5000);
 		});
 
 		this.#ongoingTagRequests.set(name, newTagRequest);
@@ -161,8 +157,7 @@ export class TagCoordinator {
 			return;
 		}
 
-		if (this.#flushScheduled) return;
-		this.#flushScheduled = true;
+		if (this.#flushTimer) return;
 
 		const delay = this.#calcAdaptiveDelay();
 
@@ -181,8 +176,6 @@ export class TagCoordinator {
 		this.#isFlushing = true;
 
 		try {
-			this.#flushScheduled = false;
-
 			const pendingNames = this.#pendingNames;
 			if (!pendingNames.size) return;
 
@@ -220,7 +213,7 @@ export class TagCoordinator {
 		} finally {
 			this.#isFlushing = false;
 
-			if (this.#pendingNames.size) this.#scheduleTagFlush();
+			if (this.#pendingNames.size && !this.#flushTimer) this.#scheduleTagFlush();
 		}
 	}
 
