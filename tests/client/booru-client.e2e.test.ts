@@ -87,3 +87,28 @@ describe.skipIf(skipE2E)('E2E: adapter normalization', () => {
 		expect(gPost?.createdAt).toBeInstanceOf(Date);
 	});
 });
+
+describe.skipIf(skipE2E)('E2E: concurrent requests', () => {
+	it('resolves tags from concurrent post results', async () => {
+		const gelbooru = new BooruClient(new Gelbooru(), {
+			credentials: {
+				apiKey: process.env.TEST_GELBOORU_APIKEY as string,
+				userId: process.env.TEST_GELBOORU_USERID as string,
+			},
+		});
+
+		const posts = await gelbooru.search('megumin', { limit: 4 });
+
+		await Promise.all(
+			posts.map(async (post) => {
+				expect(post).toBeDefined();
+				expect(post.id).toBeNumber();
+				expect(post.fileUrl).toBeInstanceOf(URL);
+				expect(post.createdAt).toBeInstanceOf(Date);
+
+				const tags = await gelbooru.fetchPostTags(post);
+				expect(tags).toBeArray();
+			}),
+		);
+	}, 10_000);
+});
