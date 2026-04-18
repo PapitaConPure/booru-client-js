@@ -32,8 +32,8 @@ export class TagResolver {
 		this.#tagFetchThreshold = fetchThreshold;
 	}
 
-	async resolveMany(normalizedTagNames: string[]): Promise<Tag[]> {
-		if (!normalizedTagNames.length) return [];
+	async resolveMany(normalizedTagNames: Set<string>): Promise<Tag[]> {
+		if (!normalizedTagNames.size) return [];
 
 		const uniqueTagNames = new Set(normalizedTagNames);
 

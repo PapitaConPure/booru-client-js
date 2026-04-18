@@ -76,7 +76,7 @@ export class TagCoordinator {
 
 		let resultingTags: Tag[] = [];
 		try {
-			resultingTags = await this.#resolver.resolveMany([...pendingNames]);
+			resultingTags = await this.#resolver.resolveMany(pendingNames);
 		} catch (err) {
 			for (const [, resolvers] of resolversMap)
 				for (const resolve of resolvers) resolve(undefined);
