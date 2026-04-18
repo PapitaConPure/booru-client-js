@@ -29,7 +29,7 @@ export interface TagCoordinationOptions {
 	/**
 	 * Defines the delay (in milliseconds) before flushing a batch of pending {@link Tag} requests. During this window, additional requests accumulate into the same batch.
 	 * Defaults to 0 and is bound by `maxBatchingGraceWindowMs`
-	 * 
+	 *
 	 * A higher value increases {@link Tag} batching efficiency at the cost of added latency. A lower value reduces latency at the cost of more {@link Tag} request,
 	 * which may potentially call to the API.
 	 */
