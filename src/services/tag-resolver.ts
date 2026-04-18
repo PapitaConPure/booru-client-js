@@ -14,7 +14,7 @@ import type { BooruClientTagOptions, TagFetchApproach } from '../types/booru';
  * The {@link Tag} resolution process follows this order:
  * 1. Try to fetch tags from cache layers (ideally, faster {@link TagStore}s are configured to go first in the chain)
  * 2. Identify missing tag names
- * 3. Tro to fetch missing tags from a booru
+ * 3. Try to fetch missing tags from a booru
  * 4. Store fetched tags in all cache layers
  */
 export class TagResolver {
