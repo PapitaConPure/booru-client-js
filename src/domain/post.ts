@@ -4,7 +4,7 @@ import { getSourceUrl, parseUrlForField, parseValidDate } from '../utils/misc';
 import { type PostRating, PostRatings } from './post-rating';
 
 //Force type narrowing silently
-declare const __booruBrand: unique symbol;
+const __booruBrand: unique symbol = Symbol();
 
 /**
  * Represents a domain entity for a post (image or media) published on a {@linkcode Booru}.
