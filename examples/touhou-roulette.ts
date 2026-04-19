@@ -1,12 +1,12 @@
-import { BooruClient, Gelbooru } from '@papitaconpure/booru-client';
+import { BooruClient, Danbooru } from '@papitaconpure/booru-client';
 
 //Instance a Booru adapter
-const gelbooru = new Gelbooru();
+const danbooru = new Danbooru();
 
 //Create a Booru client with the adapter and our credentials
-const client = new BooruClient(gelbooru, {
-	apiKey: process.env.TEST_GELBOORU_APIKEY!,
-	userId: process.env.TEST_GELBOORU_USERID!,
+const client = new BooruClient(danbooru, {
+	apiKey: process.env.TEST_DANBOORU_APIKEY!,
+	login: process.env.TEST_DANBOORU_LOGIN!,
 });
 
 //These 24 tag requests are automatically reduced to only 1~8 API calls
@@ -26,4 +26,5 @@ const results = await Promise.all([
 
 //10, which are the times the function was called
 console.log(results.length);
+console.log(results.flatMap(result => result.map(tag => tag.name)));
 process.exit(0);
