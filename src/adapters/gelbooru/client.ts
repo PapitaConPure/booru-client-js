@@ -5,7 +5,7 @@ import type { PostMapper } from '../../mappers/post-mapper';
 import { GelbooruPostMapper } from '../../mappers/post-mapper/gelbooru-post-mapper';
 import type { TagMapper } from '../../mappers/tag-mapper';
 import { GelbooruTagMapper } from '../../mappers/tag-mapper/gelbooru-tag-mapper';
-import type { BooruSearchOptions, PostUrlBuilder } from '../../types/booru';
+import type { PostUrlBuilder } from '../../types/booru';
 import { createArrayExpecter } from '../../utils/booru';
 import { defineEndpoint, type Endpoint } from '../../utils/endpoint';
 import { fetchExt } from '../../utils/fetchExt';
@@ -16,7 +16,7 @@ import type {
 	GelbooruTagDto,
 	GelbooruTagsResponseDto,
 } from './dto';
-import type { GelbooruCredentials, GelbooruOptions } from './types';
+import type { GelbooruCredentials, GelbooruOptions, GelbooruPostExtra, GelbooruSearchOptions } from './types';
 
 const booruName = 'gelbooru' as const;
 
@@ -26,7 +26,7 @@ const booruName = 'gelbooru' as const;
  * @see https://gelbooru.com/index.php?page=wiki&s=view&id=18780
  */
 export class Gelbooru
-	implements Booru<Gelbooru, typeof booruName, GelbooruCredentials, BooruSearchOptions>
+	implements Booru<Gelbooru, typeof booruName, GelbooruCredentials, GelbooruSearchOptions, GelbooruPostExtra>
 {
 	/**Base URL for Gelbooru's API endpoints.*/
 	static readonly API_BASE_URL = 'https://gelbooru.com/index.php';
@@ -86,7 +86,7 @@ export class Gelbooru
 
 	async search(
 		tags: string,
-		searchOptions: Required<BooruSearchOptions>,
+		searchOptions: GelbooruSearchOptions,
 		credentials: GelbooruCredentials,
 	): Promise<Post<Gelbooru>[]> {
 		const { limit, random } = searchOptions;

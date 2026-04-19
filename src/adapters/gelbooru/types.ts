@@ -1,5 +1,6 @@
 import type { PostMapper } from '../../mappers/post-mapper';
 import type { TagMapper } from '../../mappers/tag-mapper';
+import type { BooruSearchOptions } from '../../types/booru';
 import type { FetchFn } from '../../utils/endpoint';
 import type { Gelbooru } from './client';
 import type { GelbooruPostDto, GelbooruTagDto } from './dto';
@@ -16,4 +17,22 @@ export interface GelbooruOptions {
 export interface GelbooruCredentials {
 	apiKey: string;
 	userId: string;
+}
+
+export interface GelbooruSearchOptions extends Required<BooruSearchOptions> {
+	pid?: number;
+	sort?: string;
+	order?: 'asc' | 'desc';
+	params?: Record<string, unknown>;
+}
+
+export interface GelbooruPostExtra {
+	favCount?: number;
+	fileExt?: string;
+	fileSize?: number;
+	md5?: string;
+	parentId?: string;
+	change?: number;
+	owner?: string;
+	sourceRaw?: string;
 }
