@@ -94,7 +94,7 @@ export class Gelbooru implements Booru<typeof booruName, GelbooruCredentials, Bo
 		tags: string,
 		searchOptions: Required<BooruSearchOptions>,
 		credentials: GelbooruCredentials,
-	): Promise<Post[]> {
+	): Promise<Post<Gelbooru>[]> {
 		const { limit, random } = searchOptions;
 		const { apiKey, userId } = credentials;
 
