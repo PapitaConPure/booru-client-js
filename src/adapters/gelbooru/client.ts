@@ -92,8 +92,8 @@ export class Gelbooru implements Booru<typeof booruName, GelbooruCredentials, Bo
 
 	async search(
 		tags: string,
-		credentials: GelbooruCredentials,
 		searchOptions: Required<BooruSearchOptions>,
+		credentials: GelbooruCredentials,
 	): Promise<Post[]> {
 		const { limit, random } = searchOptions;
 		const { apiKey, userId } = credentials;

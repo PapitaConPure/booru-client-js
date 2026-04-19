@@ -73,7 +73,7 @@ class CustombooruTagMapper implements TagMapper<CustombooruTagDto> {
 
 const customBooruName = 'custombooru' as const;
 
-class Custombooru implements Booru<typeof customBooruName, CustombooruCredentials, Required<BooruSearchOptions>> {
+class Custombooru implements Booru<typeof customBooruName, CustombooruCredentials> {
 	static readonly POSTS_ENDPOINT = defineEndpoint('get', 'https://custombooru.com/api/v1/posts?json=1');
 	static readonly TAGS_ENDPOINT = defineEndpoint('get', 'https://custombooru.com/api/v1/tags?json=1');
 
@@ -99,7 +99,7 @@ class Custombooru implements Booru<typeof customBooruName, CustombooruCredential
 		return customBooruName;
 	}
 
-	async search(tags: string, credentials: CustombooruCredentials, searchOptions: Required<BooruSearchOptions>): Promise<Post[]> {
+	async search(tags: string, searchOptions: Required<BooruSearchOptions>, credentials: CustombooruCredentials): Promise<Post[]> {
 		const { limit, random } = searchOptions;
 		const { apiKey, bananas, superUltraSecretCode } = credentials;
 

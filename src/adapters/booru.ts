@@ -31,9 +31,9 @@ export interface Booru<
 	 */
 	search(
 		tags: string,
-		credentials: TCredentials,
 		searchOptions: Required<BooruSearchOptions> & TSearchOptions,
-	): Promise<Post<this>[]>;
+		credentials: TCredentials,
+	): Promise<Post[]>;
 
 	/**
 	 * Fetches a {@link Post} by its unique identifier.
@@ -45,7 +45,7 @@ export interface Booru<
 	 * * {@link BooruFetchError} If the request to the API fails.
 	 * * {@link BooruUnknownPostError} If the booru adapter is unable to resolve the API response.
 	 */
-	fetchPostById(postId: string, credentials: TCredentials): Promise<Post<this> | undefined>;
+	fetchPostById(postId: string, credentials: TCredentials): Promise<Post | undefined>;
 
 	/**
 	 * Fetches a {@link Post} from its canonical URL.
@@ -57,7 +57,7 @@ export interface Booru<
 	 * * {@link BooruFetchError} If the request to the API fails.
 	 * * {@link BooruUnknownPostError} If the booru adapter is unable to resolve the API response.
 	 */
-	fetchPostByUrl(postUrl: URL, credentials: TCredentials): Promise<Post<this> | undefined>;
+	fetchPostByUrl(postUrl: URL, credentials: TCredentials): Promise<Post | undefined>;
 
 	/**
 	 * Fetches {@link Tag}s by their names.

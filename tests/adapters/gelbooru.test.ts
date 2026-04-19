@@ -31,11 +31,11 @@ describe('Gelbooru Adapter', () => {
 
 		const posts = await client.search(
 			'test',
+			{ limit: 1, random: false },
 			{
 				apiKey: 'x',
 				userId: 'y',
 			},
-			{ limit: 1, random: false },
 		);
 
 		expect(posts.length).toBe(1);

@@ -134,14 +134,14 @@ export class BooruClient<TBooru extends Booru = Booru> {
 	 */
 	async search(
 		tags: string | string[],
-		searchOptions?: BooruSearchOptions & SearchOptionsOf<TBooru>,
+		searchOptions?: BooruSearchOptions & Omit<SearchOptionsOf<TBooru>, keyof BooruSearchOptions>,
 	): Promise<Post<TBooru>[]> {
 		if (Array.isArray(tags)) tags = tags.join(' ');
 
 		const { limit = 1, random = false } = searchOptions ?? {};
 		const finalSearchOptions = { limit, random };
 
-		return this.#booru.search(tags, this.#getCredentials(), finalSearchOptions);
+		return this.#booru.search(tags, finalSearchOptions, this.#getCredentials());
 	}
 
 	/**

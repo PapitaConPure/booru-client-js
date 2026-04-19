@@ -10,7 +10,7 @@ describe('BooruClient', () => {
 			id: '1',
 		});
 
-		const fakeAdapter: Booru<'fake', unknown, Required<BooruSearchOptions>> = {
+		const fakeAdapter: Booru<'fake', unknown, BooruSearchOptions> = {
 			name: 'fake' as const,
 			search: async () => [fakePost],
 			fetchPostById: async () => fakePost,
