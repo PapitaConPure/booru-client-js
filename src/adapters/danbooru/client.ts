@@ -27,6 +27,10 @@ interface DanbooruOptions {
 	fetchFn?: FetchFn;
 }
 
+interface DanbooruSearch extends Required<BooruSearchOptions> {
+	rating?: string;
+}
+
 const booruName = 'danbooru' as const;
 
 /**
@@ -92,8 +96,8 @@ export class Danbooru implements Booru<typeof booruName, DanbooruCredentials, Bo
 	async search(
 		tags: string,
 		credentials: DanbooruCredentials,
-		searchOptions: BooruSearchOptions = {},
-	): Promise<Post[]> {
+		searchOptions: DanbooruSearch,
+	): Promise<Post<Danbooru>[]> {
 		const { limit, random } = searchOptions;
 		const { apiKey, login } = credentials;
 
