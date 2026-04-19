@@ -3,6 +3,9 @@ import type { AnyBooru, NameOf, PostInit, PostUrlBuilder } from '../types/booru'
 import { getSourceUrl, parseUrlForField, parseValidDate } from '../utils/misc';
 import { type PostRating, PostRatings } from './post-rating';
 
+//Force type narrowing silently
+declare const __booruBrand: unique symbol;
+
 /**
  * Represents a domain entity for a post (image or media) published on a {@linkcode Booru}.
  *
@@ -11,7 +14,7 @@ import { type PostRating, PostRatings } from './post-rating';
  * This object is immutable and should be treated as a read-only value.
  */
 export class Post<TBooru extends AnyBooru = AnyBooru> {
-	readonly _booruBrand!: TBooru;
+	readonly [__booruBrand]!: TBooru;
 
 	/**The identifier of the {@link Booru} this post originates from.*/
 	readonly booruName: NameOf<TBooru>;
