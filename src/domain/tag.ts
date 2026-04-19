@@ -20,7 +20,7 @@ const TagTypeNames: Record<TagType, string> = {
  */
 export class Tag {
 	/**Unique identifier of the {@link Tag} within the booru.*/
-	readonly id: number;
+	readonly id: string;
 
 	/**Canonical name of the {@link Tag}.*/
 	readonly name: string;
@@ -74,14 +74,17 @@ export class Tag {
 	 * Creates a mock {@link Post} instance for testing.
 	 * @param initOverrides Overrides for the default initialization parameters.
 	 */
-	static mock(initOverrides: Partial<TagInit> = {}) {
+	static mock(initOverrides: Omit<Partial<TagInit>, 'id'> & { id?: string | number } = {}) {
 		const defaultMockInit: TagInit = {
-			id: 1,
+			id: '1',
 			name: 'name',
 			count: 1,
 			type: 0,
 		};
 
-		return new Tag({ ...defaultMockInit, ...initOverrides });
+		const { id, ...initOverridesWithoutId } = initOverrides;
+		const extraOverride = { id: `${id}` };
+
+		return new Tag({ ...defaultMockInit, ...initOverridesWithoutId, ...extraOverride });
 	}
 }

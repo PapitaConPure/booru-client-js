@@ -7,7 +7,7 @@ import type { BooruSearchOptions } from '../../src/types/booru';
 describe('BooruClient', () => {
 	it('delegates search to adapter and returns domain posts', async () => {
 		const fakePost = Post.mock({
-			id: 1,
+			id: '1',
 		});
 
 		const fakeAdapter: Booru<'fake', unknown, BooruSearchOptions> = {
@@ -25,6 +25,6 @@ describe('BooruClient', () => {
 
 		expect(result).toHaveLength(1);
 		expect(result[0]).toBeInstanceOf(Post);
-		expect(result[0]?.id).toBe(1);
+		expect(result[0]?.id).toBe('1');
 	});
 });

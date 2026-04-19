@@ -6,8 +6,8 @@ import { MemoryTagStore } from '../stores/memory-tag-store';
 import type { TagStore } from '../stores/tag-store';
 import type {
 	BooruClientTagOptions,
-	BooruSearchOptions,
 	CredentialsOf,
+	SearchOptionsOf,
 	TagFetchApproach,
 } from '../types/booru';
 import { decodePercentsAndEntities } from '../utils/encoding';
@@ -131,13 +131,16 @@ export class BooruClient<TBooru extends Booru = Booru> {
 	 * * {@link BooruFetchError} If the request to the API fails.
 	 * * {@link BooruUnknownPostError} If the booru adapter is unable to resolve the API response.
 	 */
-	async search(tags: string | string[], searchOptions: BooruSearchOptions = {}): Promise<Post[]> {
+	async search(
+		tags: string | string[],
+		searchOptions?: SearchOptionsOf<TBooru>,
+	): Promise<Post<TBooru>[]> {
 		if (Array.isArray(tags)) tags = tags.join(' ');
 
-		const { limit = 1, random = false } = searchOptions;
+		const { limit = 1, random = false } = (searchOptions ?? {}) as SearchOptionsOf<TBooru>;
 		const finalSearchOptions = { limit, random };
 
-		return this.#booru.search(tags, finalSearchOptions, this.#getCredentials());
+		return this.#booru.search(tags, this.#getCredentials(), finalSearchOptions);
 	}
 
 	/**

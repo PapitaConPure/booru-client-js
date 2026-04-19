@@ -9,9 +9,8 @@ function createResolver(fn: (names: Set<string>) => Promise<Tag[]>): TagResolver
 
 describe('TagCoordinator - advanced behavior', () => {
 	it('all callers for same tag receive same resolved value', async () => {
-		const resolver = createResolver(
-			async (names) =>
-				[...names].map((n) => ({ id: 1, name: n, count: 1, type: 0 })) as Tag[],
+		const resolver = createResolver(async (names) =>
+			[...names].map((n) => Tag.mock({ id: 1, name: n, count: 1, type: 0 })),
 		);
 
 		const coordinator = new TagCoordinator(resolver);
@@ -32,7 +31,7 @@ describe('TagCoordinator - advanced behavior', () => {
 		const resolver = createResolver(async (names) => {
 			return [...names]
 				.filter((n) => n !== 'missing')
-				.map((n) => ({ id: 1, name: n, count: 1, type: 0 })) as Tag[];
+				.map((n) => Tag.mock({ id: 1, name: n, count: 1, type: 0 }));
 		});
 
 		const coordinator = new TagCoordinator(resolver);
@@ -45,12 +44,14 @@ describe('TagCoordinator - advanced behavior', () => {
 
 	it('ensures correct mapping per name', async () => {
 		const resolver = createResolver(async (names) => {
-			return [...names].map((n, i) => ({
-				id: i,
-				name: n,
-				count: i,
-				type: 0,
-			})) as Tag[];
+			return [...names].map((n, i) =>
+				Tag.mock({
+					id: i,
+					name: n,
+					count: i,
+					type: 0,
+				}),
+			);
 		});
 
 		const coordinator = new TagCoordinator(resolver);
@@ -69,12 +70,14 @@ describe('TagCoordinator - advanced behavior', () => {
 
 		const resolver = createResolver(async (names) => {
 			calls++;
-			return [...names].map((n, i) => ({
-				id: i,
-				name: n,
-				count: 1,
-				type: 0,
-			})) as Tag[];
+			return [...names].map((n, i) =>
+				Tag.mock({
+					id: i,
+					name: n,
+					count: 1,
+					type: 0,
+				}),
+			);
 		});
 
 		const coordinator = new TagCoordinator(resolver);
@@ -135,12 +138,14 @@ describe('TagCoordinator - advanced behavior', () => {
 		const resolver = createResolver(async (names) => {
 			if (shouldFail) throw new Error('fail');
 
-			return [...names].map((n, i) => ({
-				id: i,
-				name: n,
-				count: 1,
-				type: 0,
-			})) as Tag[];
+			return [...names].map((n, i) =>
+				Tag.mock({
+					id: i,
+					name: n,
+					count: 1,
+					type: 0,
+				}),
+			);
 		});
 
 		const coordinator = new TagCoordinator(resolver);
@@ -159,12 +164,14 @@ describe('TagCoordinator - advanced behavior', () => {
 
 		const resolver = createResolver(async (names) => {
 			calls++;
-			return [...names].map((n, i) => ({
-				id: i,
-				name: n,
-				count: 1,
-				type: 0,
-			})) as Tag[];
+			return [...names].map((n, i) =>
+				Tag.mock({
+					id: i,
+					name: n,
+					count: 1,
+					type: 0,
+				}),
+			);
 		});
 
 		const coordinator = new TagCoordinator(resolver);
@@ -185,12 +192,14 @@ describe('TagCoordinator - advanced behavior', () => {
 		const resolver = createResolver(async (names) => {
 			if (shouldFail) throw new Error('fail');
 
-			return [...names].map((n, i) => ({
-				id: i,
-				name: n,
-				count: 1,
-				type: 0,
-			})) as Tag[];
+			return [...names].map((n, i) =>
+				Tag.mock({
+					id: i,
+					name: n,
+					count: 1,
+					type: 0,
+				}),
+			);
 		});
 
 		const coordinator = new TagCoordinator(resolver);
@@ -209,12 +218,14 @@ describe('TagCoordinator - advanced behavior', () => {
 
 		const resolver = createResolver(async (names) => {
 			observedSizes.push(names.size);
-			return [...names].map((n, i) => ({
-				id: i,
-				name: n,
-				count: 1,
-				type: 0,
-			})) as Tag[];
+			return [...names].map((n, i) =>
+				Tag.mock({
+					id: i,
+					name: n,
+					count: 1,
+					type: 0,
+				}),
+			);
 		});
 
 		const coordinator = new TagCoordinator(resolver, {
@@ -235,12 +246,14 @@ describe('TagCoordinator - advanced behavior', () => {
 
 		const resolver = createResolver(async (names) => {
 			calls++;
-			return [...names].map((n, i) => ({
-				id: i,
-				name: n,
-				count: 1,
-				type: 0,
-			})) as Tag[];
+			return [...names].map((n, i) =>
+				Tag.mock({
+					id: i,
+					name: n,
+					count: 1,
+					type: 0,
+				}),
+			);
 		});
 
 		const coordinator = new TagCoordinator(resolver, {
@@ -265,12 +278,14 @@ describe('TagCoordinator - advanced behavior', () => {
 
 		const resolver = createResolver(async (names) => {
 			calls++;
-			return [...names].map((n, i) => ({
-				id: i,
-				name: n,
-				count: 1,
-				type: 0,
-			})) as Tag[];
+			return [...names].map((n, i) =>
+				Tag.mock({
+					id: i,
+					name: n,
+					count: 1,
+					type: 0,
+				}),
+			);
 		});
 
 		const coordinator = new TagCoordinator(resolver);

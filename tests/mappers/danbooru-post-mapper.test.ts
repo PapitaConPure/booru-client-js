@@ -24,7 +24,7 @@ describe('DanbooruPostMapper', () => {
 
 		const post = mapper.fromDto(dto);
 
-		expect(post.id).toBe(1);
+		expect(post.id).toBe('1');
 		expect(post.tags).toEqual(['a', 'b']);
 		expect(post.rating).toBeDefined();
 		expect(post.size).toEqual([100, 200]);

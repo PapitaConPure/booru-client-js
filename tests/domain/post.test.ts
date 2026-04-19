@@ -4,12 +4,12 @@ import { Post } from '../../src/domain/post';
 describe('Post', () => {
 	it('constructs correctly', () => {
 		const post = Post.mock({
-			id: 1,
+			id: '1',
 			tags: ['a', 'b'],
 			size: [100, 200],
 		});
 
-		expect(post.id).toBe(1);
+		expect(post.id).toBe('1');
 		expect(post.tags).toEqual(['a', 'b']);
 		expect(post.size).toEqual([100, 200]);
 	});

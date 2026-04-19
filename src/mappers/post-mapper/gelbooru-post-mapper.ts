@@ -21,7 +21,7 @@ export class GelbooruPostMapper implements PostMapper<GelbooruPostDto, Gelbooru>
 		return new Post<Gelbooru>({
 			booru: 'gelbooru',
 			urlBuilder: Gelbooru.postUrlBuilder,
-			id: dto.id,
+			id: `${dto.id}`,
 			title: dto.title,
 			tags: dto.tags.split(' '),
 			sources: sources.length ? sources : undefined,

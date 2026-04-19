@@ -91,8 +91,8 @@ export class Danbooru implements Booru<typeof booruName, DanbooruCredentials, Bo
 
 	async search(
 		tags: string,
-		searchOptions: Required<BooruSearchOptions>,
 		credentials: DanbooruCredentials,
+		searchOptions: BooruSearchOptions = {},
 	): Promise<Post[]> {
 		const { limit, random } = searchOptions;
 		const { apiKey, login } = credentials;

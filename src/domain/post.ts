@@ -1,5 +1,5 @@
 import type { Booru } from '../adapters/booru';
-import type { NameOf, PostInit, PostUrlBuilder } from '../types/booru';
+import type { NameOf, PostExtraOf, PostInit, PostUrlBuilder } from '../types/booru';
 import { getSourceUrl, parseUrlForField, parseValidDate } from '../utils/misc';
 import { type PostRating, PostRatings } from './post-rating';
 
@@ -15,7 +15,7 @@ export class Post<TBooru extends Booru = Booru> {
 	readonly booruName: NameOf<TBooru>;
 
 	/**Unique identifier of the {@link Post} within its source booru.*/
-	readonly id: number;
+	readonly id: string;
 
 	/**Title or caption of the {@link Post}. Rarely set in most booru services.*/
 	readonly title: string;
@@ -56,6 +56,8 @@ export class Post<TBooru extends Booru = Booru> {
 	/**Dimensions of the sample media as `[width, height]`.*/
 	readonly sampleSize?: [number, number];
 
+	readonly extra?: PostExtraOf<TBooru>;
+
 	/**Internal service used to construct the URL this {@link Post} comes from.*/
 	readonly #urlBuilder: PostUrlBuilder;
 
@@ -87,6 +89,7 @@ export class Post<TBooru extends Booru = Booru> {
 		this.previewSize = data.previewSize;
 		this.sampleUrl = data.sampleUrl ? parseUrlForField('sampleUrl', data.sampleUrl) : undefined;
 		this.sampleSize = data.sampleSize;
+		this.extra = data.extra;
 
 		Object.freeze(this);
 	}
@@ -146,7 +149,7 @@ export class Post<TBooru extends Booru = Booru> {
 	 */
 	static mock(initOverrides: Partial<PostInit> = {}) {
 		const defaultMockInit: PostInit = {
-			id: 4939462,
+			id: '4939462',
 			booru: 'gelbooru',
 			urlBuilder: () => '',
 			title: 'title',

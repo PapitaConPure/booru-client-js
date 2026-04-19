@@ -30,14 +30,14 @@ describe('Danbooru Adapter', () => {
 
 		const posts = await client.search(
 			'test',
-			{ limit: 1, random: false },
 			{
 				apiKey: 'x',
 				login: 'y',
 			},
+			{ limit: 1, random: false },
 		);
 
 		expect(posts.length).toBe(1);
-		expect(posts[0]?.id).toBe(1);
+		expect(posts[0]?.id).toBe('1');
 	});
 });

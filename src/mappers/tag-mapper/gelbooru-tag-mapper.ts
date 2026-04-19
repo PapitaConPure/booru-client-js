@@ -20,7 +20,7 @@ const gelbooruTagTypesMap = {
 export class GelbooruTagMapper implements TagMapper<GelbooruTagDto> {
 	fromDto(dto: GelbooruTagDto): Tag {
 		return new Tag({
-			id: dto.id,
+			id: `${dto.id}`,
 			name: dto.name,
 			type: gelbooruTagTypesMap[dto.type],
 			count: dto.count,

@@ -7,7 +7,7 @@ interface CustombooruCredentials {
 }
 
 interface CustombooruPostDto {
-	post_id: number;
+	post_id: string;
 	file: {
 		url: string;
 		width: number;
@@ -63,7 +63,7 @@ class CustombooruPostMapper implements PostMapper<CustombooruPostDto, Customboor
 class CustombooruTagMapper implements TagMapper<CustombooruTagDto> {
 	fromDto(dto: CustombooruTagDto): Tag {
 		return new Tag({
-			id: dto.id,
+			id: `${dto.id}`,
 			name: dto.label,
 			count: dto.usage,
 			type: TagTypes.UNKNOWN,
@@ -73,7 +73,7 @@ class CustombooruTagMapper implements TagMapper<CustombooruTagDto> {
 
 const customBooruName = 'custombooru' as const;
 
-class Custombooru implements Booru<typeof customBooruName, CustombooruCredentials> {
+class Custombooru implements Booru<typeof customBooruName, CustombooruCredentials, BooruSearchOptions> {
 	static readonly POSTS_ENDPOINT = defineEndpoint('get', 'https://custombooru.com/api/v1/posts?json=1');
 	static readonly TAGS_ENDPOINT = defineEndpoint('get', 'https://custombooru.com/api/v1/tags?json=1');
 
@@ -99,7 +99,7 @@ class Custombooru implements Booru<typeof customBooruName, CustombooruCredential
 		return customBooruName;
 	}
 
-	async search(tags: string, searchOptions: Required<BooruSearchOptions>, credentials: CustombooruCredentials): Promise<Post[]> {
+	async search(tags: string, credentials: CustombooruCredentials, searchOptions: Required<BooruSearchOptions>): Promise<Post[]> {
 		const { limit, random } = searchOptions;
 		const { apiKey, bananas, superUltraSecretCode } = credentials;
 

@@ -21,7 +21,7 @@ describe.skipIf(skipE2E)('E2E: search posts', () => {
 		expect(posts.length).toBeGreaterThan(0);
 
 		for (const post of posts) {
-			expect(post.id).toBeTypeOf('number');
+			expect(post.id).toBeString();
 			expect(post.tags).toBeInstanceOf(Array);
 			expect(post.fileUrl).toBeInstanceOf(URL);
 		}
@@ -50,7 +50,7 @@ describe.skipIf(skipE2E)('E2E: get post', () => {
 
 		const post = await client.fetchPostById('13485950');
 
-		expect(post?.id).toBe(13485950);
+		expect(post?.id).toBe('13485950');
 		expect(post?.fileUrl).toBeTruthy();
 		expect(post?.sources).toContain('https://x.com/kadokawasneaker/status/2018995447658951079');
 	});
@@ -74,8 +74,8 @@ describe.skipIf(skipE2E)('E2E: adapter normalization', () => {
 		expect(dPost).toBeDefined();
 		expect(gPost).toBeDefined();
 
-		expect(dPost?.id).toBeNumber();
-		expect(gPost?.id).toBeNumber();
+		expect(dPost?.id).toBeString();
+		expect(gPost?.id).toBeString();
 
 		expect(dPost?.tags).toBeArray();
 		expect(gPost?.tags).toBeArray();
@@ -102,7 +102,7 @@ describe.skipIf(skipE2E)('E2E: concurrent requests', () => {
 		await Promise.all(
 			posts.map(async (post) => {
 				expect(post).toBeDefined();
-				expect(post.id).toBeNumber();
+				expect(post.id).toBeString();
 				expect(post.fileUrl).toBeInstanceOf(URL);
 				expect(post.createdAt).toBeInstanceOf(Date);
 

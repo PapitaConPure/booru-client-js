@@ -49,12 +49,12 @@ export interface BooruSearchOptions {
 	random?: boolean;
 }
 
-export type PostUrlBuilder = (postId: number) => string;
+export type PostUrlBuilder = (postId: string) => string;
 
 export interface PostInit<TBooru extends Booru = Booru> {
 	booru: NameOf<TBooru>;
 	urlBuilder: PostUrlBuilder;
-	id: number;
+	id: string;
 	title: string;
 	tags: string[];
 	sources?: string[];
@@ -68,6 +68,7 @@ export interface PostInit<TBooru extends Booru = Booru> {
 	previewSize?: [number, number];
 	sampleUrl?: string;
 	sampleSize?: [number, number];
+	extra?: PostExtraOf<TBooru>;
 }
 
 export const TagTypes = {
@@ -83,7 +84,7 @@ export type TagType = ValuesOf<typeof TagTypes>;
 export const ValidTagTypes = new Set<TagType>(Object.values(TagTypes));
 
 export interface TagInit {
-	id: number;
+	id: string;
 	name: string;
 	count: number;
 	type: TagType;
@@ -93,6 +94,13 @@ export interface TagInit {
 export type CredentialsOf<TBooru extends Booru> =
 	TBooru extends Booru<string, infer TCredentials extends {}> ? TCredentials : never;
 
+export type SearchOptionsOf<TBooru extends Booru> =
+	TBooru extends Booru<string, unknown, infer TSearchOptions extends {}> ? TSearchOptions : never;
+
 export type NameOf<TBooru extends Booru> = TBooru extends Booru<infer TName> ? TName : never;
+
+export type PostExtraOf<TBooru extends Booru> =
+	// biome-ignore lint/suspicious/noExplicitAny: Only care about 4th type parameter
+	TBooru extends Booru<string, unknown, any, infer TExtra> ? TExtra : never;
 
 export type TagFetchApproach = (names: string[]) => Promise<Tag[]>;
