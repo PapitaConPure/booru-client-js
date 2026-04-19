@@ -1,12 +1,12 @@
 import { beforeEach, describe, expect, it } from 'bun:test';
-import type { Booru } from '../../src/adapters/booru';
 import { Tag } from '../../src/domain/tag';
 import { BooruClient } from '../../src/services/booru-client';
+import type { AnyBooru } from '../../src/types/booru';
 
 function createMockBooru() {
 	let calls = 0;
 
-	const booru: Booru = {
+	const booru: AnyBooru = {
 		get name() {
 			return 'mock';
 		},

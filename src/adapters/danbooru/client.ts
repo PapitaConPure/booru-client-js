@@ -38,7 +38,7 @@ const booruName = 'danbooru' as const;
  *
  * @see https://danbooru.donmai.us/wiki_pages/help:api
  */
-export class Danbooru implements Booru<typeof booruName, DanbooruCredentials, BooruSearchOptions> {
+export class Danbooru implements Booru<Danbooru, typeof booruName, DanbooruCredentials, BooruSearchOptions> {
 	/**Base URL for Danbooru's API.*/
 	static readonly API_BASE_URL = 'https://danbooru.donmai.us';
 
@@ -121,7 +121,7 @@ export class Danbooru implements Booru<typeof booruName, DanbooruCredentials, Bo
 	async fetchPostById(
 		postId: string,
 		credentials: DanbooruCredentials,
-	): Promise<Post | undefined> {
+	): Promise<Post<Danbooru> | undefined> {
 		const { apiKey, login } = credentials;
 
 		const url = new URL(`${Danbooru.API_BASE_URL}/posts/${postId}.json`);
@@ -149,7 +149,7 @@ export class Danbooru implements Booru<typeof booruName, DanbooruCredentials, Bo
 	async fetchPostByUrl(
 		postUrl: URL,
 		credentials: DanbooruCredentials,
-	): Promise<Post | undefined> {
+	): Promise<Post<Danbooru> | undefined> {
 		const { apiKey, login } = credentials;
 
 		const match = postUrl.pathname.match(/\/posts\/(\d+)/);

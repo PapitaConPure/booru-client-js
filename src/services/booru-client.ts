@@ -5,6 +5,7 @@ import { InvalidOperationError } from '../errors/misc';
 import { MemoryTagStore } from '../stores/memory-tag-store';
 import type { TagStore } from '../stores/tag-store';
 import type {
+	AnyBooru,
 	BooruClientTagOptions,
 	BooruSearchOptions,
 	CredentialsOf,
@@ -16,7 +17,7 @@ import { TagCoordinator } from './tag-coordinator';
 import { TagResolver } from './tag-resolver';
 
 /**Represents an interface for interacting with a Booru API.*/
-export class BooruClient<TBooru extends Booru = Booru> {
+export class BooruClient<TBooru extends AnyBooru = AnyBooru> {
 	/**The {@link Booru} adapter used to perform API operations.*/
 	readonly #booru: TBooru;
 

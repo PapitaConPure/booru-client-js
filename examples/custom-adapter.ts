@@ -73,7 +73,7 @@ class CustombooruTagMapper implements TagMapper<CustombooruTagDto> {
 
 const customBooruName = 'custombooru' as const;
 
-class Custombooru implements Booru<typeof customBooruName, CustombooruCredentials> {
+class Custombooru implements Booru<Custombooru, typeof customBooruName, CustombooruCredentials> {
 	static readonly POSTS_ENDPOINT = defineEndpoint('get', 'https://custombooru.com/api/v1/posts?json=1');
 	static readonly TAGS_ENDPOINT = defineEndpoint('get', 'https://custombooru.com/api/v1/tags?json=1');
 
@@ -99,7 +99,7 @@ class Custombooru implements Booru<typeof customBooruName, CustombooruCredential
 		return customBooruName;
 	}
 
-	async search(tags: string, searchOptions: Required<BooruSearchOptions>, credentials: CustombooruCredentials): Promise<Post[]> {
+	async search(tags: string, searchOptions: Required<BooruSearchOptions>, credentials: CustombooruCredentials): Promise<Post<Custombooru>[]> {
 		const { limit, random } = searchOptions;
 		const { apiKey, bananas, superUltraSecretCode } = credentials;
 
@@ -121,7 +121,7 @@ class Custombooru implements Booru<typeof customBooruName, CustombooruCredential
 		return posts;
 	}
 
-	async fetchPostById(postId: string, credentials: CustombooruCredentials): Promise<Post | undefined> {
+	async fetchPostById(postId: string, credentials: CustombooruCredentials): Promise<Post<Custombooru> | undefined> {
 		const { apiKey, bananas, superUltraSecretCode } = credentials;
 
 		const fetchResult = await Custombooru.POSTS_ENDPOINT.request<CustombooruPostDto>({
@@ -139,7 +139,7 @@ class Custombooru implements Booru<typeof customBooruName, CustombooruCredential
 		return this.#postMapper.fromDto(postDto);
 	}
 
-	async fetchPostByUrl(postUrl: URL, credentials: CustombooruCredentials): Promise<Post | undefined> {
+	async fetchPostByUrl(postUrl: URL, credentials: CustombooruCredentials): Promise<Post<Custombooru> | undefined> {
 		const match = `${postUrl}`.match(/custombooru\.com\/posts\/(\d+)/);
 
 		if (!match || !match[1]) return;

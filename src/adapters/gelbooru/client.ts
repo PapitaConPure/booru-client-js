@@ -33,7 +33,7 @@ const booruName = 'gelbooru' as const;
  *
  * @see https://gelbooru.com/index.php?page=wiki&s=view&id=18780
  */
-export class Gelbooru implements Booru<typeof booruName, GelbooruCredentials, BooruSearchOptions> {
+export class Gelbooru implements Booru<Gelbooru, typeof booruName, GelbooruCredentials, BooruSearchOptions> {
 	/**Base URL for Gelbooru's API endpoints.*/
 	static readonly API_BASE_URL = 'https://gelbooru.com/index.php';
 
@@ -121,7 +121,7 @@ export class Gelbooru implements Booru<typeof booruName, GelbooruCredentials, Bo
 	async fetchPostById(
 		postId: string,
 		credentials: GelbooruCredentials,
-	): Promise<Post | undefined> {
+	): Promise<Post<Gelbooru> | undefined> {
 		const { apiKey, userId } = credentials;
 
 		const response = await this.#apiPostsEndpoint.request<GelbooruPostsResponseDto | undefined>(
@@ -141,7 +141,7 @@ export class Gelbooru implements Booru<typeof booruName, GelbooruCredentials, Bo
 	async fetchPostByUrl(
 		postUrl: URL,
 		credentials: GelbooruCredentials,
-	): Promise<Post | undefined> {
+	): Promise<Post<Gelbooru> | undefined> {
 		const { apiKey, userId } = credentials;
 
 		postUrl.searchParams.set('page', 'dapi');

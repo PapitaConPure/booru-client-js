@@ -1,10 +1,10 @@
 import { describe, expect, it } from 'bun:test';
-import type { Booru } from '../../src/adapters/booru';
 import { Gelbooru } from '../../src/adapters/gelbooru/client';
 import type { GelbooruTagsResponseDto } from '../../src/adapters/gelbooru/dto';
 import { Tag } from '../../src/domain/tag';
 import { BooruClient } from '../../src/services/booru-client';
 import { MemoryTagStore } from '../../src/stores/memory-tag-store';
+import type { AnyBooru } from '../../src/types/booru';
 import type { FetchSuccessResult } from '../../src/utils/fetchExt';
 
 describe('BooruClient - cleanup', () => {
@@ -56,7 +56,7 @@ describe('BooruClient - cleanup', () => {
 function createMockBooru() {
 	let calls = 0;
 
-	const booru: Booru = {
+	const booru: AnyBooru = {
 		get name() {
 			return 'mock';
 		},

@@ -1,8 +1,10 @@
 import { beforeEach, describe, expect, it } from 'bun:test';
-import { type Booru, Post, Tag } from '@papitaconpure/booru-client';
 import { Gelbooru } from '../../src/adapters/gelbooru/client';
 import type { GelbooruTagsResponseDto } from '../../src/adapters/gelbooru/dto';
+import { Post } from '../../src/domain/post';
+import { Tag } from '../../src/domain/tag';
 import { BooruClient } from '../../src/services/booru-client';
+import type { AnyBooru } from '../../src/types/booru';
 import type { FetchSuccessResult } from '../../src/utils/fetchExt';
 
 const credentials = {
@@ -50,7 +52,7 @@ describe('BooruClient - tag fetching', () => {
 function createMockBooru() {
 	let calls = 0;
 
-	const booru: Booru = {
+	const booru: AnyBooru = {
 		get name() {
 			return 'mock';
 		},

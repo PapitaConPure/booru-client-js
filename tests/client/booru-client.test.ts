@@ -2,7 +2,7 @@ import { describe, expect, it } from 'bun:test';
 import type { Booru } from '../../src/adapters/booru';
 import { Post } from '../../src/domain/post';
 import { BooruClient } from '../../src/services/booru-client';
-import type { BooruSearchOptions } from '../../src/types/booru';
+import type { AnyBooru, BooruSearchOptions } from '../../src/types/booru';
 
 describe('BooruClient', () => {
 	it('delegates search to adapter and returns domain posts', async () => {
@@ -10,7 +10,7 @@ describe('BooruClient', () => {
 			id: '1',
 		});
 
-		const fakeAdapter: Booru<'fake', unknown, BooruSearchOptions> = {
+		const fakeAdapter: Booru<AnyBooru, 'fake', unknown, BooruSearchOptions> = {
 			name: 'fake' as const,
 			search: async () => [fakePost],
 			fetchPostById: async () => fakePost,

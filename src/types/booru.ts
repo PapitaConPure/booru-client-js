@@ -51,7 +51,7 @@ export interface BooruSearchOptions {
 
 export type PostUrlBuilder = (postId: string) => string;
 
-export interface PostInit<TBooru extends Booru = Booru> {
+export interface PostInit<TBooru extends AnyBooru = AnyBooru> {
 	booru: NameOf<TBooru>;
 	urlBuilder: PostUrlBuilder;
 	id: string;
@@ -91,15 +91,18 @@ export interface TagInit {
 	fetchTimestamp?: Date;
 }
 
-export type CredentialsOf<TBooru extends Booru> =
-	TBooru extends Booru<string, infer TCredentials extends {}> ? TCredentials : never;
+export type CredentialsOf<TBooru extends AnyBooru> =
+	TBooru extends Booru<AnyBooru, string, infer TCredentials extends {}> ? TCredentials : never;
 
-export type SearchOptionsOf<TBooru extends Booru> =
-	TBooru extends Booru<string, unknown, infer TSearchOptions extends {}> ? TSearchOptions : never;
+export type SearchOptionsOf<TBooru extends AnyBooru> =
+	TBooru extends Booru<AnyBooru, string, unknown, infer TSearchOptions extends {}> ? TSearchOptions : never;
 
-export type NameOf<TBooru extends Booru> = TBooru extends Booru<infer TName> ? TName : never;
+export type NameOf<TBooru extends AnyBooru> = TBooru extends Booru<AnyBooru, infer TName> ? TName : never;
 
-export type PostExtraOf<TBooru extends Booru> =
-	TBooru extends Booru<string, unknown, BooruSearchOptions, infer TExtra> ? TExtra : never;
+export type PostExtraOf<TBooru extends AnyBooru> =
+	TBooru extends Booru<AnyBooru, string, unknown, BooruSearchOptions, infer TExtra> ? TExtra : never;
 
 export type TagFetchApproach = (names: string[]) => Promise<Tag[]>;
+
+// biome-ignore lint/suspicious/noExplicitAny: Required for AnyBooru type
+export type AnyBooru = Booru<any, any, any, any, any>;

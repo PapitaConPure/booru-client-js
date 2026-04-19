@@ -1,5 +1,5 @@
 import type { Booru } from '../adapters/booru';
-import type { NameOf, PostInit, PostUrlBuilder } from '../types/booru';
+import type { AnyBooru, NameOf, PostInit, PostUrlBuilder } from '../types/booru';
 import { getSourceUrl, parseUrlForField, parseValidDate } from '../utils/misc';
 import { type PostRating, PostRatings } from './post-rating';
 
@@ -10,7 +10,9 @@ import { type PostRating, PostRatings } from './post-rating';
  *
  * This object is immutable and should be treated as a read-only value.
  */
-export class Post<TBooru extends Booru = Booru> {
+export class Post<TBooru extends AnyBooru = AnyBooru> {
+	readonly _booruBrand!: TBooru;
+
 	/**The identifier of the {@link Booru} this post originates from.*/
 	readonly booruName: NameOf<TBooru>;
 
