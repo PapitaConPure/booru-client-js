@@ -91,16 +91,24 @@ export interface TagInit {
 	fetchTimestamp?: Date;
 }
 
-export type CredentialsOf<TBooru extends AnyBooru> =
-	TBooru extends Booru<AnyBooru, string, infer TCredentials extends {}> ? TCredentials : never;
+export type BooruParams<T> =
+	T extends Booru<infer TSelf, infer TName, infer TCredentials, infer TSearchOptions, infer TExtra>
+		? {
+				self: TSelf;
+				name: TName;
+				credentials: TCredentials;
+				searchOptions: TSearchOptions;
+				extra: TExtra;
+		  }
+		: never;
 
-export type SearchOptionsOf<TBooru extends AnyBooru> =
-	TBooru extends Booru<AnyBooru, string, unknown, infer TSearchOptions extends {}> ? TSearchOptions : never;
+export type NameOf<TBooru extends AnyBooru> = BooruParams<TBooru>['name'];
 
-export type NameOf<TBooru extends AnyBooru> = TBooru extends Booru<AnyBooru, infer TName> ? TName : never;
+export type CredentialsOf<TBooru extends AnyBooru> = BooruParams<TBooru>['credentials'];
 
-export type PostExtraOf<TBooru extends AnyBooru> =
-	TBooru extends Booru<AnyBooru, string, unknown, BooruSearchOptions, infer TExtra> ? TExtra : never;
+export type SearchOptionsOf<TBooru extends AnyBooru> = BooruParams<TBooru>['searchOptions'];
+
+export type PostExtraOf<TBooru extends AnyBooru> = BooruParams<TBooru>['extra'];
 
 export type TagFetchApproach = (names: string[]) => Promise<Tag[]>;
 
