@@ -83,4 +83,25 @@ describe('TagCoordinator - edge cases & robustness', () => {
 		expect(calls).toBeGreaterThanOrEqual(1);
 		expect(calls).toBeLessThanOrEqual(3);
 	});
+
+	it('each request resolves exactly once', async () => {
+		let resolveCount = 0;
+
+		const resolver = createResolver(async (names) => {
+			return [...names].map((name, id) => Tag.mock({ id, name }));
+		});
+
+		const coordinator = new TagCoordinator(resolver);
+
+		const promises = Array.from({ length: 20 }, () =>
+			coordinator.getOne('same_tag').then((t) => {
+				if (t) resolveCount++;
+				return t;
+			}),
+		);
+
+		await Promise.all(promises);
+
+		expect(resolveCount).toBe(20);
+	});
 });
