@@ -34,8 +34,8 @@ const HTTP_ENTITIES_REGEX = (() => {
 })();
 
 /**@see https://stackoverflow.com/questions/44195322/a-plain-javascript-way-to-decode-html-entities-works-on-both-browsers-and-node*/
-export function decodeEntities(encodedstring: string) {
-	return encodedstring
+export function decodeEntities(encodedString: string) {
+	return encodedString
 		.replace(
 			HTTP_ENTITIES_REGEX,
 			(match, entity: keyof typeof HTTP_ENTITIES) => HTTP_ENTITIES[entity] ?? match,
@@ -44,4 +44,15 @@ export function decodeEntities(encodedstring: string) {
 			const num = parseInt(numStr, 10);
 			return String.fromCharCode(num);
 		});
+}
+
+const INVALID_PERCENT_REGEX = /%(?![0-9A-Fa-f]{2})/g;
+
+export function decodePercent(encodedString: string) {
+	const sanitized = encodedString.replace(INVALID_PERCENT_REGEX, '%25');
+	return decodeURIComponent(sanitized);
+}
+
+export function decodeTagName(encodedTagName: string) {
+	return decodePercent(decodeEntities(encodedTagName));
 }
