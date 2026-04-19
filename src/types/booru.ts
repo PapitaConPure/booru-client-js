@@ -100,7 +100,6 @@ export type SearchOptionsOf<TBooru extends Booru> =
 export type NameOf<TBooru extends Booru> = TBooru extends Booru<infer TName> ? TName : never;
 
 export type PostExtraOf<TBooru extends Booru> =
-	// biome-ignore lint/suspicious/noExplicitAny: Only care about 4th type parameter
-	TBooru extends Booru<string, unknown, any, infer TExtra> ? TExtra : never;
+	TBooru extends Booru<string, unknown, BooruSearchOptions, infer TExtra> ? TExtra : never;
 
 export type TagFetchApproach = (names: string[]) => Promise<Tag[]>;

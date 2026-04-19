@@ -32,7 +32,7 @@ export interface Booru<
 	search(
 		tags: string,
 		credentials: TCredentials,
-		searchOptions?: TSearchOptions,
+		searchOptions: Required<BooruSearchOptions> & TSearchOptions,
 	): Promise<Post<this>[]>;
 
 	/**

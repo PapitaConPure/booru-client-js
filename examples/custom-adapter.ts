@@ -73,7 +73,7 @@ class CustombooruTagMapper implements TagMapper<CustombooruTagDto> {
 
 const customBooruName = 'custombooru' as const;
 
-class Custombooru implements Booru<typeof customBooruName, CustombooruCredentials, BooruSearchOptions> {
+class Custombooru implements Booru<typeof customBooruName, CustombooruCredentials, Required<BooruSearchOptions>> {
 	static readonly POSTS_ENDPOINT = defineEndpoint('get', 'https://custombooru.com/api/v1/posts?json=1');
 	static readonly TAGS_ENDPOINT = defineEndpoint('get', 'https://custombooru.com/api/v1/tags?json=1');
 
