@@ -259,4 +259,37 @@ describe('TagCoordinator - advanced behavior', () => {
 
 		expect(calls).toBeLessThan(30);
 	});
+
+	it('Optimizes repeated tags properly', async () => {
+		let calls = 0;
+
+		const resolver = createResolver(async (names) => {
+			calls++;
+			return [...names].map((n, i) => ({
+				id: i,
+				name: n,
+				count: 1,
+				type: 0,
+			})) as Tag[];
+		});
+
+		const coordinator = new TagCoordinator(resolver);
+
+		const results = await Promise.all([
+			coordinator.getMany(['hakurei_reimu']),
+			coordinator.getMany(['hakurei_reimu', 'kirisame_marisa']),
+			coordinator.getMany(['hakurei_reimu', 'kirisame_marisa', 'alice_margatroid']),
+			coordinator.getMany(['kirisame_marisa', 'alice_margatroid', 'ibuki_suika']),
+			coordinator.getMany(['alice_margatroid', 'ibuki_suika', 'houraisan_kaguya']),
+			coordinator.getMany(['ibuki_suika', 'houraisan_kaguya', 'shameimaru_aya']),
+			coordinator.getMany(['houraisan_kaguya', 'shameimaru_aya', 'kochiya_sanae']),
+			coordinator.getMany(['shameimaru_aya', 'kochiya_sanae', 'hinanawi_tenshi']),
+			coordinator.getMany(['kochiya_sanae', 'hinanawi_tenshi']),
+			coordinator.getMany(['hinanawi_tenshi']),
+		]);
+
+		expect(results).toBeArrayOfSize(10);
+		expect(calls).toBeGreaterThanOrEqual(1);
+		expect(calls).toBeLessThanOrEqual(2);
+	});
 });
