@@ -10,7 +10,7 @@ import type {
 	CredentialsOf,
 	TagFetchApproach,
 } from '../types/booru';
-import { decodeEntities } from '../utils/encoding';
+import { decodePercentsAndEntities } from '../utils/encoding';
 import { TagCoordinator } from './tag-coordinator';
 import { TagResolver } from './tag-resolver';
 
@@ -240,7 +240,7 @@ export class BooruClient<TBooru extends Booru = Booru> {
 
 		if (tagNames.some((t) => typeof t !== 'string')) throw new TypeError('Invalid tags');
 
-		const normalizedTagNames = tagNames.map(decodeEntities);
+		const normalizedTagNames = tagNames.map(decodePercentsAndEntities);
 
 		if (forceFetch) {
 			const fetchedTags = await this.#booru.fetchTagsByNames(
