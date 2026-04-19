@@ -6,25 +6,16 @@ import { GelbooruPostMapper } from '../../mappers/post-mapper/gelbooru-post-mapp
 import type { TagMapper } from '../../mappers/tag-mapper';
 import { GelbooruTagMapper } from '../../mappers/tag-mapper/gelbooru-tag-mapper';
 import type { BooruSearchOptions, PostUrlBuilder } from '../../types/booru';
-import { defineEndpoint, type Endpoint, type FetchFn } from '../../utils/endpoint';
+import { defineEndpoint, type Endpoint } from '../../utils/endpoint';
 import { type FetchResult, fetchExt } from '../../utils/fetchExt';
 import type { Booru } from '../booru';
-import type { GelbooruCredentials } from './credentials';
 import type {
 	GelbooruPostDto,
 	GelbooruPostsResponseDto,
 	GelbooruTagDto,
 	GelbooruTagsResponseDto,
 } from './dto';
-
-interface GelbooruOptions {
-	/**Mapper used to transform Gelbooru post DTOs into {@link Post} domain entities.*/
-	postMapper?: PostMapper<GelbooruPostDto, Gelbooru>;
-	/**Mapper used to transform Gelbooru tag DTOs into {@link Tag} domain entities.*/
-	tagMapper?: TagMapper<GelbooruTagDto>;
-	/**Fetch implementation used for API requests.*/
-	fetchFn?: FetchFn;
-}
+import type { GelbooruCredentials, GelbooruOptions } from './types';
 
 const booruName = 'gelbooru' as const;
 
@@ -33,7 +24,9 @@ const booruName = 'gelbooru' as const;
  *
  * @see https://gelbooru.com/index.php?page=wiki&s=view&id=18780
  */
-export class Gelbooru implements Booru<Gelbooru, typeof booruName, GelbooruCredentials, BooruSearchOptions> {
+export class Gelbooru
+	implements Booru<Gelbooru, typeof booruName, GelbooruCredentials, BooruSearchOptions>
+{
 	/**Base URL for Gelbooru's API endpoints.*/
 	static readonly API_BASE_URL = 'https://gelbooru.com/index.php';
 

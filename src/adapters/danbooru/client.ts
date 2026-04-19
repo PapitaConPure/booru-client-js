@@ -6,26 +6,17 @@ import { DanbooruPostMapper } from '../../mappers/post-mapper/danbooru-post-mapp
 import type { TagMapper } from '../../mappers/tag-mapper';
 import { DanbooruTagMapper } from '../../mappers/tag-mapper/danbooru-tag-mapper';
 import type { BooruSearchOptions, PostUrlBuilder } from '../../types/booru';
-import { defineEndpoint, type Endpoint, type FetchFn } from '../../utils/endpoint';
+import { defineEndpoint, type Endpoint } from '../../utils/endpoint';
 import { type FetchResult, fetchExt } from '../../utils/fetchExt';
 import { shuffleArray } from '../../utils/misc';
 import type { Booru } from '../booru';
-import type { DanbooruCredentials } from './credentials';
 import type {
 	DanbooruPostDto,
 	DanbooruPostsResponseDto,
 	DanbooruTagDto,
 	DanbooruTagsResponseDto,
 } from './dto';
-
-interface DanbooruOptions {
-	/**Mapper used to transform Danbooru post DTOs into {@link Post} domain entities.*/
-	postMapper?: PostMapper<DanbooruPostDto, Danbooru>;
-	/**Mapper used to transform Danbooru tag DTOs into {@link Tag} domain entities.*/
-	tagMapper?: TagMapper<DanbooruTagDto>;
-	/**Fetch implementation used for API requests.*/
-	fetchFn?: FetchFn;
-}
+import type { DanbooruCredentials, DanbooruOptions } from './types';
 
 interface DanbooruSearch extends Required<BooruSearchOptions> {
 	rating?: string;
@@ -38,7 +29,9 @@ const booruName = 'danbooru' as const;
  *
  * @see https://danbooru.donmai.us/wiki_pages/help:api
  */
-export class Danbooru implements Booru<Danbooru, typeof booruName, DanbooruCredentials, BooruSearchOptions> {
+export class Danbooru
+	implements Booru<Danbooru, typeof booruName, DanbooruCredentials, BooruSearchOptions>
+{
 	/**Base URL for Danbooru's API.*/
 	static readonly API_BASE_URL = 'https://danbooru.donmai.us';
 
