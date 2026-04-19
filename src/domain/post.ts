@@ -1,5 +1,5 @@
 import type { Booru } from '../adapters/booru';
-import type { AnyBooru, NameOf, PostInit, PostUrlBuilder } from '../types/booru';
+import type { AnyBooru, NameOf, PostExtraOf, PostInit, PostUrlBuilder } from '../types/booru';
 import { getSourceUrl, parseUrlForField, parseValidDate } from '../utils/misc';
 import { type PostRating, PostRatings } from './post-rating';
 
@@ -61,7 +61,7 @@ export class Post<TBooru extends AnyBooru = AnyBooru> {
 	/**Dimensions of the sample media as `[width, height]`.*/
 	readonly sampleSize?: [number, number];
 
-	readonly extra?: unknown;
+	readonly extra?: PostExtraOf<TBooru>;
 
 	/**Internal service used to construct the URL this {@link Post} comes from.*/
 	readonly #urlBuilder: PostUrlBuilder;
