@@ -27,14 +27,14 @@ export class BooruUnknownPostError extends BooruError {
 
 /**Thrown when a requested {@link Tag} cannot be found or resolved.*/
 export class BooruUnknownTagError extends BooruError {
-	tags?: string | null;
+	tags?: unknown;
 	data?: unknown;
 
 	constructor(
 		options: {
 			booruName?: string;
 			fetchResult?: FetchSuccessResult<unknown>;
-			tags?: string | null;
+			tags?: unknown;
 		} = {},
 	) {
 		const { booruName = 'a booru adapter', fetchResult, tags } = options;

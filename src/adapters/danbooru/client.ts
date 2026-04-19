@@ -6,8 +6,9 @@ import { DanbooruPostMapper } from '../../mappers/post-mapper/danbooru-post-mapp
 import type { TagMapper } from '../../mappers/tag-mapper';
 import { DanbooruTagMapper } from '../../mappers/tag-mapper/danbooru-tag-mapper';
 import type { BooruSearchOptions, PostUrlBuilder } from '../../types/booru';
+import { createArrayExpecter } from '../../utils/booru';
 import { defineEndpoint, type Endpoint } from '../../utils/endpoint';
-import { type FetchResult, fetchExt } from '../../utils/fetchExt';
+import { fetchExt } from '../../utils/fetchExt';
 import { shuffleArray } from '../../utils/misc';
 import type { Booru } from '../booru';
 import type {
@@ -192,7 +193,7 @@ export class Danbooru
 				'search[name_space]': namesBatch,
 			});
 
-			const tagDtos = Danbooru.#expectTags(response, { tags: namesBatch });
+			const tagDtos = Danbooru.#expectTags(response, { context: namesBatch });
 			const tags = tagDtos.map((dto) => this.#tagMapper.fromDto(dto));
 			fetchedTags.push(...tags);
 		}
@@ -214,56 +215,27 @@ export class Danbooru
 	 * @throws {BooruFetchError}
 	 * @throws {BooruUnknownPostError}
 	 */
-	static #expectPosts(
-		fetchResult: FetchResult<DanbooruPostsResponseDto | undefined>,
-		options: {
-			dontThrowOnEmptyFetch?: boolean;
-		} = {},
-	): DanbooruPostDto[] {
-		const { dontThrowOnEmptyFetch = false } = options;
-
-		if (!fetchResult.success)
-			throw new BooruFetchError(
-				`Danbooru posts fetch failed: ${fetchResult.error.name} ${fetchResult.error.message || ''}`,
-				{ cause: fetchResult.error },
-			);
-
-		if (!Array.isArray(fetchResult.data)) {
-			if (dontThrowOnEmptyFetch) return [];
-			throw new BooruUnknownPostError(
+	static #expectPosts = createArrayExpecter<DanbooruPostsResponseDto, DanbooruPostDto>({
+		booruName: this.name,
+		entity: 'posts',
+		extract: (data) => data,
+		createUnknownError: ({ fetchResult }) =>
+			new BooruUnknownPostError(
 				`Couldn't fetch posts from Danbooru API.\nReceived: ${JSON.stringify(fetchResult)}`,
-				{ cause: fetchResult.data },
-			);
-		}
-
-		return fetchResult.data;
-	}
+				{ cause: fetchResult },
+			),
+	});
 
 	/**
 	 * Asserts that the status code of a response is 200 and that the {@link Tag} data is valid before returning it.
 	 * @throws {BooruFetchError}
 	 * @throws {BooruUnknownTagError}
 	 */
-	static #expectTags(
-		fetchResult: FetchResult<DanbooruTagsResponseDto | undefined>,
-		options: {
-			dontThrowOnEmptyFetch?: boolean;
-			tags?: string;
-		} = {},
-	): DanbooruTagDto[] {
-		const { dontThrowOnEmptyFetch = false, tags = null } = options;
-
-		if (!fetchResult.success)
-			throw new BooruFetchError(
-				`Danbooru tags fetch failed: ${fetchResult.error.name} ${fetchResult.error.message || ''}`,
-				{ cause: fetchResult.error },
-			);
-
-		if (!Array.isArray(fetchResult.data)) {
-			if (dontThrowOnEmptyFetch) return [];
-			throw new BooruUnknownTagError({ booruName: 'Danbooru', fetchResult, tags });
-		}
-
-		return fetchResult.data;
-	}
+	static #expectTags = createArrayExpecter<DanbooruTagsResponseDto, DanbooruTagDto>({
+		booruName: this.name,
+		entity: 'tags',
+		extract: (data) => data,
+		createUnknownError: ({ booruName, fetchResult, context }) =>
+			new BooruUnknownTagError({ booruName, fetchResult, tags: context }),
+	});
 }

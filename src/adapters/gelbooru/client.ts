@@ -1,13 +1,14 @@
 import type { Post } from '../../domain/post';
 import type { Tag } from '../../domain/tag';
-import { BooruFetchError, BooruUnknownPostError, BooruUnknownTagError } from '../../errors/booru';
+import { BooruUnknownPostError, BooruUnknownTagError } from '../../errors/booru';
 import type { PostMapper } from '../../mappers/post-mapper';
 import { GelbooruPostMapper } from '../../mappers/post-mapper/gelbooru-post-mapper';
 import type { TagMapper } from '../../mappers/tag-mapper';
 import { GelbooruTagMapper } from '../../mappers/tag-mapper/gelbooru-tag-mapper';
 import type { BooruSearchOptions, PostUrlBuilder } from '../../types/booru';
+import { createArrayExpecter } from '../../utils/booru';
 import { defineEndpoint, type Endpoint } from '../../utils/endpoint';
-import { type FetchResult, fetchExt } from '../../utils/fetchExt';
+import { fetchExt } from '../../utils/fetchExt';
 import type { Booru } from '../booru';
 import type {
 	GelbooruPostDto,
@@ -178,7 +179,7 @@ export class Gelbooru
 				names: namesBatch,
 			});
 
-			const tagDtos = Gelbooru.#expectTags(response, { tags: namesBatch });
+			const tagDtos = Gelbooru.#expectTags(response, { context: namesBatch });
 			const tags = tagDtos.map((dto) => this.#tagMapper.fromDto(dto));
 			fetchedTags.push(...tags);
 		}
@@ -200,53 +201,27 @@ export class Gelbooru
 	 * @throws {BooruFetchError}
 	 * @throws {BooruUnknownPostError}
 	 */
-	static #expectPosts(
-		fetchResult: FetchResult<GelbooruPostsResponseDto | undefined>,
-		options: {
-			dontThrowOnEmptyFetch?: boolean;
-		} = {},
-	): GelbooruPostDto[] {
-		const { dontThrowOnEmptyFetch = false } = options;
-
-		if (!fetchResult.success)
-			throw new BooruFetchError(
-				`Gelbooru posts fetch failed: ${fetchResult.error.name} ${fetchResult.error.message || ''}`,
-				{ cause: fetchResult.error },
-			);
-
-		if (!Array.isArray(fetchResult.data?.post)) {
-			if (dontThrowOnEmptyFetch) return [];
-			throw new BooruUnknownPostError(`Couldn't fetch posts from Gelbooru`);
-		}
-
-		return fetchResult.data.post;
-	}
+	static #expectPosts = createArrayExpecter<GelbooruPostsResponseDto, GelbooruPostDto>({
+		booruName: this.name,
+		entity: 'posts',
+		extract: (data) => data?.post,
+		createUnknownError: ({ fetchResult }) =>
+			new BooruUnknownPostError(
+				`Couldn't fetch posts from Gelbooru API.\nReceived: ${JSON.stringify(fetchResult)}`,
+				{ cause: fetchResult },
+			),
+	});
 
 	/**
 	 * Asserts that the status code of a response is 200 and that the {@link Tag} data is valid before returning it.
 	 * @throws {BooruFetchError}
 	 * @throws {BooruUnknownTagError}
 	 */
-	static #expectTags(
-		fetchResult: FetchResult<GelbooruTagsResponseDto | undefined>,
-		options: {
-			dontThrowOnEmptyFetch?: boolean;
-			tags?: string;
-		} = {},
-	): GelbooruTagDto[] {
-		const { dontThrowOnEmptyFetch = false, tags = null } = options;
-
-		if (!fetchResult.success)
-			throw new BooruFetchError(
-				`Gelbooru tags fetch failed: ${fetchResult.error.name} ${fetchResult.error.message || ''}`,
-				{ cause: fetchResult.error },
-			);
-
-		if (!Array.isArray(fetchResult.data?.tag)) {
-			if (dontThrowOnEmptyFetch) return [];
-			throw new BooruUnknownTagError({ booruName: 'Gelbooru', fetchResult, tags });
-		}
-
-		return fetchResult.data.tag;
-	}
+	static #expectTags = createArrayExpecter<GelbooruTagsResponseDto, GelbooruTagDto>({
+		booruName: this.name,
+		entity: 'tags',
+		extract: (data) => data?.tag,
+		createUnknownError: ({ booruName, fetchResult, context }) =>
+			new BooruUnknownTagError({ booruName, fetchResult, tags: context }),
+	});
 }
