@@ -192,7 +192,7 @@ export class Danbooru implements Booru<typeof booruName, DanbooruCredentials, Bo
 			>({
 				api_key: apiKey,
 				login: login,
-				tags: namesBatch,
+				'search[name_space]': namesBatch,
 			});
 
 			const tagDtos = Danbooru.#expectTags(response, { tags: namesBatch });
