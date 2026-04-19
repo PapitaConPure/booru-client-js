@@ -5,29 +5,41 @@ import type { PostMapper } from '../../mappers/post-mapper';
 import { GelbooruPostMapper } from '../../mappers/post-mapper/gelbooru-post-mapper';
 import type { TagMapper } from '../../mappers/tag-mapper';
 import { GelbooruTagMapper } from '../../mappers/tag-mapper/gelbooru-tag-mapper';
-import type { PostUrlBuilder } from '../../types/booru';
+import type { BooruSpec, PostUrlBuilder } from '../../types/booru';
 import { createArrayExpecter } from '../../utils/booru';
 import { defineEndpoint, type Endpoint } from '../../utils/endpoint';
 import { fetchExt } from '../../utils/fetchExt';
-import type { Booru } from '../booru';
+import { type Booru, booruSpec } from '../booru';
 import type {
 	GelbooruPostDto,
 	GelbooruPostsResponseDto,
 	GelbooruTagDto,
 	GelbooruTagsResponseDto,
 } from './dto';
-import type { GelbooruCredentials, GelbooruOptions, GelbooruPostExtra, GelbooruSearchOptions } from './types';
+import type {
+	GelbooruCredentials,
+	GelbooruOptions,
+	GelbooruPostExtra,
+	GelbooruSearchOptions,
+} from './types';
 
 const booruName = 'gelbooru' as const;
+
+interface GelbooruSpec extends BooruSpec<Gelbooru> {
+	name: typeof booruName;
+	credentials: GelbooruCredentials;
+	searchOptions: GelbooruSearchOptions;
+	postExtra: GelbooruPostExtra;
+}
 
 /**
  * Implementation of the {@link Booru} interface for the Gelbooru API.
  *
  * @see https://gelbooru.com/index.php?page=wiki&s=view&id=18780
  */
-export class Gelbooru
-	implements Booru<Gelbooru, typeof booruName, GelbooruCredentials, GelbooruSearchOptions, GelbooruPostExtra>
-{
+export class Gelbooru implements Booru<Gelbooru, GelbooruSpec> {
+	readonly [booruSpec]?: GelbooruSpec;
+
 	/**Base URL for Gelbooru's API endpoints.*/
 	static readonly API_BASE_URL = 'https://gelbooru.com/index.php';
 

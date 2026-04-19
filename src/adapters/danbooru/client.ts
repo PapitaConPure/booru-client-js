@@ -5,30 +5,42 @@ import type { PostMapper } from '../../mappers/post-mapper';
 import { DanbooruPostMapper } from '../../mappers/post-mapper/danbooru-post-mapper';
 import type { TagMapper } from '../../mappers/tag-mapper';
 import { DanbooruTagMapper } from '../../mappers/tag-mapper/danbooru-tag-mapper';
-import type { PostUrlBuilder } from '../../types/booru';
+import type { BooruSpec, PostUrlBuilder } from '../../types/booru';
 import { createArrayExpecter } from '../../utils/booru';
 import { defineEndpoint, type Endpoint } from '../../utils/endpoint';
 import { fetchExt } from '../../utils/fetchExt';
 import { shuffleArray } from '../../utils/misc';
-import type { Booru } from '../booru';
+import { type Booru, booruSpec } from '../booru';
 import type {
 	DanbooruPostDto,
 	DanbooruPostsResponseDto,
 	DanbooruTagDto,
 	DanbooruTagsResponseDto,
 } from './dto';
-import type { DanbooruCredentials, DanbooruOptions, DanbooruPostExtra, DanbooruSearchOptions } from './types';
+import type {
+	DanbooruCredentials,
+	DanbooruOptions,
+	DanbooruPostExtra,
+	DanbooruSearchOptions,
+} from './types';
 
 const booruName = 'danbooru' as const;
+
+interface DanbooruSpec extends BooruSpec<Danbooru> {
+	name: typeof booruName;
+	credentials: DanbooruCredentials;
+	searchOptions: DanbooruSearchOptions;
+	postExtra: DanbooruPostExtra;
+}
 
 /**
  * Implementation of the {@link Booru} interface for the Danbooru API.
  *
  * @see https://danbooru.donmai.us/wiki_pages/help:api
  */
-export class Danbooru
-	implements Booru<Danbooru, typeof booruName, DanbooruCredentials, DanbooruSearchOptions, DanbooruPostExtra>
-{
+export class Danbooru implements Booru<Danbooru, DanbooruSpec> {
+	readonly [booruSpec]?: DanbooruSpec;
+
 	/**Base URL for Danbooru's API.*/
 	static readonly API_BASE_URL = 'https://danbooru.donmai.us';
 

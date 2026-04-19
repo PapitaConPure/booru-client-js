@@ -1,4 +1,4 @@
-import { type Booru, BooruClient, BooruFetchError, type BooruSearchOptions, Danbooru, defineEndpoint, Post, type PostMapper, PostRatings, Tag, type TagMapper, TagTypes } from '../src';
+import { type Booru, BooruClient, BooruFetchError, type BooruSearchOptions, type BooruSpec, booruSpec, Danbooru, defineEndpoint, Post, type PostMapper, PostRatings, Tag, type TagMapper, TagTypes } from '../src';
 
 interface CustombooruCredentials {
 	apiKey: string;
@@ -73,7 +73,16 @@ class CustombooruTagMapper implements TagMapper<CustombooruTagDto> {
 
 const customBooruName = 'custombooru' as const;
 
-class Custombooru implements Booru<Custombooru, typeof customBooruName, CustombooruCredentials> {
+interface CustomBooruSpec extends BooruSpec<Custombooru> {
+	name: typeof customBooruName;
+	credentials: CustombooruCredentials;
+	searchOptions: BooruSearchOptions;
+	postExtra: {};
+}
+
+class Custombooru implements Booru<Custombooru, CustomBooruSpec> {
+	readonly [booruSpec]?: CustomBooruSpec;
+
 	static readonly POSTS_ENDPOINT = defineEndpoint('get', 'https://custombooru.com/api/v1/posts?json=1');
 	static readonly TAGS_ENDPOINT = defineEndpoint('get', 'https://custombooru.com/api/v1/tags?json=1');
 
