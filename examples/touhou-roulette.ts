@@ -26,5 +26,8 @@ const results = await Promise.all([
 
 //10, which are the times the function was called
 console.log(results.length);
+
+//24 names
 console.log(results.flatMap(result => result.map(tag => tag.name)));
+
 process.exit(0);
