@@ -19,10 +19,10 @@ export interface GelbooruCredentials {
 }
 
 export interface GelbooruSearchOptions {
+	/**The page number.*/
 	pid?: number;
-	sort?: string;
-	order?: GelbooruQueryPostOrder;
-	params?: Record<string, unknown>;
+	/**Change ID of the post. This is in Unix time so there are likely others with the same value if updated at the same time.*/
+	cid?: number | Date,
 }
 
 export interface GelbooruPostExtra {
@@ -30,11 +30,9 @@ export interface GelbooruPostExtra {
 	directory?: string;
 	imageName: string;
 	parentId?: number;
-	change?: Date;
+	change: Date;
 	ownerName?: string;
 	postLocked: boolean;
 }
-
-export type GelbooruQueryPostOrder = 'asc' | 'desc';
 
 export type GelbooruPostRating = 'general' | 'sensitive' | 'questionable' | 'explicit';
