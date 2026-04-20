@@ -50,7 +50,7 @@ function createExpecter<TInput, TOutput>(options: {
 		if (!fetchResult.success) {
 			throw new BooruFetchError(
 				`${booruName} ${entity} fetch failed: ${fetchResult.error.name} ${fetchResult.error.message || ''}`,
-				{ cause: fetchResult.error },
+				{ cause: fetchResult },
 			);
 		}
 
