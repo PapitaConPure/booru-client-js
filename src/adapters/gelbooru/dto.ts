@@ -22,7 +22,7 @@ export interface GelbooruPostDto {
 	parent_id?: number;
 	md5?: string;
 	directory?: string;
-	change?: number;
+	change: number;
 	image: string;
 	file_url: string;
 	width: number;

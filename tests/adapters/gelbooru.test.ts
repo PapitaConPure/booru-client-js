@@ -2,6 +2,7 @@ import { describe, expect, it } from 'bun:test';
 import { Gelbooru } from '../../src/adapters/gelbooru/client';
 import type { GelbooruPostsResponseDto } from '../../src/adapters/gelbooru/dto';
 import type { FetchSuccessResult } from '../../src/utils/fetchExt';
+import { toUnix } from '../../src/utils/misc';
 
 describe('Gelbooru Adapter', () => {
 	it('search returns mapped posts', async () => {
@@ -18,6 +19,7 @@ describe('Gelbooru Adapter', () => {
 						score: 1,
 						rating: 'general',
 						created_at: '2026-01-01',
+						change: toUnix(new Date(2026, 0, 1)),
 						creator_id: 1,
 						file_url: 'http://nowhere.test/file.jpg',
 						width: 10,
