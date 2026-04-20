@@ -6,17 +6,19 @@ import { BooruUnknownPostError, BooruUnknownTagError } from '../../errors/booru'
 import type { PostMapper } from '../../mappers/post-mapper';
 import { KonachanPostMapper } from '../../mappers/post-mapper/konachan-post-mapper';
 import type { TagMapper } from '../../mappers/tag-mapper';
-import { DanbooruTagMapper } from '../../mappers/tag-mapper/danbooru-tag-mapper';
+import { KonachanTagMapper } from '../../mappers/tag-mapper/konachan-tag-mapper';
 import type { BooruSearchOptions, BooruSpec, PostUrlBuilder } from '../../types/booru';
 import { createArrayExpecter, createEntityExpecter } from '../../utils/booru';
 import { defineEndpoint, type Endpoint } from '../../utils/endpoint';
 import { fetchExt } from '../../utils/fetchExt';
+import { wait } from '../../utils/misc';
 import { type Booru, booruSpec } from '../booru';
 import type {
-	DanbooruTagDto,
-	DanbooruTagsResponseDto,
-} from '../danbooru/dto';
-import type { KonachanPostDto, KonachanPostsResponseDto } from './dto';
+	KonachanPostDto,
+	KonachanPostsResponseDto,
+	KonachanTagDto,
+	KonachanTagsResponseDto,
+} from './dto';
 import type {
 	KonachanCredentials,
 	KonachanOptions,
@@ -43,14 +45,14 @@ export class Konachan implements Booru<KonachanSpec> {
 		`https://konachan.com.us/post/${postId}`;
 
 	readonly #postMapper: PostMapper<KonachanPostDto, Konachan>;
-	readonly #tagMapper: TagMapper<DanbooruTagDto>;
+	readonly #tagMapper: TagMapper<KonachanTagDto>;
 	readonly #apiPostsEndpoint: Endpoint;
 	readonly #apiTagsEndpoint: Endpoint;
 
 	constructor(options: KonachanOptions = {}) {
 		const {
 			postMapper = new KonachanPostMapper(),
-			tagMapper = new DanbooruTagMapper(),
+			tagMapper = new KonachanTagMapper(),
 			fetchFn = fetchExt,
 		} = options;
 
@@ -80,15 +82,12 @@ export class Konachan implements Booru<KonachanSpec> {
 		tags: string,
 		searchOptions: Required<BooruSearchOptions> & KonachanSearchOptions,
 	): Promise<Post<Konachan>[]> {
-		const { limit, random } = searchOptions;
+		const { limit } = searchOptions;
 
 		const result = await this.#apiPostsEndpoint.request<KonachanPostsResponseDto>({
 			tags,
 			limit,
-			random: random ? 1 : 0,
 		});
-
-		console.log(result);
 
 		const postDtos = Konachan.#expectPosts(result);
 		const posts = postDtos.map((dto) => this.#postMapper.fromDto(dto));
@@ -140,18 +139,31 @@ export class Konachan implements Booru<KonachanSpec> {
 
 		const fetchedTags: Tag[] = [];
 
-		for (let i = 0; i < namesArr.length; i += 100) {
-			const namesBatch = namesArr.slice(i, i + 100).join(' ');
+		for (let i = 0; i < namesArr.length; i += 2) {
+			const namesBatch = namesArr.slice(i, i + 2);
 
-			const response = await this.#apiTagsEndpoint.request<
-				DanbooruTagsResponseDto | undefined
-			>({
-				'search[name_space]': namesBatch,
+			const requestPromises = namesBatch.map(async (name) => {
+				const result = await this.#apiTagsEndpoint.request<
+					KonachanTagsResponseDto | undefined
+				>({
+					name: name,
+				});
+
+				const tagDtos = Konachan.#expectTags(result, { dontThrowOnEmptyFetch: true });
+
+				//Moebooru's 'name' param is not for exact matches
+				const tagDto = tagDtos.find((dto) => dto.name === name);
+
+				if (tagDto == null) return;
+
+				return tagDto.name === name ? this.#tagMapper.fromDto(tagDto) : null;
 			});
 
-			const tagDtos = Konachan.#expectTags(response, { context: namesBatch });
-			const tags = tagDtos.map((dto) => this.#tagMapper.fromDto(dto));
-			fetchedTags.push(...tags);
+			const results = await Promise.all(requestPromises);
+			const validResults = results.filter((tag) => tag != null);
+
+			fetchedTags.push(...validResults);
+			wait(1_000);
 		}
 
 		return fetchedTags;
@@ -175,7 +187,7 @@ export class Konachan implements Booru<KonachanSpec> {
 		createUnknownError: () => new BooruUnknownPostError(''),
 	});
 
-	static #expectTags = createArrayExpecter<DanbooruTagsResponseDto, DanbooruTagDto>({
+	static #expectTags = createArrayExpecter<KonachanTagsResponseDto, KonachanTagDto>({
 		booruName,
 		entity: 'tags',
 		extract: (data) => data,
