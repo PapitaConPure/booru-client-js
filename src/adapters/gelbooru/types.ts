@@ -26,13 +26,12 @@ export interface GelbooruSearchOptions {
 }
 
 export interface GelbooruPostExtra {
-	favCount?: number;
 	md5?: string;
 	directory?: string;
 	imageName: string;
-	parentId?: string;
+	parentId?: number;
 	change?: number;
-	owner?: string;
+	ownerName?: string;
 	postLocked: boolean;
 }
 
