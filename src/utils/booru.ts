@@ -126,3 +126,14 @@ export function createArrayExpecter<TInput, TOutput>(options: {
 		emptyValue: [],
 	});
 }
+
+export function getSourcesArray(sourceString: string | null | undefined): string[] | undefined {
+	const sources = sourceString
+		?.split(/\s+/)
+		.map((s) => s.trim())
+		.filter((s) => s != null && s.length > 0);
+
+	if (!sources?.length) return undefined;
+
+	return sources;
+}

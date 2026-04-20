@@ -2,6 +2,7 @@ import { Gelbooru } from '../../adapters/gelbooru/client';
 import type { GelbooruPostDto, GelbooruPostRating } from '../../adapters/gelbooru/dto';
 import { Post } from '../../domain/post';
 import { type PostRating, PostRatings } from '../../domain/post-rating';
+import { getSourcesArray } from '../../utils/booru';
 import type { PostMapper } from '../post-mapper';
 
 const gelbooruRatingsMap = {
@@ -13,18 +14,13 @@ const gelbooruRatingsMap = {
 
 export class GelbooruPostMapper implements PostMapper<GelbooruPostDto, Gelbooru> {
 	fromDto(dto: GelbooruPostDto): Post<Gelbooru> {
-		const sources = dto.source
-			?.split(/\s+/)
-			.map((s) => s.trim())
-			.filter((s) => s != null && s.length > 0);
-
 		return new Post<Gelbooru>({
 			booru: 'gelbooru',
 			urlBuilder: Gelbooru.POST_URL_BUILDER,
 			id: `${dto.id}`,
 			title: dto.title,
 			tags: dto.tags.split(' '),
-			sources: sources.length ? sources : undefined,
+			sources: getSourcesArray(dto.source),
 			score: dto.score,
 			rating: gelbooruRatingsMap[dto.rating],
 			createdAt: new Date(dto.created_at),

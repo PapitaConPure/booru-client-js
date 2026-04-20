@@ -2,6 +2,7 @@ import { Danbooru } from '../../adapters/danbooru/client';
 import type { DanbooruPostDto, DanbooruPostRating } from '../../adapters/danbooru/dto';
 import { Post } from '../../domain/post';
 import { type PostRating, PostRatings } from '../../domain/post-rating';
+import { getSourcesArray } from '../../utils/booru';
 import type { PostMapper } from '../post-mapper';
 
 const danbooruRatingsMap = {
@@ -13,18 +14,13 @@ const danbooruRatingsMap = {
 
 export class DanbooruPostMapper implements PostMapper<DanbooruPostDto, Danbooru> {
 	fromDto(dto: DanbooruPostDto): Post<Danbooru> {
-		const sources = dto.source
-			.split(/\s+/)
-			.map((s) => s.trim())
-			.filter((s) => s != null && s.length > 0);
-
 		return new Post<Danbooru>({
 			booru: 'danbooru',
 			urlBuilder: Danbooru.POST_URL_BUILDER,
 			id: `${dto.id}`,
 			title: '',
 			tags: dto.tag_string.split(' '),
-			sources: sources.length ? sources : undefined,
+			sources: getSourcesArray(dto.source),
 			score: dto.score,
 			rating: danbooruRatingsMap[dto.rating],
 			createdAt: new Date(dto.created_at),
