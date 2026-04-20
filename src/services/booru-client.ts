@@ -47,15 +47,6 @@ export class BooruClient<TBooru extends AnyBooru = AnyBooru> {
 	#lastTagCleanup: number;
 
 	/**
-	 * Creates a {@link BooruClient} with the specified `credentials`.
-	 * @param booru The {@link Booru} API this client will consume.
-	 * @param credentials Credentials for API authorization.
-	 * @throws {ReferenceError} If no credentials were defined.
-	 * @throws {TypeError} If the supplied credentials are invalid.
-	 */
-	constructor(booru: TBooru, credentials: CredentialsOf<TBooru>);
-
-	/**
 	 * Creates a {@link BooruClient} with the specified `credentials` and various other `options`.
 	 * @param booru The {@link Booru} API this client will consume.
 	 * @param options Options to define this client's behaviour.
@@ -69,6 +60,15 @@ export class BooruClient<TBooru extends AnyBooru = AnyBooru> {
 			tags?: BooruClientTagOptions;
 		},
 	);
+
+	/**
+	 * Creates a {@link BooruClient} with the specified `credentials`.
+	 * @param booru The {@link Booru} API this client will consume.
+	 * @param credentials Credentials for API authorization.
+	 * @throws {ReferenceError} If no credentials were defined.
+	 * @throws {TypeError} If the supplied credentials are invalid.
+	 */
+	constructor(booru: TBooru, credentials: CredentialsOf<TBooru>);
 
 	constructor(
 		booru: TBooru,
