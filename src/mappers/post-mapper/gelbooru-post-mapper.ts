@@ -4,6 +4,7 @@ import type { GelbooruPostRating } from '../../adapters/gelbooru/types';
 import { Post } from '../../domain/post';
 import { type PostRating, PostRatings } from '../../domain/post-rating';
 import { getSourcesArray } from '../../utils/booru';
+import { fromUnix } from '../../utils/misc';
 import type { PostMapper } from '../post-mapper';
 
 const gelbooruRatingsMap = {
@@ -43,7 +44,7 @@ export class GelbooruPostMapper implements PostMapper<GelbooruPostDto, Gelbooru>
 				directory: dto.directory,
 				imageName: dto.image,
 				parentId: dto.parent_id,
-				change: dto.change != null ? new Date(dto.change * 1e3) : undefined,
+				change: fromUnix(dto.change * 1e3),
 				ownerName: dto.owner,
 				postLocked: !!dto.post_locked,
 			},

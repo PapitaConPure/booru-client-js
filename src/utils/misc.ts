@@ -62,6 +62,6 @@ export function parseValidDate(field: string, value: Date | string | number): Da
 
 export const wait = (ms: number) => new Promise((resolve) => setTimeout(resolve, ms));
 
-export const fromUnix = (timestamp: number) => timestamp * 1000;
+export const fromUnix = (timestamp: number) => new Date(timestamp * 1000);
 
 export const toUnix = (date: Date | number) => Math.floor(+date / 1000);
