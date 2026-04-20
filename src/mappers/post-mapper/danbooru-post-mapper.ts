@@ -20,7 +20,7 @@ export class DanbooruPostMapper implements PostMapper<DanbooruPostDto, Danbooru>
 
 		return new Post<Danbooru>({
 			booru: 'danbooru',
-			urlBuilder: Danbooru.postUrlBuilder,
+			urlBuilder: Danbooru.POST_URL_BUILDER,
 			id: `${dto.id}`,
 			title: '',
 			tags: dto.tag_string.split(' '),

@@ -43,7 +43,7 @@ export class Danbooru implements Booru<DanbooruSpec> {
 	static readonly API_BASE_URL = 'https://danbooru.donmai.us';
 
 	/**Builds a canonical post URL from a post ID.*/
-	static postUrlBuilder: PostUrlBuilder = (postId) =>
+	static readonly POST_URL_BUILDER: PostUrlBuilder = (postId) =>
 		`https://danbooru.donmai.us/posts/${postId}`;
 
 	readonly #postMapper: PostMapper<DanbooruPostDto, Danbooru>;
@@ -124,7 +124,7 @@ export class Danbooru implements Booru<DanbooruSpec> {
 	): Promise<Post<Danbooru> | undefined> {
 		const { apiKey, login } = credentials;
 
-		const url = new URL(`${Danbooru.API_BASE_URL}/posts/${postId}.json`);
+		const url = new URL(`posts/${postId}.json`, Danbooru.API_BASE_URL);
 		url.searchParams.set('api_key', apiKey);
 		url.searchParams.set('login', login);
 
@@ -157,7 +157,7 @@ export class Danbooru implements Booru<DanbooruSpec> {
 
 		const postId = match[1];
 
-		const url = new URL(`https://danbooru.donmai.us/posts/${postId}.json`);
+		const url = new URL(`posts/${postId}.json`, Danbooru.API_BASE_URL);
 		url.searchParams.set('api_key', apiKey);
 		url.searchParams.set('login', login);
 

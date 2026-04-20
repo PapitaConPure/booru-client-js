@@ -42,7 +42,7 @@ export class Gelbooru implements Booru<GelbooruSpec> {
 	static readonly API_BASE_URL = 'https://gelbooru.com/index.php';
 
 	/**Builds a canonical post URL from a post ID.*/
-	static postUrlBuilder: PostUrlBuilder = (postId) =>
+	static readonly POST_URL_BUILDER: PostUrlBuilder = (postId) =>
 		`https://gelbooru.com/index.php?page=post&s=view&id=${postId}`;
 
 	readonly #postMapper: PostMapper<GelbooruPostDto, Gelbooru>;
