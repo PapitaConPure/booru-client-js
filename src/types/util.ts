@@ -7,3 +7,5 @@ export type ValuesOf<T> = T[keyof T];
 export type Flatten<T> = {
 	[K in keyof T]: T[K];
 } & {};
+
+export type BooleanString = 'true' | 'false' | 'True' | 'False';
