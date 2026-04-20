@@ -1,4 +1,4 @@
-import type { ValuesOf } from '../../types/util';
+import type { BooleanString, ValuesOf } from '../../types/util';
 import type { GelbooruPostRating } from './types';
 
 export interface GelbooruPostDto {
@@ -10,12 +10,22 @@ export interface GelbooruPostDto {
 	rating: GelbooruPostRating;
 	created_at: string;
 	creator_id: number;
+	owner?: string;
+	parent_id?: number;
+	md5?: string;
+	directory?: string;
+	change?: number;
+	image: string;
 	file_url: string;
 	width: number;
 	height: number;
+	has_notes?: BooleanString;
+	has_comments?: BooleanString;
+	has_children?: BooleanString;
 	preview_url?: string;
 	preview_width?: number;
 	preview_height?: number;
+	sample: number;
 	sample_url?: string;
 	sample_width?: number;
 	sample_height?: number;

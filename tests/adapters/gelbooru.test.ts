@@ -22,6 +22,8 @@ describe('Gelbooru Adapter', () => {
 						file_url: 'http://nowhere.test/file.jpg',
 						width: 10,
 						height: 20,
+						image: 'file.jpg',
+						sample: 1,
 					},
 				],
 			},

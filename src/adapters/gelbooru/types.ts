@@ -27,9 +27,9 @@ export interface GelbooruSearchOptions {
 
 export interface GelbooruPostExtra {
 	favCount?: number;
-	fileExt?: string;
-	fileSize?: number;
 	md5?: string;
+	directory?: string;
+	image: string;
 	parentId?: string;
 	change?: number;
 	owner?: string;
