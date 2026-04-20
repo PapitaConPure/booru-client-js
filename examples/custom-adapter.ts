@@ -99,7 +99,7 @@ interface CustomBooruSpec extends BooruSpec<Custombooru> {
 	postExtra: unknown;
 }
 
-class Custombooru implements Booru<Custombooru, CustomBooruSpec> {
+class Custombooru implements Booru<CustomBooruSpec> {
 	readonly [booruSpec]?: CustomBooruSpec;
 
 	static readonly POSTS_ENDPOINT = defineEndpoint(

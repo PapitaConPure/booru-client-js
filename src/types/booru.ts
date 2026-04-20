@@ -118,4 +118,4 @@ export type PostExtraOf<TBooru extends AnyBooru> = TBooru extends { [booruSpec]?
 export type TagFetchApproach = (names: string[]) => Promise<Tag[]>;
 
 // biome-ignore lint/suspicious/noExplicitAny: Required for AnyBooru type
-export type AnyBooru = Booru<any, any>;
+export type AnyBooru = Booru<any>;

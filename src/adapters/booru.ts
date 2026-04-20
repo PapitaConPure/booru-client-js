@@ -11,7 +11,7 @@ export const booruSpec: unique symbol = Symbol('booruSpec');
  * * {@link Post}
  * * {@link Tag}
  */
-export interface Booru<TSelf extends Booru<TSelf, TSpec>, TSpec extends BooruSpec<TSelf>> {
+export interface Booru<TSpec extends BooruSpec> {
 	readonly [booruSpec]?: TSpec;
 
 	/**Unique identifier of this booru implementation.*/
@@ -32,7 +32,7 @@ export interface Booru<TSelf extends Booru<TSelf, TSpec>, TSpec extends BooruSpe
 		tags: string,
 		searchOptions: Required<BooruSearchOptions> & TSpec['searchOptions'],
 		credentials: TSpec['credentials'],
-	): Promise<Post<TSelf>[]>;
+	): Promise<Post<TSpec['self']>[]>;
 
 	/**
 	 * Fetches a {@link Post} by its unique identifier.
@@ -47,7 +47,7 @@ export interface Booru<TSelf extends Booru<TSelf, TSpec>, TSpec extends BooruSpe
 	fetchPostById(
 		postId: string,
 		credentials: TSpec['credentials'],
-	): Promise<Post<TSelf> | undefined>;
+	): Promise<Post<TSpec['self']> | undefined>;
 
 	/**
 	 * Fetches a {@link Post} from its canonical URL.
@@ -62,7 +62,7 @@ export interface Booru<TSelf extends Booru<TSelf, TSpec>, TSpec extends BooruSpe
 	fetchPostByUrl(
 		postUrl: URL,
 		credentials: TSpec['credentials'],
-	): Promise<Post<TSelf> | undefined>;
+	): Promise<Post<TSpec['self']> | undefined>;
 
 	/**
 	 * Fetches {@link Tag}s by their names.
