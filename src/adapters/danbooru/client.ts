@@ -7,7 +7,7 @@ import type { TagMapper } from '../../mappers/tag-mapper';
 import { DanbooruTagMapper } from '../../mappers/tag-mapper/danbooru-tag-mapper';
 import type { BooruSearchOptions, BooruSpec, PostUrlBuilder } from '../../types/booru';
 import { createArrayExpecter, createEntityExpecter } from '../../utils/booru';
-import { defineEndpoint, type Endpoint } from '../../utils/endpoint';
+import { defineEndpoint, type Endpoint, fetchEntitiesFromEndpoint } from '../../utils/endpoint';
 import { fetchExt } from '../../utils/fetchExt';
 import { type Booru, booruSpec } from '../booru';
 import type {
@@ -53,8 +53,8 @@ export class Danbooru implements Booru<DanbooruSpec> {
 
 	readonly #postMapper: PostMapper<DanbooruPostDto, Danbooru>;
 	readonly #tagMapper: TagMapper<DanbooruTagDto>;
-	readonly #apiPostsEndpoint: Endpoint;
-	readonly #apiTagsEndpoint: Endpoint;
+	readonly #apiPostsEndpoint: Endpoint<DanbooruPostsResponseDto>;
+	readonly #apiTagsEndpoint: Endpoint<DanbooruTagsResponseDto>;
 
 	/**
 	 * Creates a new {@link Danbooru} adapter.
@@ -102,17 +102,17 @@ export class Danbooru implements Booru<DanbooruSpec> {
 	): Promise<Post<Danbooru>[]> {
 		const { apiKey, login } = credentials;
 
-		const fetchResult = await this.#apiPostsEndpoint.request<DanbooruPostsResponseDto>({
-			api_key: apiKey,
-			login: login,
-			tags: tags,
-			...searchOptions,
-		});
-
-		const postDtos = Danbooru.#expectPosts(fetchResult, { dontThrowOnEmptyFetch: true });
-		const posts = postDtos.map((dto) => this.#postMapper.fromDto(dto));
-
-		return posts;
+		return fetchEntitiesFromEndpoint<DanbooruPostsResponseDto, DanbooruPostDto, Post<Danbooru>>(
+			this.#apiPostsEndpoint,
+			{
+				api_key: apiKey,
+				login: login,
+				tags: tags,
+				...searchOptions,
+			},
+			(res) => Danbooru.#expectPosts(res),
+			(dto) => this.#postMapper.fromDto(dto),
+		);
 	}
 
 	async fetchPostById(
@@ -180,9 +180,7 @@ export class Danbooru implements Booru<DanbooruSpec> {
 		for (let i = 0; i < namesArr.length; i += 100) {
 			const namesBatch = namesArr.slice(i, i + 100).join(' ');
 
-			const response = await this.#apiTagsEndpoint.request<
-				DanbooruTagsResponseDto | undefined
-			>({
+			const response = await this.#apiTagsEndpoint.request({
 				api_key: apiKey,
 				login: login,
 				'search[name_space]': namesBatch,
@@ -204,7 +202,7 @@ export class Danbooru implements Booru<DanbooruSpec> {
 		if (!credentials.login || typeof credentials.login !== 'string')
 			throw new TypeError('User ID is invalid');
 	}
-		
+
 	static #expectPost = createEntityExpecter<DanbooruPostDto>({
 		booruName,
 		entity: 'post',

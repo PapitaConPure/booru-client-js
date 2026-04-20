@@ -102,11 +102,11 @@ interface CustomBooruSpec extends BooruSpec<Custombooru> {
 class Custombooru implements Booru<CustomBooruSpec> {
 	readonly [booruSpec]?: CustomBooruSpec;
 
-	static readonly POSTS_ENDPOINT = defineEndpoint(
+	static readonly POSTS_ENDPOINT = defineEndpoint<CustombooruPostDto | CustombooruPostsResponse>(
 		'get',
 		'https://custombooru.com/api/v1/posts?json=1',
 	);
-	static readonly TAGS_ENDPOINT = defineEndpoint(
+	static readonly TAGS_ENDPOINT = defineEndpoint<CustombooruTagsResponse>(
 		'get',
 		'https://custombooru.com/api/v1/tags?json=1',
 	);
@@ -153,7 +153,7 @@ class Custombooru implements Booru<CustomBooruSpec> {
 			tags,
 		});
 
-		if (!fetchResult.success)
+		if (!fetchResult.success || fetchResult.data == null)
 			throw new BooruFetchError('Failed to fetch from Custombooru during search! Oh no!');
 
 		const postDtos = fetchResult.data.myAwesomePosts;
@@ -175,7 +175,7 @@ class Custombooru implements Booru<CustomBooruSpec> {
 			super_ultra_secret: superUltraSecretCode,
 		});
 
-		if (!fetchResult.success)
+		if (!fetchResult.success || fetchResult.data == null)
 			throw new BooruFetchError('Failed to fetch a post by ID from Custombooru');
 
 		const postDto = fetchResult.data;
@@ -202,14 +202,14 @@ class Custombooru implements Booru<CustomBooruSpec> {
 	): Promise<Tag[]> {
 		const { apiKey, bananas, superUltraSecretCode } = credentials;
 
-		const fetchResult = await Custombooru.TAGS_ENDPOINT.request<CustombooruTagsResponse>({
+		const fetchResult = await Custombooru.TAGS_ENDPOINT.request({
 			tag_str: [...names].join(','),
 			api_key: apiKey,
 			bananas,
 			super_ultra_secret: superUltraSecretCode,
 		});
 
-		if (!fetchResult.success)
+		if (!fetchResult.success || fetchResult.data == null)
 			throw new BooruFetchError('Failed to fetch a post by ID from Custombooru');
 
 		const tagsDto = fetchResult.data.someIncredibleTags;

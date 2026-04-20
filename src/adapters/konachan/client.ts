@@ -42,12 +42,12 @@ export class Konachan implements Booru<KonachanSpec> {
 
 	/**Builds a canonical post URL from a post ID.*/
 	static readonly postUrlBuilder: PostUrlBuilder = (postId) =>
-		`https://konachan.com.us/post/${postId}`;
+		`https://konachan.com/post/${postId}`;
 
 	readonly #postMapper: PostMapper<KonachanPostDto, Konachan>;
 	readonly #tagMapper: TagMapper<KonachanTagDto>;
-	readonly #apiPostsEndpoint: Endpoint;
-	readonly #apiTagsEndpoint: Endpoint;
+	readonly #apiPostsEndpoint: Endpoint<KonachanPostsResponseDto>;
+	readonly #apiTagsEndpoint: Endpoint<KonachanTagsResponseDto>;
 
 	constructor(options: KonachanOptions = {}) {
 		const {
@@ -82,7 +82,7 @@ export class Konachan implements Booru<KonachanSpec> {
 		tags: string,
 		searchOptions: Required<BooruSearchOptions> & KonachanSearchOptions,
 	): Promise<Post<Konachan>[]> {
-		const result = await this.#apiPostsEndpoint.request<KonachanPostsResponseDto>({
+		const result = await this.#apiPostsEndpoint.request({
 			tags,
 			...searchOptions,
 		});
@@ -142,9 +142,7 @@ export class Konachan implements Booru<KonachanSpec> {
 			const namesBatch = namesArr.slice(i, i + 2);
 
 			const requestPromises = namesBatch.map(async (name) => {
-				const result = await this.#apiTagsEndpoint.request<
-					KonachanTagsResponseDto | undefined
-				>({
+				const result = await this.#apiTagsEndpoint.request({
 					name: name,
 				});
 

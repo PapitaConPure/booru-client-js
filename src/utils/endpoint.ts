@@ -10,21 +10,21 @@ export type QueryParameter =
 	| undefined
 	| readonly (string | number | boolean)[];
 
-export interface Endpoint {
-	request<TSchema>(
+export interface Endpoint<TPossibleSchemas> {
+	request<TSchema extends TPossibleSchemas>(
 		params: Record<string, QueryParameter>,
 		init?: RequestInit,
-	): Promise<FetchResult<TSchema>>;
+	): Promise<FetchResult<TSchema | undefined>>;
 }
 
-export function defineEndpoint(
+export function defineEndpoint<TSchema>(
 	methodVerb: 'get' | 'post' | 'put' | 'patch' | 'delete',
 	baseUrl: URL | string,
 	defaultParams: Record<string, string> = {},
 	endpointOptions: {
 		fetchFn?: FetchFn;
 	} = {},
-): Endpoint {
+): Endpoint<TSchema> {
 	const { fetchFn = fetchExt } = endpointOptions;
 	const endpointURL = typeof baseUrl === 'string' ? new URL(baseUrl) : baseUrl;
 
@@ -47,4 +47,16 @@ export function defineEndpoint(
 			});
 		},
 	};
+}
+
+export async function fetchEntitiesFromEndpoint<TResponse, TDto, TEntity>(
+	endpoint: Endpoint<TResponse>,
+	params: Record<string, QueryParameter>,
+	expect: (res: FetchResult<TResponse | undefined>, context?: unknown) => TDto[],
+	map: (dto: TDto) => TEntity,
+	context?: unknown,
+): Promise<TEntity[]> {
+	const res = await endpoint.request(params);
+	const dtos = expect(res, { context });
+	return dtos.map(map);
 }

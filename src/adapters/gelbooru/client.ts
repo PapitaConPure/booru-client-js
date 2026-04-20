@@ -48,8 +48,8 @@ export class Gelbooru implements Booru<GelbooruSpec> {
 
 	readonly #postMapper: PostMapper<GelbooruPostDto, Gelbooru>;
 	readonly #tagMapper: TagMapper<GelbooruTagDto>;
-	readonly #apiPostsEndpoint: Endpoint;
-	readonly #apiTagsEndpoint: Endpoint;
+	readonly #apiPostsEndpoint: Endpoint<GelbooruPostsResponseDto>;
+	readonly #apiTagsEndpoint: Endpoint<GelbooruTagsResponseDto>;
 
 	/**
 	 * Creates a new {@link Gelbooru} adapter.
@@ -110,7 +110,7 @@ export class Gelbooru implements Booru<GelbooruSpec> {
 					? toUnix(cid)
 					: undefined;
 
-		const fetchResult = await this.#apiPostsEndpoint.request<GelbooruPostsResponseDto>({
+		const fetchResult = await this.#apiPostsEndpoint.request({
 			tags: tags,
 			api_key: apiKey,
 			user_id: userId,
@@ -130,7 +130,7 @@ export class Gelbooru implements Booru<GelbooruSpec> {
 	): Promise<Post<Gelbooru> | undefined> {
 		const { apiKey, userId } = credentials;
 
-		const response = await this.#apiPostsEndpoint.request<GelbooruPostsResponseDto | undefined>(
+		const response = await this.#apiPostsEndpoint.request(
 			{
 				api_key: apiKey,
 				user_id: userId,
@@ -183,9 +183,7 @@ export class Gelbooru implements Booru<GelbooruSpec> {
 		for (let i = 0; i < namesArr.length; i += 100) {
 			const namesBatch = namesArr.slice(i, i + 100).join(' ');
 
-			const response = await this.#apiTagsEndpoint.request<
-				GelbooruTagsResponseDto | undefined
-			>({
+			const response = await this.#apiTagsEndpoint.request({
 				api_key: apiKey,
 				user_id: userId,
 				names: namesBatch,
