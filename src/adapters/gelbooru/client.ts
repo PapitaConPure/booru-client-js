@@ -99,21 +99,14 @@ export class Gelbooru implements Booru<GelbooruSpec> {
 		searchOptions: Required<BooruSearchOptions> & GelbooruSearchOptions,
 		credentials: GelbooruCredentials,
 	): Promise<Post<Gelbooru>[]> {
-		const { limit, random } = searchOptions;
+		const { limit } = searchOptions;
 		const { apiKey, userId } = credentials;
 
-		const sortRegex = /\bsort:[^\s]+/gi;
-
 		const fetchResult = await this.#apiPostsEndpoint.request<GelbooruPostsResponseDto>({
+			tags: tags,
 			api_key: apiKey,
 			user_id: userId,
 			limit: limit,
-			tags: random
-				? `${tags
-						.split(/\s+/)
-						.filter((t) => t.length && !sortRegex.test(t))
-						.join(' ')} sort:random`
-				: tags,
 		});
 
 		const postDtos = Gelbooru.#expectPosts(fetchResult, { dontThrowOnEmptyFetch: true });

@@ -31,7 +31,7 @@ describe('Gelbooru Adapter', () => {
 
 		const posts = await client.search(
 			'test',
-			{ limit: 1, random: false },
+			{ limit: 1 },
 			{
 				apiKey: 'x',
 				userId: 'y',
