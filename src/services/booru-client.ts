@@ -140,8 +140,8 @@ export class BooruClient<TBooru extends AnyBooru = AnyBooru> {
 	): Promise<Post<TBooru>[]> {
 		if (Array.isArray(tags)) tags = tags.join(' ');
 
-		const { limit = 1 } = searchOptions ?? {};
-		const finalSearchOptions = { limit };
+		const { limit = 1, ...rest } = searchOptions ?? {};
+		const finalSearchOptions = { limit, ...rest };
 
 		return this.#booru.search(tags, finalSearchOptions, this.#getCredentials());
 	}
