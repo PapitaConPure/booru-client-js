@@ -1,5 +1,5 @@
-import 'node';
-import { default as stream } from 'node:stream';
+import { Buffer } from 'node:buffer';
+import { type Readable as NodeReadableStream, default as stream } from 'node:stream';
 import type { ReadableStream as WebReadableStream } from 'node:stream/web';
 
 interface FetchDataMap<TSchema> {
@@ -8,7 +8,7 @@ interface FetchDataMap<TSchema> {
 	arrayBuffer: ArrayBuffer;
 	buffer: Buffer<ArrayBuffer>;
 	webStream: ReadableStream;
-	nodeStream: NodeJS.ReadableStream;
+	nodeStream: NodeReadableStream;
 }
 type FetchType = keyof FetchDataMap<unknown> & {};
 
