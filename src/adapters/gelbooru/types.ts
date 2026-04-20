@@ -1,5 +1,6 @@
 import type { PostMapper } from '../../mappers/post-mapper';
 import type { TagMapper } from '../../mappers/tag-mapper';
+import type { ValuesOf } from '../../types/util';
 import type { FetchFn } from '../../utils/endpoint';
 import type { Gelbooru } from './client';
 import type { GelbooruPostDto, GelbooruTagDto } from './dto';
@@ -35,4 +36,10 @@ export interface GelbooruPostExtra {
 	postLocked: boolean;
 }
 
-export type GelbooruPostRating = 'general' | 'sensitive' | 'questionable' | 'explicit';
+export const GelbooruPostRatings = {
+	GENERAL: 'general',
+	SENSITIVE: 'sensitive',
+	QUESTIONABLE: 'questionable',
+	EXPLICIT: 'explicit',
+} as const;
+export type GelbooruPostRating = ValuesOf<typeof GelbooruPostRatings>;
