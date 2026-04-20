@@ -5,7 +5,7 @@ import type { PostMapper } from '../../mappers/post-mapper';
 import { DanbooruPostMapper } from '../../mappers/post-mapper/danbooru-post-mapper';
 import type { TagMapper } from '../../mappers/tag-mapper';
 import { DanbooruTagMapper } from '../../mappers/tag-mapper/danbooru-tag-mapper';
-import type { BooruSpec, PostUrlBuilder } from '../../types/booru';
+import type { BooruSearchOptions, BooruSpec, PostUrlBuilder } from '../../types/booru';
 import { createArrayExpecter } from '../../utils/booru';
 import { defineEndpoint, type Endpoint } from '../../utils/endpoint';
 import { fetchExt } from '../../utils/fetchExt';
@@ -97,7 +97,7 @@ export class Danbooru implements Booru<DanbooruSpec> {
 
 	async search(
 		tags: string,
-		searchOptions: DanbooruSearchOptions,
+		searchOptions: Required<BooruSearchOptions> & DanbooruSearchOptions,
 		credentials: DanbooruCredentials,
 	): Promise<Post<Danbooru>[]> {
 		const { limit, random } = searchOptions;

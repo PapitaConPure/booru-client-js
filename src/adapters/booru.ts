@@ -12,8 +12,6 @@ export const booruSpec: unique symbol = Symbol('booruSpec');
  * * {@link Tag}
  */
 export interface Booru<TSpec extends BooruSpec> {
-	readonly [booruSpec]?: TSpec;
-
 	/**Unique identifier of this booru implementation.*/
 	get name(): TSpec['name'];
 
@@ -85,4 +83,6 @@ export interface Booru<TSpec extends BooruSpec> {
 	validateCredentials(
 		credentials: TSpec['credentials'],
 	): asserts credentials is TSpec['credentials'];
+
+	readonly [booruSpec]?: TSpec;
 }

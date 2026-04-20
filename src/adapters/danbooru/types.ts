@@ -1,6 +1,5 @@
 import type { PostMapper } from '../../mappers/post-mapper';
 import type { TagMapper } from '../../mappers/tag-mapper';
-import type { BooruSearchOptions } from '../../types/booru';
 import type { FetchFn } from '../../utils/endpoint';
 import type { Danbooru } from './client';
 import type { DanbooruPostDto, DanbooruTagDto } from './dto';
@@ -19,7 +18,7 @@ export interface DanbooruCredentials {
 	login: string;
 }
 
-export interface DanbooruSearchOptions extends Required<BooruSearchOptions> {
+export interface DanbooruSearchOptions {
 	page?: number;
 	order?: 'id' | 'score' | 'favcount' | 'random';
 	rating?: string;

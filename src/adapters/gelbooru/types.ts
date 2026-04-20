@@ -1,6 +1,5 @@
 import type { PostMapper } from '../../mappers/post-mapper';
 import type { TagMapper } from '../../mappers/tag-mapper';
-import type { BooruSearchOptions } from '../../types/booru';
 import type { FetchFn } from '../../utils/endpoint';
 import type { Gelbooru } from './client';
 import type { GelbooruPostDto, GelbooruTagDto } from './dto';
@@ -19,7 +18,7 @@ export interface GelbooruCredentials {
 	userId: string;
 }
 
-export interface GelbooruSearchOptions extends Required<BooruSearchOptions> {
+export interface GelbooruSearchOptions {
 	pid?: number;
 	sort?: string;
 	order?: 'asc' | 'desc';

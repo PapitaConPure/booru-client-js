@@ -5,7 +5,7 @@ import type { PostMapper } from '../../mappers/post-mapper';
 import { GelbooruPostMapper } from '../../mappers/post-mapper/gelbooru-post-mapper';
 import type { TagMapper } from '../../mappers/tag-mapper';
 import { GelbooruTagMapper } from '../../mappers/tag-mapper/gelbooru-tag-mapper';
-import type { BooruSpec, PostUrlBuilder } from '../../types/booru';
+import type { BooruSearchOptions, BooruSpec, PostUrlBuilder } from '../../types/booru';
 import { createArrayExpecter } from '../../utils/booru';
 import { defineEndpoint, type Endpoint } from '../../utils/endpoint';
 import { fetchExt } from '../../utils/fetchExt';
@@ -98,7 +98,7 @@ export class Gelbooru implements Booru<GelbooruSpec> {
 
 	async search(
 		tags: string,
-		searchOptions: GelbooruSearchOptions,
+		searchOptions: Required<BooruSearchOptions> & GelbooruSearchOptions,
 		credentials: GelbooruCredentials,
 	): Promise<Post<Gelbooru>[]> {
 		const { limit, random } = searchOptions;
