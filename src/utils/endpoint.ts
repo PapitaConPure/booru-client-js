@@ -2,9 +2,17 @@ import { type FetchResult, fetchExt } from './fetchExt';
 
 export type FetchFn = typeof fetchExt;
 
+export type QueryParameter =
+	| number
+	| string
+	| boolean
+	| null
+	| undefined
+	| readonly (string | number | boolean)[];
+
 export interface Endpoint {
 	request<TSchema>(
-		params: Record<string, unknown>,
+		params: Record<string, QueryParameter>,
 		init?: RequestInit,
 	): Promise<FetchResult<TSchema>>;
 }
