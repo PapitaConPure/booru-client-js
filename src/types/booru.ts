@@ -87,33 +87,12 @@ export interface BooruSpec<TSelf extends AnyBooru = AnyBooru> {
 	postExtra: unknown;
 }
 
-export type NameOf<TBooru extends AnyBooru> = TBooru extends { [booruSpec]?: infer TSpec }
-	? // biome-ignore lint/suspicious/noExplicitAny: TSelf is irrelevant here; we only extract from TSpec
-		TSpec extends BooruSpec<any>
-		? TSpec['name']
-		: never
-	: never;
+type SpecOf<TBooru> = TBooru extends { readonly [booruSpec]?: infer TSpec } ? TSpec : never;
 
-export type CredentialsOf<TBooru extends AnyBooru> = TBooru extends { [booruSpec]?: infer TSpec }
-	? // biome-ignore lint/suspicious/noExplicitAny: TSelf is irrelevant here; we only extract from TSpec
-		TSpec extends BooruSpec<any>
-		? TSpec['credentials']
-		: never
-	: never;
-
-export type SearchOptionsOf<TBooru extends AnyBooru> = TBooru extends { [booruSpec]?: infer TSpec }
-	? // biome-ignore lint/suspicious/noExplicitAny: TSelf is irrelevant here; we only extract from TSpec
-		TSpec extends BooruSpec<any>
-		? TSpec['searchOptions']
-		: never
-	: never;
-
-export type PostExtraOf<TBooru extends AnyBooru> = TBooru extends { [booruSpec]?: infer TSpec }
-	? // biome-ignore lint/suspicious/noExplicitAny: TSelf is irrelevant here; we only extract from TSpec
-		TSpec extends BooruSpec<any>
-		? TSpec['postExtra']
-		: never
-	: never;
+export type NameOf<TBooru extends AnyBooru> = SpecOf<TBooru>['name'];
+export type CredentialsOf<TBooru extends AnyBooru> = SpecOf<TBooru>['credentials'];
+export type SearchOptionsOf<TBooru extends AnyBooru> = SpecOf<TBooru>['searchOptions'];
+export type PostExtraOf<TBooru extends AnyBooru> = SpecOf<TBooru>['postExtra'];
 
 export type TagFetchApproach = (names: string[]) => Promise<Tag[]>;
 
