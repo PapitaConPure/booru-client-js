@@ -1,5 +1,6 @@
 import type { PostMapper } from '../../mappers/post-mapper';
 import type { TagMapper } from '../../mappers/tag-mapper';
+import type { ValuesOf } from '../../types/util';
 import type { FetchFn } from '../../utils/endpoint';
 import type { Danbooru } from './client';
 import type { DanbooruPostDto, DanbooruTagDto } from './dto';
@@ -23,28 +24,43 @@ export interface DanbooruCredentials {
 export interface DanbooruSearchOptions {
 	random?: boolean;
 	page?: number;
-	order?: DanbooruQueryPostOrder;
-	rating?: DanbooruPostRating;
-	params?: Record<string, unknown>;
+	md5?: string;
+	raw?: boolean;
 }
 
 export interface DanbooruPostExtra {
-	favCount: number;
+	parentId: number | null;
+	md5?: string;
+	approverId?: number | null;
 	fileExt: string;
 	fileSize: number;
-	md5: string;
-	parentId?: string;
-	hasChildren: boolean;
-	isDeleted: boolean;
+	upScore: number;
+	downScore: number;
+	favCount: number;
 	isPending: boolean;
 	isFlagged: boolean;
-	uploaderId: number;
-	tagStringGeneral: string;
-	tagStringCharacter: string;
-	tagStringCopyright: string;
-	tagStringArtist: string;
+	isDeleted: boolean;
+	tagCount: number;
+	tagCountGeneral: number;
+	tagCountArtist: number;
+	tagCountCopyright: number;
+	tagCountCharacter: number;
+	tagCountMeta: number;
+	lastCommentedAt?: Date;
+	lastCommentBumpedAt?: Date;
+	lastNotedAt: string | null;
+	hasChildren: boolean;
+	hasActiveChildren: boolean;
+	pixivId: number | null;
+	bitFlags: bigint;
+	updatedAt: string;
+	hasLarge: boolean;
 }
 
-export type DanbooruQueryPostOrder = 'id' | 'score' | 'favcount' | 'random';
-
-export type DanbooruPostRating = 'g' | 's' | 'q' | 'e';
+export const DanbooruPostRatings = {
+	GENERAL: 'g',
+	SENSITIVE: 's',
+	QUESTIONABLE: 'q',
+	EXPLICIT: 'e',
+} as const;
+export type DanbooruPostRating = ValuesOf<typeof DanbooruPostRatings>;
