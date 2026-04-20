@@ -38,6 +38,15 @@ export class GelbooruPostMapper implements PostMapper<GelbooruPostDto, Gelbooru>
 				dto.sample_width != null && dto.sample_height != null
 					? [dto.sample_width, dto.sample_height]
 					: undefined,
+			extra: {
+				md5: dto.md5,
+				directory: dto.directory,
+				imageName: dto.image,
+				parentId: dto.parent_id,
+				change: dto.change,
+				ownerName: dto.owner,
+				postLocked: !!dto.post_locked,
+			}
 		});
 	}
 }
