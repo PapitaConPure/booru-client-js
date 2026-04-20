@@ -5,8 +5,8 @@ const gelbooru = new Gelbooru();
 
 //Create a Booru client with the adapter and our credentials
 const client = new BooruClient(gelbooru, {
-	apiKey: process.env.TEST_GELBOORU_APIKEY!,
-	userId: process.env.TEST_GELBOORU_USERID!,
+	apiKey: process.env.TEST_GELBOORU_APIKEY as string,
+	userId: process.env.TEST_GELBOORU_USERID as string,
 });
 
 //Return 5 random posts containing the tag "megumin" and a "General" content rating
