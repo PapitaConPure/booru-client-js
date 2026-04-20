@@ -9,6 +9,7 @@ import type { BooruSearchOptions, BooruSpec, PostUrlBuilder } from '../../types/
 import { createArrayExpecter } from '../../utils/booru';
 import { defineEndpoint, type Endpoint } from '../../utils/endpoint';
 import { fetchExt } from '../../utils/fetchExt';
+import { toUnix } from '../../utils/misc';
 import { type Booru, booruSpec } from '../booru';
 import type {
 	GelbooruPostDto,
@@ -99,14 +100,22 @@ export class Gelbooru implements Booru<GelbooruSpec> {
 		searchOptions: Required<BooruSearchOptions> & GelbooruSearchOptions,
 		credentials: GelbooruCredentials,
 	): Promise<Post<Gelbooru>[]> {
-		const { limit } = searchOptions;
+		const { cid, ...directSearchOptions } = searchOptions;
 		const { apiKey, userId } = credentials;
+
+		const cidParam =
+			typeof cid === 'number'
+				? cid //← Assumes proper Date timestamp number before unix conversion
+				: cid
+					? toUnix(cid)
+					: undefined;
 
 		const fetchResult = await this.#apiPostsEndpoint.request<GelbooruPostsResponseDto>({
 			tags: tags,
 			api_key: apiKey,
 			user_id: userId,
-			limit: limit,
+			...(cid != null ? { cid: cidParam } : {}),
+			...directSearchOptions,
 		});
 
 		const postDtos = Gelbooru.#expectPosts(fetchResult, { dontThrowOnEmptyFetch: true });
