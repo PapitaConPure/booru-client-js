@@ -100,18 +100,13 @@ export class Danbooru implements Booru<DanbooruSpec> {
 		searchOptions: Required<BooruSearchOptions> & DanbooruSearchOptions,
 		credentials: DanbooruCredentials,
 	): Promise<Post<Danbooru>[]> {
-		const { limit, page, md5, raw } = searchOptions;
 		const { apiKey, login } = credentials;
 
 		const fetchResult = await this.#apiPostsEndpoint.request<DanbooruPostsResponseDto>({
 			api_key: apiKey,
 			login: login,
-			limit: limit,
 			tags: tags,
-			...(limit != null ? { limit } : {}),
-			...(page != null ? { page } : {}),
-			...(md5 != null ? { md5 } : {}),
-			...(raw != null ? { raw } : {}),
+			...searchOptions,
 		});
 
 		const postDtos = Danbooru.#expectPosts(fetchResult, { dontThrowOnEmptyFetch: true });
