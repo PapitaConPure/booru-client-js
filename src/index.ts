@@ -1,19 +1,30 @@
 export * from './adapters/booru';
 export * from './adapters/danbooru/client';
 export * from './adapters/gelbooru/client';
+
 export * from './domain/post';
 export * from './domain/post-rating';
 export * from './domain/tag';
+export * from './domain/tag-type';
+
 export * from './errors/booru';
 export * from './errors/misc';
+
 export * from './mappers/post-mapper';
 export * from './mappers/post-mapper/danbooru-post-mapper';
 export * from './mappers/post-mapper/gelbooru-post-mapper';
+
 export * from './mappers/tag-mapper';
 export * from './mappers/tag-mapper/danbooru-tag-mapper';
 export * from './mappers/tag-mapper/gelbooru-tag-mapper';
+
 export * from './services/booru-client';
+
 export * from './stores/memory-tag-store';
 export * from './stores/tag-store';
+
 export * from './types/booru';
+
+export * from './utils/booru';
+export * from './utils/encoding';
 export * from './utils/endpoint';
