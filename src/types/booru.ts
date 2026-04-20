@@ -1,8 +1,8 @@
 import type { Booru, booruSpec } from '../adapters/booru';
 import type { PostRating } from '../domain/post-rating';
 import type { Tag } from '../domain/tag';
+import type { TagType } from '../domain/tag-type';
 import type { TagStore } from '../stores/tag-store';
-import type { ValuesOf } from './util';
 
 export interface TagResolutionOptions {
 	/**Allows to define a custom {@link TagStore} chain from which to fetch {@link Tag}s. By default: `[`{@linkcode MemoryTagStore}`]` (cache only).*/
@@ -70,18 +70,6 @@ export interface PostInit<TBooru extends AnyBooru = AnyBooru> {
 	sampleSize?: [number, number];
 	extra?: PostExtraOf<TBooru>;
 }
-
-export const TagTypes = {
-	GENERAL: 0,
-	ARTIST: 1,
-	UNKNOWN: 2,
-	COPYRIGHT: 3,
-	CHARACTER: 4,
-	METADATA: 5,
-	DEPRECATED: 6,
-} as const satisfies Record<string, number>;
-export type TagType = ValuesOf<typeof TagTypes>;
-export const ValidTagTypes = new Set<TagType>(Object.values(TagTypes));
 
 export interface TagInit {
 	id: string;

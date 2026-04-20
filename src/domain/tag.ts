@@ -1,5 +1,6 @@
-import { type TagInit, type TagType, TagTypes } from '../types/booru';
+import type { TagInit } from '../types/booru';
 import { parseValidDate } from '../utils/misc';
+import { type TagType, TagTypes } from './tag-type';
 
 const TagTypeNames: Record<TagType, string> = {
 	[TagTypes.GENERAL]: 'General',

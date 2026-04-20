@@ -4,7 +4,7 @@ import {
 	type DanbooruTagDto,
 } from '../../adapters/danbooru/dto';
 import { Tag } from '../../domain/tag';
-import { type TagType, TagTypes } from '../../types/booru';
+import { type TagType, TagTypes } from '../../domain/tag-type';
 import type { TagMapper } from '../tag-mapper';
 
 const danbooruTagTypesMap = {

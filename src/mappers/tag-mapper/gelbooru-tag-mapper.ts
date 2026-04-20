@@ -4,7 +4,7 @@ import {
 	GelbooruTagTypes,
 } from '../../adapters/gelbooru/dto';
 import { Tag } from '../../domain/tag';
-import { type TagType, TagTypes } from '../../types/booru';
+import { type TagType, TagTypes } from '../../domain/tag-type';
 import type { TagMapper } from '../tag-mapper';
 
 const gelbooruTagTypesMap = {
