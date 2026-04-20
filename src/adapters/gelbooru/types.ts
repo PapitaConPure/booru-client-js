@@ -29,11 +29,11 @@ export interface GelbooruPostExtra {
 	favCount?: number;
 	md5?: string;
 	directory?: string;
-	image: string;
+	imageName: string;
 	parentId?: string;
 	change?: number;
 	owner?: string;
-	sourceRaw?: string;
+	postLocked: boolean;
 }
 
 export type GelbooruQueryPostOrder = 'asc' | 'desc';
