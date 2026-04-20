@@ -38,8 +38,6 @@ interface GelbooruSpec extends BooruSpec<Gelbooru> {
  * @see https://gelbooru.com/index.php?page=wiki&s=view&id=18780
  */
 export class Gelbooru implements Booru<GelbooruSpec> {
-	readonly [booruSpec]!: GelbooruSpec;
-
 	/**Base URL for Gelbooru's API endpoints.*/
 	static readonly API_BASE_URL = 'https://gelbooru.com/index.php';
 
@@ -236,4 +234,6 @@ export class Gelbooru implements Booru<GelbooruSpec> {
 		createUnknownError: ({ booruName, fetchResult, context }) =>
 			new BooruUnknownTagError({ booruName, fetchResult, tags: context }),
 	});
+
+	readonly [booruSpec]!: GelbooruSpec;
 }

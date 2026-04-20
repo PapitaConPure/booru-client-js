@@ -39,8 +39,6 @@ interface DanbooruSpec extends BooruSpec<Danbooru> {
  * @see https://danbooru.donmai.us/wiki_pages/help:api
  */
 export class Danbooru implements Booru<DanbooruSpec> {
-	[booruSpec]!: DanbooruSpec;
-
 	/**Base URL for Danbooru's API.*/
 	static readonly API_BASE_URL = 'https://danbooru.donmai.us';
 
@@ -246,4 +244,6 @@ export class Danbooru implements Booru<DanbooruSpec> {
 		createUnknownError: ({ booruName, fetchResult, context }) =>
 			new BooruUnknownTagError({ booruName, fetchResult, tags: context }),
 	});
+
+	[booruSpec]!: DanbooruSpec;
 }
