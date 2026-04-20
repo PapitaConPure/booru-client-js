@@ -82,12 +82,9 @@ export class Konachan implements Booru<KonachanSpec> {
 		tags: string,
 		searchOptions: Required<BooruSearchOptions> & KonachanSearchOptions,
 	): Promise<Post<Konachan>[]> {
-		const { limit, page } = searchOptions;
-
 		const result = await this.#apiPostsEndpoint.request<KonachanPostsResponseDto>({
 			tags,
-			limit,
-			page,
+			...searchOptions,
 		});
 
 		const postDtos = Konachan.#expectPosts(result);
