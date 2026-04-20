@@ -1,3 +1,4 @@
+import 'node';
 import { default as stream } from 'node:stream';
 import type { ReadableStream as WebReadableStream } from 'node:stream/web';
 
