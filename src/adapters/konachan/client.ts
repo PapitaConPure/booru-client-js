@@ -3,99 +3,172 @@
 import type { Post } from '../../domain/post';
 import type { Tag } from '../../domain/tag';
 import { BooruUnknownPostError, BooruUnknownTagError } from '../../errors/booru';
-import type { BooruSearchOptions, BooruSpec } from '../../types/booru';
-import { createArrayExpecter } from '../../utils/booru';
+import type { PostMapper } from '../../mappers/post-mapper';
+import { KonachanPostMapper } from '../../mappers/post-mapper/konachan-post-mapper';
+import type { TagMapper } from '../../mappers/tag-mapper';
+import { DanbooruTagMapper } from '../../mappers/tag-mapper/danbooru-tag-mapper';
+import type { BooruSearchOptions, BooruSpec, PostUrlBuilder } from '../../types/booru';
+import { createArrayExpecter, createEntityExpecter } from '../../utils/booru';
 import { defineEndpoint, type Endpoint } from '../../utils/endpoint';
+import { fetchExt } from '../../utils/fetchExt';
 import { type Booru, booruSpec } from '../booru';
 import type {
-	DanbooruPostDto,
-	DanbooruPostsResponseDto,
 	DanbooruTagDto,
 	DanbooruTagsResponseDto,
 } from '../danbooru/dto';
-import type { DanbooruCredentials } from '../danbooru/types';
-import type { KonachanSearchOptions } from './types';
+import type { KonachanPostDto, KonachanPostsResponseDto } from './dto';
+import type {
+	KonachanCredentials,
+	KonachanOptions,
+	KonachanPostExtra,
+	KonachanSearchOptions,
+} from './types';
 
 const booruName = 'konachan' as const;
 
 interface KonachanSpec extends BooruSpec<Konachan> {
 	name: typeof booruName;
-	credentials: DanbooruCredentials;
+	credentials: KonachanCredentials;
 	searchOptions: KonachanSearchOptions;
-	postExtra: unknown;
+	postExtra: KonachanPostExtra;
 }
 
-export class Konachan
-	implements
-		Booru<{
-			self: Konachan;
-			name: typeof booruName;
-			credentials: DanbooruCredentials;
-			searchOptions: KonachanSearchOptions;
-			postExtra: unknown;
-		}>
-{
-	static readonly API_BASE_URL = '';
+//TODO: Consider a DanbooruLike/MoebooruBased abstraction for Konachan, Yande.re, etc. because it's getting silly
 
-	readonly #postsEndpoint: Endpoint;
-	readonly #tagsEndpoint: Endpoint;
+export class Konachan implements Booru<KonachanSpec> {
+	static readonly API_BASE_URL = 'https://konachan.com/';
 
-	constructor() {
-		this.#postsEndpoint = defineEndpoint('get', '');
-		this.#tagsEndpoint = defineEndpoint('get', '');
+	/**Builds a canonical post URL from a post ID.*/
+	static readonly postUrlBuilder: PostUrlBuilder = (postId) =>
+		`https://konachan.com.us/post/${postId}`;
+
+	readonly #postMapper: PostMapper<KonachanPostDto, Konachan>;
+	readonly #tagMapper: TagMapper<DanbooruTagDto>;
+	readonly #apiPostsEndpoint: Endpoint;
+	readonly #apiTagsEndpoint: Endpoint;
+
+	constructor(options: KonachanOptions = {}) {
+		const {
+			postMapper = new KonachanPostMapper(),
+			tagMapper = new DanbooruTagMapper(),
+			fetchFn = fetchExt,
+		} = options;
+
+		this.#postMapper = postMapper;
+		this.#tagMapper = tagMapper;
+
+		this.#apiPostsEndpoint = defineEndpoint(
+			'get',
+			new URL('post.json', Konachan.API_BASE_URL),
+			{},
+			{ fetchFn },
+		);
+
+		this.#apiTagsEndpoint = defineEndpoint(
+			'get',
+			new URL('tag.json', Konachan.API_BASE_URL),
+			{},
+			{ fetchFn },
+		);
 	}
 
 	get name(): 'konachan' {
-		throw new Error('Method not implemented.');
+		return booruName;
 	}
 
 	async search(
 		tags: string,
 		searchOptions: Required<BooruSearchOptions> & KonachanSearchOptions,
-		credentials: DanbooruCredentials,
 	): Promise<Post<Konachan>[]> {
 		const { limit, random } = searchOptions;
-		const { apiKey, login } = credentials;
 
-		const result = await this.#postsEndpoint.request<DanbooruPostsResponseDto>({
-			api_key: apiKey,
-			login,
+		const result = await this.#apiPostsEndpoint.request<KonachanPostsResponseDto>({
 			tags,
 			limit,
 			random: random ? 1 : 0,
 		});
 
+		console.log(result);
+
 		const postDtos = Konachan.#expectPosts(result);
-		const posts = postDtos as unknown as Post<Konachan>[]; //TODO: Konachan Mapper
+		const posts = postDtos.map((dto) => this.#postMapper.fromDto(dto));
 
 		return posts;
 	}
 
-	fetchPostById(
-		postId: string,
-		credentials: DanbooruCredentials,
-	): Promise<Post<Konachan> | undefined> {
-		throw new Error('Method not implemented.');
+	async fetchPostById(postId: string): Promise<Post<Konachan> | undefined> {
+		const url = new URL(`posts/${postId}.json`, Konachan.API_BASE_URL);
+
+		const response = await fetchExt<KonachanPostDto | undefined>(url, {
+			type: 'json',
+			init: {
+				signal: AbortSignal.timeout(10_000),
+			},
+		});
+
+		const postDto = Konachan.#expectPost(response, { dontThrowOnEmptyFetch: true });
+
+		if (postDto == null) return undefined;
+
+		return this.#postMapper.fromDto(postDto);
 	}
 
-	fetchPostByUrl(
-		postUrl: URL,
-		credentials: DanbooruCredentials,
-	): Promise<Post<Konachan> | undefined> {
-		throw new Error('Method not implemented.');
+	async fetchPostByUrl(postUrl: URL): Promise<Post<Konachan> | undefined> {
+		const match = postUrl.pathname.match(/\/posts\/(\d+)/);
+		if (!match) throw new TypeError('Invalid Danbooru post URL');
+
+		const postId = match[1];
+
+		const url = new URL(`posts/${postId}.json`, Konachan.API_BASE_URL);
+
+		const response = await fetchExt<KonachanPostDto | undefined>(url, {
+			type: 'json',
+			init: {
+				signal: AbortSignal.timeout(10_000),
+			},
+		});
+
+		const postDto = Konachan.#expectPost(response, { dontThrowOnEmptyFetch: true });
+
+		if (postDto == null) return undefined;
+
+		return this.#postMapper.fromDto(postDto);
 	}
 
-	fetchTagsByNames(names: Iterable<string>, credentials: DanbooruCredentials): Promise<Tag[]> {
-		throw new Error('Method not implemented.');
+	async fetchTagsByNames(names: Iterable<string>): Promise<Tag[]> {
+		const namesArr: string[] = Array.isArray(names) ? names : [...names];
+
+		const fetchedTags: Tag[] = [];
+
+		for (let i = 0; i < namesArr.length; i += 100) {
+			const namesBatch = namesArr.slice(i, i + 100).join(' ');
+
+			const response = await this.#apiTagsEndpoint.request<
+				DanbooruTagsResponseDto | undefined
+			>({
+				'search[name_space]': namesBatch,
+			});
+
+			const tagDtos = Konachan.#expectTags(response, { context: namesBatch });
+			const tags = tagDtos.map((dto) => this.#tagMapper.fromDto(dto));
+			fetchedTags.push(...tags);
+		}
+
+		return fetchedTags;
 	}
 
 	validateCredentials(
-		credentials: DanbooruCredentials,
-	): asserts credentials is DanbooruCredentials {
-		throw new Error('Method not implemented.');
-	}
+		_credentials: KonachanCredentials,
+	): asserts _credentials is KonachanCredentials {}
 
-	static #expectPosts = createArrayExpecter<DanbooruPostsResponseDto, DanbooruPostDto>({
+	static #expectPost = createEntityExpecter<KonachanPostDto>({
+		booruName,
+		entity: 'post',
+		extract: (data) => data,
+		createUnknownError: () => new BooruUnknownPostError(''),
+	});
+
+	static #expectPosts = createArrayExpecter<KonachanPostsResponseDto, KonachanPostDto>({
 		booruName,
 		entity: 'posts',
 		extract: (data) => data,
@@ -106,7 +179,8 @@ export class Konachan
 		booruName,
 		entity: 'tags',
 		extract: (data) => data,
-		createUnknownError: () => new BooruUnknownTagError({ booruName }),
+		createUnknownError: ({ fetchResult, context }) =>
+			new BooruUnknownTagError({ booruName, fetchResult, tags: context }),
 	});
 
 	[booruSpec]!: KonachanSpec;
