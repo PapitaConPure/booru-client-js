@@ -22,7 +22,7 @@ export interface GelbooruSearchOptions {
 	/**The page number.*/
 	pid?: number;
 	/**Change ID of the post. This is in Unix time so there are likely others with the same value if updated at the same time.*/
-	cid?: number | Date,
+	cid?: number | Date;
 }
 
 export interface GelbooruPostExtra {
