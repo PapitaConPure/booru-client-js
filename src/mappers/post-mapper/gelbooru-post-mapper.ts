@@ -46,7 +46,7 @@ export class GelbooruPostMapper implements PostMapper<GelbooruPostDto, Gelbooru>
 				change: dto.change,
 				ownerName: dto.owner,
 				postLocked: !!dto.post_locked,
-			}
+			},
 		});
 	}
 }

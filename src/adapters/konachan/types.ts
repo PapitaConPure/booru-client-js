@@ -16,7 +16,7 @@ export interface KonachanCredentials extends Record<string, never> {}
 
 export interface KonachanSearchOptions {
 	page?: number;
-};
+}
 
 export interface KonachanPostExtra extends DanbooruPostExtra {}
 
