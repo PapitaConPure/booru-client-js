@@ -30,7 +30,7 @@ export interface GelbooruPostExtra {
 	directory?: string;
 	imageName: string;
 	parentId?: number;
-	change?: number;
+	change?: Date;
 	ownerName?: string;
 	postLocked: boolean;
 }

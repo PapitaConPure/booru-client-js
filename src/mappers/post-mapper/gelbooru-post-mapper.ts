@@ -43,7 +43,7 @@ export class GelbooruPostMapper implements PostMapper<GelbooruPostDto, Gelbooru>
 				directory: dto.directory,
 				imageName: dto.image,
 				parentId: dto.parent_id,
-				change: dto.change,
+				change: dto.change != null ? new Date(dto.change * 1e3) : undefined,
 				ownerName: dto.owner,
 				postLocked: !!dto.post_locked,
 			},
