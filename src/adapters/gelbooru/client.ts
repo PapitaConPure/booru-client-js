@@ -217,11 +217,8 @@ export class Gelbooru implements Booru<GelbooruSpec> {
 		booruName: this.name,
 		entity: 'posts',
 		extract: (data) => data?.post,
-		createUnknownError: ({ fetchResult }) =>
-			new BooruUnknownPostError(
-				`Couldn't fetch posts from Gelbooru API.\nReceived: ${JSON.stringify(fetchResult)}`,
-				{ cause: fetchResult },
-			),
+		createUnknownError: ({ booruName, fetchResult, context }) =>
+			new BooruUnknownPostError({ booruName, fetchResult, posts: context }),
 	});
 
 	/**

@@ -19,9 +19,31 @@ export class BooruFetchError extends BooruError {
 
 /**Thrown when a requested {@link Post} cannot be found or resolved.*/
 export class BooruUnknownPostError extends BooruError {
-	constructor(message: string, options?: ErrorOptions) {
-		super(message, options);
+	posts?: unknown;
+	data?: unknown;
+
+	constructor(
+		options: {
+			booruName?: string;
+			fetchResult?: FetchSuccessResult<unknown>;
+			posts?: unknown;
+		} = {},
+	) {
+		const { booruName = 'a booru adapter', fetchResult, posts } = options;
+
+		super(
+			[
+				`Couldn't fetch posts from ${booruName}.`,
+				posts && `Tried to fetch: ${posts}`,
+				'Received:',
+				stringify(fetchResult?.data),
+			]
+				.filter((t) => t)
+				.join('\n'),
+		);
 		this.name = BooruUnknownPostError.name;
+		this.posts = posts;
+		this.data = fetchResult?.data;
 	}
 }
 

@@ -1,12 +1,12 @@
 import type { Post } from '../../domain/post';
 import type { Tag } from '../../domain/tag';
-import { BooruFetchError, BooruUnknownPostError, BooruUnknownTagError } from '../../errors/booru';
+import { BooruUnknownPostError, BooruUnknownTagError } from '../../errors/booru';
 import type { PostMapper } from '../../mappers/post-mapper';
 import { DanbooruPostMapper } from '../../mappers/post-mapper/danbooru-post-mapper';
 import type { TagMapper } from '../../mappers/tag-mapper';
 import { DanbooruTagMapper } from '../../mappers/tag-mapper/danbooru-tag-mapper';
 import type { BooruSearchOptions, BooruSpec, PostUrlBuilder } from '../../types/booru';
-import { createArrayExpecter } from '../../utils/booru';
+import { createArrayExpecter, createEntityExpecter } from '../../utils/booru';
 import { defineEndpoint, type Endpoint } from '../../utils/endpoint';
 import { fetchExt } from '../../utils/fetchExt';
 import { type Booru, booruSpec } from '../booru';
@@ -132,15 +132,11 @@ export class Danbooru implements Booru<DanbooruSpec> {
 			},
 		});
 
-		if (!response.success)
-			throw new BooruFetchError(
-				`Danbooru post fetch via ID failed: ${response.error.name} ${response.error.message || ''}`,
-				{ cause: response.error },
-			);
+		const postDto = Danbooru.#expectPost(response, { dontThrowOnEmptyFetch: true });
 
-		if (!response.data) return undefined;
+		if (postDto == null) return undefined;
 
-		return this.#postMapper.fromDto(response.data);
+		return this.#postMapper.fromDto(postDto);
 	}
 
 	async fetchPostByUrl(
@@ -165,15 +161,11 @@ export class Danbooru implements Booru<DanbooruSpec> {
 			},
 		});
 
-		if (!response.success)
-			throw new BooruFetchError(
-				`Danbooru post fetch via URL failed: ${response.error.name} ${response.error.message || ''}`,
-				{ cause: response.error },
-			);
+		const postDto = Danbooru.#expectPost(response, { dontThrowOnEmptyFetch: true });
 
-		if (!response.data) return undefined;
+		if (postDto == null) return undefined;
 
-		return this.#postMapper.fromDto(response.data);
+		return this.#postMapper.fromDto(postDto);
 	}
 
 	async fetchTagsByNames(
@@ -212,6 +204,14 @@ export class Danbooru implements Booru<DanbooruSpec> {
 		if (!credentials.login || typeof credentials.login !== 'string')
 			throw new TypeError('User ID is invalid');
 	}
+		
+	static #expectPost = createEntityExpecter<DanbooruPostDto>({
+		booruName,
+		entity: 'post',
+		extract: (data) => data,
+		createUnknownError: ({ booruName, fetchResult, context }) =>
+			new BooruUnknownPostError({ booruName, fetchResult, posts: context }),
+	});
 
 	/**
 	 * Asserts that the status code of a response is 200 and that the {@link Post} data is valid before returning it.
@@ -222,11 +222,8 @@ export class Danbooru implements Booru<DanbooruSpec> {
 		booruName: this.name,
 		entity: 'posts',
 		extract: (data) => data,
-		createUnknownError: ({ fetchResult }) =>
-			new BooruUnknownPostError(
-				`Couldn't fetch posts from Danbooru API.\nReceived: ${JSON.stringify(fetchResult)}`,
-				{ cause: fetchResult },
-			),
+		createUnknownError: ({ booruName, fetchResult, context }) =>
+			new BooruUnknownPostError({ booruName, fetchResult, posts: context }),
 	});
 
 	/**

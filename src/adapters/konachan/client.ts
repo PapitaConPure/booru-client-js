@@ -176,22 +176,16 @@ export class Konachan implements Booru<KonachanSpec> {
 		booruName,
 		entity: 'post',
 		extract: (data) => data,
-		createUnknownError: ({ fetchResult }) =>
-			new BooruUnknownPostError(
-				`Couldn't fetch a post from Konachan API.\nReceived: ${JSON.stringify(fetchResult)}`,
-				{ cause: fetchResult },
-			),
+		createUnknownError: ({ booruName, fetchResult, context }) =>
+			new BooruUnknownPostError({ booruName, fetchResult, posts: context }),
 	});
 
 	static #expectPosts = createArrayExpecter<KonachanPostsResponseDto, KonachanPostDto>({
 		booruName,
 		entity: 'posts',
 		extract: (data) => data,
-		createUnknownError: ({ fetchResult }) =>
-			new BooruUnknownPostError(
-				`Couldn't fetch posts from Konachan API.\nReceived: ${JSON.stringify(fetchResult)}`,
-				{ cause: fetchResult },
-			),
+		createUnknownError: ({ booruName, fetchResult, context }) =>
+			new BooruUnknownPostError({ booruName, fetchResult, posts: context }),
 	});
 
 	static #expectTags = createArrayExpecter<KonachanTagsResponseDto, KonachanTagDto>({
