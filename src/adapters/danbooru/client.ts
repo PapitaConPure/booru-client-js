@@ -39,8 +39,14 @@ interface DanbooruSpec extends BooruSpec<Danbooru> {
  * @see https://danbooru.donmai.us/wiki_pages/help:api
  */
 export class Danbooru implements Booru<DanbooruSpec> {
-	/**Base URL for Danbooru's API.*/
-	static readonly API_BASE_URL = 'https://danbooru.donmai.us';
+	/**Base URL for Danbooru's main API.*/
+	static readonly API_BASE_MAIN_DOMAIN = 'https://danbooru.donmai.us';
+
+	/**Base URL for Danbooru's test API.*/
+	static readonly API_BASE_TEST_DOMAIN = 'https://testbooru.donmai.us';
+
+	/**Base URL for the Danbooru API that this instance connects to.*/
+	readonly apiBaseUrl: string;
 
 	/**Builds a canonical post URL from a post ID.*/
 	static readonly POST_URL_BUILDER: PostUrlBuilder = (postId) =>
@@ -62,28 +68,33 @@ export class Danbooru implements Booru<DanbooruSpec> {
 			postMapper = new DanbooruPostMapper(),
 			tagMapper = new DanbooruTagMapper(),
 			fetchFn = fetchExt,
+			useTestDomain = false,
 		} = options;
+
+		this.apiBaseUrl = useTestDomain
+			? Danbooru.API_BASE_TEST_DOMAIN
+			: Danbooru.API_BASE_MAIN_DOMAIN;
 
 		this.#postMapper = postMapper;
 		this.#tagMapper = tagMapper;
 
 		this.#apiPostsEndpoint = defineEndpoint(
 			'get',
-			`${Danbooru.API_BASE_URL}/posts.json`,
+			`${this.apiBaseUrl}/posts.json`,
 			{},
 			{ fetchFn },
 		);
 
 		this.#apiRandomPostsEndpoint = defineEndpoint(
 			'get',
-			`${Danbooru.API_BASE_URL}/posts/random.json`,
+			`${this.apiBaseUrl}/posts/random.json`,
 			{},
 			{ fetchFn },
 		);
 
 		this.#apiTagsEndpoint = defineEndpoint(
 			'get',
-			`${Danbooru.API_BASE_URL}/tags.json`,
+			`${this.apiBaseUrl}/tags.json`,
 			{},
 			{ fetchFn },
 		);
@@ -124,7 +135,7 @@ export class Danbooru implements Booru<DanbooruSpec> {
 	): Promise<Post<Danbooru> | undefined> {
 		const { apiKey, login } = credentials;
 
-		const url = new URL(`posts/${postId}.json`, Danbooru.API_BASE_URL);
+		const url = new URL(`posts/${postId}.json`, this.apiBaseUrl);
 		url.searchParams.set('api_key', apiKey);
 		url.searchParams.set('login', login);
 
@@ -157,7 +168,7 @@ export class Danbooru implements Booru<DanbooruSpec> {
 
 		const postId = match[1];
 
-		const url = new URL(`posts/${postId}.json`, Danbooru.API_BASE_URL);
+		const url = new URL(`posts/${postId}.json`, this.apiBaseUrl);
 		url.searchParams.set('api_key', apiKey);
 		url.searchParams.set('login', login);
 

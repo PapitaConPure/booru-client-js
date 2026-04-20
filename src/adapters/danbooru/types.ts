@@ -11,6 +11,8 @@ export interface DanbooruOptions {
 	tagMapper?: TagMapper<DanbooruTagDto>;
 	/**Fetch implementation used for API requests.*/
 	fetchFn?: FetchFn;
+	/**Whether to make API calls to the test domain (`true`) or to the actual main site domain (`false`, default).*/
+	useTestDomain?: boolean;
 }
 
 export interface DanbooruCredentials {
