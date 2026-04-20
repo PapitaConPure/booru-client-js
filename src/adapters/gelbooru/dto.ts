@@ -1,6 +1,14 @@
 import type { BooleanString, ValuesOf } from '../../types/util';
 import type { GelbooruPostRating } from './types';
 
+export const GelbooruPostStatuses = {
+	ACTIVE: 'active',
+	PENDING: 'pending',
+	DELETED: 'deleted',
+	FLAGGED: 'flagged',
+} as const;
+export type GelbooruPostStatus = ValuesOf<typeof GelbooruPostStatuses>;
+
 export interface GelbooruPostDto {
 	id: number;
 	title: string;
@@ -22,6 +30,8 @@ export interface GelbooruPostDto {
 	has_notes?: BooleanString;
 	has_comments?: BooleanString;
 	has_children?: BooleanString;
+	status: GelbooruPostStatus;
+	post_locked: number;
 	preview_url?: string;
 	preview_width?: number;
 	preview_height?: number;
