@@ -1,6 +1,13 @@
-import type { KonachanPostRating } from "./types";
+import type { ValuesOf } from '../../types/util';
+import type { KonachanPostRating } from './types';
 
-export type KonachanPostStatus = 'active' | 'pending' | 'deleted' | 'flagged';
+export const KonachanPostStatuses = {
+	ACTIVE: 'active',
+	PENDING: 'pending',
+	DELETED: 'deleted',
+	FLAGGED: 'flagged',
+} as const;
+export type KonachanPostStatus = ValuesOf<typeof KonachanPostStatuses>;
 
 export interface KonachanPostDto {
 	id: number;
@@ -42,3 +49,22 @@ export interface KonachanPostDto {
 }
 
 export type KonachanPostsResponseDto = KonachanPostDto[];
+
+export const KonachanTagTypes = {
+	GENERAL: 0,
+	ARTIST: 1,
+	COPYRIGHT: 3,
+	CHARACTER: 4,
+	METADATA: 5,
+} as const satisfies Record<string, number>;
+export type KonachanTagType = ValuesOf<typeof KonachanTagTypes>;
+
+export interface KonachanTagDto {
+	id: number;
+	name: string;
+	count: number;
+	type: KonachanTagType;
+	ambiguous: boolean;
+}
+
+export type KonachanTagsResponseDto = KonachanTagDto[];
