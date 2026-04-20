@@ -110,10 +110,7 @@ export function createEntityExpecter<TEntity>(options: {
  * @param options Configuration for extraction, validation, and error handling.
  * @returns A function that validates and extracts an array of entities from a {@link FetchResult}.
  */
-export function createArrayExpecter<
-	TInput,
-	TOutput,
->(options: {
+export function createArrayExpecter<TInput, TOutput>(options: {
 	booruName: string;
 	entity: 'posts' | 'tags';
 	extract: (input: TInput | undefined) => TOutput[] | undefined;

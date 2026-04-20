@@ -13,7 +13,7 @@ const client = new BooruClient(gelbooru, {
 const posts = await client.search('megumin rating:general', { limit: 5, random: true });
 
 //Log the id, tags and url of every obtained post
-for(const post of posts) {
+for (const post of posts) {
 	console.log({
 		id: post.id,
 		tags: post.tags,

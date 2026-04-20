@@ -13,7 +13,7 @@ const client = new BooruClient(danbooru, {
 const posts = await client.search('touhou rating:sensitive', { limit: 3 });
 
 //Log the id, tags and url of every obtained post
-for(const post of posts) {
+for (const post of posts) {
 	console.log({
 		id: post.id,
 		tags: post.tags,

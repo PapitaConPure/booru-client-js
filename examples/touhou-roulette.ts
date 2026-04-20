@@ -5,8 +5,8 @@ const danbooru = new Danbooru();
 
 //Create a Booru client with the adapter and our credentials
 const client = new BooruClient(danbooru, {
-	apiKey: process.env.TEST_DANBOORU_APIKEY!,
-	login: process.env.TEST_DANBOORU_LOGIN!,
+	apiKey: process.env.TEST_DANBOORU_APIKEY as string,
+	login: process.env.TEST_DANBOORU_LOGIN as string,
 });
 
 //These 24 tag requests are automatically reduced to only 1~8 API calls
@@ -28,6 +28,6 @@ const results = await Promise.all([
 console.log(results.length);
 
 //24 names
-console.log(results.flatMap(result => result.map(tag => tag.name)));
+console.log(results.flatMap((result) => result.map((tag) => tag.name)));
 
 process.exit(0);

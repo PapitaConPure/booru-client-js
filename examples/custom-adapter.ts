@@ -46,7 +46,7 @@ interface CustombooruPostDto {
 }
 
 interface CustombooruPostsResponse {
-    myAwesomePosts: CustombooruPostDto[] 
+	myAwesomePosts: CustombooruPostDto[];
 }
 
 interface CustombooruTagDto {
@@ -56,7 +56,7 @@ interface CustombooruTagDto {
 }
 
 interface CustombooruTagsResponse {
-    someIncredibleTags: CustombooruTagDto[] 
+	someIncredibleTags: CustombooruTagDto[];
 }
 
 class CustombooruPostMapper implements PostMapper<CustombooruPostDto, Custombooru> {

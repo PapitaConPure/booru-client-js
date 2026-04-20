@@ -135,7 +135,8 @@ export class BooruClient<TBooru extends AnyBooru = AnyBooru> {
 	 */
 	async search(
 		tags: string | string[],
-		searchOptions?: BooruSearchOptions & Omit<SearchOptionsOf<TBooru>, keyof BooruSearchOptions>,
+		searchOptions?: BooruSearchOptions &
+			Omit<SearchOptionsOf<TBooru>, keyof BooruSearchOptions>,
 	): Promise<Post<TBooru>[]> {
 		if (Array.isArray(tags)) tags = tags.join(' ');
 
