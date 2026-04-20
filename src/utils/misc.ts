@@ -59,3 +59,5 @@ export function parseValidDate(field: string, value: Date | string | number): Da
 
 	return date;
 }
+
+export const wait = (ms: number) => new Promise((resolve) => setTimeout(resolve, ms));
