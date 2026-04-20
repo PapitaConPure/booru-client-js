@@ -1,4 +1,19 @@
-import { type Booru, BooruClient, BooruFetchError, type BooruSearchOptions, type BooruSpec, booruSpec, Danbooru, defineEndpoint, Post, type PostMapper, PostRatings, Tag, type TagMapper, TagTypes } from '../src';
+import {
+	type Booru,
+	BooruClient,
+	BooruFetchError,
+	type BooruSearchOptions,
+	type BooruSpec,
+	booruSpec,
+	Danbooru,
+	defineEndpoint,
+	Post,
+	type PostMapper,
+	PostRatings,
+	Tag,
+	type TagMapper,
+} from '../src';
+import { TagTypes } from '../src/domain/tag-type';
 
 interface CustombooruCredentials {
 	apiKey: string;
@@ -17,7 +32,7 @@ interface CustombooruPostDto {
 		url: string;
 		width: number;
 		height: number;
-	},
+	};
 	meta: {
 		title: string;
 		tag_string: string;
@@ -30,7 +45,9 @@ interface CustombooruPostDto {
 	};
 }
 
-type CustombooruPostsResponse = { myAwesomePosts: CustombooruPostDto[] };
+interface CustombooruPostsResponse {
+    myAwesomePosts: CustombooruPostDto[] 
+}
 
 interface CustombooruTagDto {
 	id: number;
@@ -38,7 +55,9 @@ interface CustombooruTagDto {
 	usage: number;
 }
 
-type CustombooruTagsResponse = { someIncredibleTags: CustombooruTagDto[] };
+interface CustombooruTagsResponse {
+    someIncredibleTags: CustombooruTagDto[] 
+}
 
 class CustombooruPostMapper implements PostMapper<CustombooruPostDto, Custombooru> {
 	fromDto(dto: CustombooruPostDto): Post<Custombooru> {
@@ -77,14 +96,20 @@ interface CustomBooruSpec extends BooruSpec<Custombooru> {
 	name: typeof customBooruName;
 	credentials: CustombooruCredentials;
 	searchOptions: BooruSearchOptions;
-	postExtra: {};
+	postExtra: unknown;
 }
 
 class Custombooru implements Booru<Custombooru, CustomBooruSpec> {
 	readonly [booruSpec]?: CustomBooruSpec;
 
-	static readonly POSTS_ENDPOINT = defineEndpoint('get', 'https://custombooru.com/api/v1/posts?json=1');
-	static readonly TAGS_ENDPOINT = defineEndpoint('get', 'https://custombooru.com/api/v1/tags?json=1');
+	static readonly POSTS_ENDPOINT = defineEndpoint(
+		'get',
+		'https://custombooru.com/api/v1/posts?json=1',
+	);
+	static readonly TAGS_ENDPOINT = defineEndpoint(
+		'get',
+		'https://custombooru.com/api/v1/tags?json=1',
+	);
 
 	#postMapper: PostMapper<CustombooruPostDto, Custombooru>;
 	#tagMapper: TagMapper<CustombooruTagDto>;
@@ -94,11 +119,14 @@ class Custombooru implements Booru<Custombooru, CustomBooruSpec> {
 	 *
 	 * @param options Defines various configurations for this Danbooru adapter.
 	 */
-	constructor(options: { postMapper?: PostMapper<CustombooruPostDto, Custombooru>, tagMapper?: TagMapper<CustombooruTagDto> } = {}) {
-		const {
-			postMapper = new CustombooruPostMapper(),
-			tagMapper = new CustombooruTagMapper(),
-		} = options;
+	constructor(
+		options: {
+			postMapper?: PostMapper<CustombooruPostDto, Custombooru>;
+			tagMapper?: TagMapper<CustombooruTagDto>;
+		} = {},
+	) {
+		const { postMapper = new CustombooruPostMapper(), tagMapper = new CustombooruTagMapper() } =
+			options;
 
 		this.#postMapper = postMapper;
 		this.#tagMapper = tagMapper;
@@ -108,7 +136,11 @@ class Custombooru implements Booru<Custombooru, CustomBooruSpec> {
 		return customBooruName;
 	}
 
-	async search(tags: string, searchOptions: Required<BooruSearchOptions>, credentials: CustombooruCredentials): Promise<Post<Custombooru>[]> {
+	async search(
+		tags: string,
+		searchOptions: Required<BooruSearchOptions>,
+		credentials: CustombooruCredentials,
+	): Promise<Post<Custombooru>[]> {
 		const { limit, random } = searchOptions;
 		const { apiKey, bananas, superUltraSecretCode } = credentials;
 
@@ -121,7 +153,7 @@ class Custombooru implements Booru<Custombooru, CustomBooruSpec> {
 			tags,
 		});
 
-		if(!fetchResult.success)
+		if (!fetchResult.success)
 			throw new BooruFetchError('Failed to fetch from Custombooru during search! Oh no!');
 
 		const postDtos = fetchResult.data.myAwesomePosts;
@@ -130,7 +162,10 @@ class Custombooru implements Booru<Custombooru, CustomBooruSpec> {
 		return posts;
 	}
 
-	async fetchPostById(postId: string, credentials: CustombooruCredentials): Promise<Post<Custombooru> | undefined> {
+	async fetchPostById(
+		postId: string,
+		credentials: CustombooruCredentials,
+	): Promise<Post<Custombooru> | undefined> {
 		const { apiKey, bananas, superUltraSecretCode } = credentials;
 
 		const fetchResult = await Custombooru.POSTS_ENDPOINT.request<CustombooruPostDto>({
@@ -140,7 +175,7 @@ class Custombooru implements Booru<Custombooru, CustomBooruSpec> {
 			super_ultra_secret: superUltraSecretCode,
 		});
 
-		if(!fetchResult.success)
+		if (!fetchResult.success)
 			throw new BooruFetchError('Failed to fetch a post by ID from Custombooru');
 
 		const postDto = fetchResult.data;
@@ -148,17 +183,23 @@ class Custombooru implements Booru<Custombooru, CustomBooruSpec> {
 		return this.#postMapper.fromDto(postDto);
 	}
 
-	async fetchPostByUrl(postUrl: URL, credentials: CustombooruCredentials): Promise<Post<Custombooru> | undefined> {
+	async fetchPostByUrl(
+		postUrl: URL,
+		credentials: CustombooruCredentials,
+	): Promise<Post<Custombooru> | undefined> {
 		const match = `${postUrl}`.match(/custombooru\.com\/posts\/(\d+)/);
 
-		if (!match || !match[1]) return;
+		if (!match?.[1]) return;
 
 		const id = match[1];
 
 		return this.fetchPostById(id, credentials);
 	}
 
-	async fetchTagsByNames(names: Iterable<string>, credentials: CustombooruCredentials): Promise<Tag[]> {
+	async fetchTagsByNames(
+		names: Iterable<string>,
+		credentials: CustombooruCredentials,
+	): Promise<Tag[]> {
 		const { apiKey, bananas, superUltraSecretCode } = credentials;
 
 		const fetchResult = await Custombooru.TAGS_ENDPOINT.request<CustombooruTagsResponse>({
@@ -168,20 +209,22 @@ class Custombooru implements Booru<Custombooru, CustomBooruSpec> {
 			super_ultra_secret: superUltraSecretCode,
 		});
 
-		if(!fetchResult.success)
+		if (!fetchResult.success)
 			throw new BooruFetchError('Failed to fetch a post by ID from Custombooru');
 
 		const tagsDto = fetchResult.data.someIncredibleTags;
-		const tags = tagsDto.map(t => this.#tagMapper.fromDto(t));
+		const tags = tagsDto.map((t) => this.#tagMapper.fromDto(t));
 
 		return tags;
 	}
 
-	validateCredentials(credentials: CustombooruCredentials): asserts credentials is CustombooruCredentials {
-		if(
-			typeof credentials.apiKey !== "string" ||
-			typeof credentials.bananas !== "number" ||
-			typeof credentials.superUltraSecretCode !== "string"
+	validateCredentials(
+		credentials: CustombooruCredentials,
+	): asserts credentials is CustombooruCredentials {
+		if (
+			typeof credentials.apiKey !== 'string'
+			|| typeof credentials.bananas !== 'number'
+			|| typeof credentials.superUltraSecretCode !== 'string'
 		)
 			throw new TypeError('Bro what are those credentials wtf');
 	}
