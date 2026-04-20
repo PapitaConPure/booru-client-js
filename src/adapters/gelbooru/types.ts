@@ -33,8 +33,17 @@ export interface GelbooruPostExtra {
 	parentId?: number;
 	change: Date;
 	ownerName?: string;
+	status: GelbooruPostStatus;
 	postLocked: boolean;
 }
+
+export const GelbooruPostStatuses = {
+	ACTIVE: 'active',
+	PENDING: 'pending',
+	DELETED: 'deleted',
+	FLAGGED: 'flagged',
+} as const;
+export type GelbooruPostStatus = ValuesOf<typeof GelbooruPostStatuses>;
 
 export const GelbooruPostRatings = {
 	GENERAL: 'general',
@@ -43,3 +52,14 @@ export const GelbooruPostRatings = {
 	EXPLICIT: 'explicit',
 } as const;
 export type GelbooruPostRating = ValuesOf<typeof GelbooruPostRatings>;
+
+export const GelbooruTagTypes = {
+	GENERAL: 0,
+	ARTIST: 1,
+	UNKNOWN: 2,
+	COPYRIGHT: 3,
+	CHARACTER: 4,
+	METADATA: 5,
+	DEPRECATED: 6,
+} as const satisfies Record<string, number>;
+export type GelbooruTagType = ValuesOf<typeof GelbooruTagTypes>;

@@ -1,8 +1,5 @@
-import {
-	type GelbooruTagDto,
-	type GelbooruTagType,
-	GelbooruTagTypes,
-} from '../../adapters/gelbooru/dto';
+import type { GelbooruTagDto } from '../../adapters/gelbooru/dto';
+import { type GelbooruTagType, GelbooruTagTypes } from '../../adapters/gelbooru/types';
 import { Tag } from '../../domain/tag';
 import { type TagType, TagTypes } from '../../domain/tag-type';
 import type { TagMapper } from '../tag-mapper';

@@ -64,3 +64,12 @@ export const DanbooruPostRatings = {
 	EXPLICIT: 'e',
 } as const;
 export type DanbooruPostRating = ValuesOf<typeof DanbooruPostRatings>;
+
+export const DanbooruTagCategories = {
+	GENERAL: 0,
+	ARTIST: 1,
+	COPYRIGHT: 3,
+	CHARACTER: 4,
+	METADATA: 5,
+} as const satisfies Record<string, number>;
+export type DanbooruTagCategory = ValuesOf<typeof DanbooruTagCategories>;

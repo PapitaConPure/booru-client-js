@@ -1,13 +1,5 @@
-import type { BooleanString, ValuesOf } from '../../types/util';
-import type { GelbooruPostRating } from './types';
-
-export const GelbooruPostStatuses = {
-	ACTIVE: 'active',
-	PENDING: 'pending',
-	DELETED: 'deleted',
-	FLAGGED: 'flagged',
-} as const;
-export type GelbooruPostStatus = ValuesOf<typeof GelbooruPostStatuses>;
+import type { BooleanString } from '../../types/util';
+import type { GelbooruPostRating, GelbooruPostStatus, GelbooruTagType } from './types';
 
 export interface GelbooruPostDto {
 	id: number;
@@ -44,17 +36,6 @@ export interface GelbooruPostDto {
 export interface GelbooruPostsResponseDto {
 	post: GelbooruPostDto[];
 }
-
-export const GelbooruTagTypes = {
-	GENERAL: 0,
-	ARTIST: 1,
-	UNKNOWN: 2,
-	COPYRIGHT: 3,
-	CHARACTER: 4,
-	METADATA: 5,
-	DEPRECATED: 6,
-} as const satisfies Record<string, number>;
-export type GelbooruTagType = ValuesOf<typeof GelbooruTagTypes>;
 
 export interface GelbooruTagDto {
 	id: number;

@@ -1,8 +1,5 @@
-import {
-	DanbooruTagCategories,
-	type DanbooruTagCategory,
-	type DanbooruTagDto,
-} from '../../adapters/danbooru/dto';
+import type { DanbooruTagDto } from '../../adapters/danbooru/dto';
+import { DanbooruTagCategories, type DanbooruTagCategory } from '../../adapters/danbooru/types';
 import { Tag } from '../../domain/tag';
 import { type TagType, TagTypes } from '../../domain/tag-type';
 import type { TagMapper } from '../tag-mapper';

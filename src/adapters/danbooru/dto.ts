@@ -1,5 +1,4 @@
-import type { ValuesOf } from '../../types/util';
-import type { DanbooruPostRating } from './types';
+import type { DanbooruPostRating, DanbooruTagCategory } from './types';
 
 export interface DanbooruPostDto {
 	id: number;
@@ -43,15 +42,6 @@ export interface DanbooruPostDto {
 }
 
 export type DanbooruPostsResponseDto = DanbooruPostDto[];
-
-export const DanbooruTagCategories = {
-	GENERAL: 0,
-	ARTIST: 1,
-	COPYRIGHT: 3,
-	CHARACTER: 4,
-	METADATA: 5,
-} as const satisfies Record<string, number>;
-export type DanbooruTagCategory = ValuesOf<typeof DanbooruTagCategories>;
 
 export interface DanbooruTagDto {
 	id: number;
