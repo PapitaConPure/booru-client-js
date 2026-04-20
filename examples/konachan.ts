@@ -11,12 +11,12 @@ const posts = await client.search('hololive', { limit: 1 });
 
 //Log the id, tags and url of every obtained post
 for (const post of posts) {
-	console.dir(
-		{
-			id: post.id,
-			tags: (await client.fetchPostTags(post)).map((t) => `${t.name} (${t.count})`),
-			url: post.url,
-		},
-		{ depth: null },
-	);
+	const tagsWithData = await client.fetchPostTags(post);
+	const tagsAndCount = tagsWithData.map((t) => `${t.name} (${t.count})`);
+
+	console.log({
+		id: post.id,
+		tags: tagsAndCount,
+		url: post.url,
+	});
 }
