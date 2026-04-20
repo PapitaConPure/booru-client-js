@@ -53,7 +53,7 @@ export interface DanbooruPostExtra {
 	hasActiveChildren: boolean;
 	pixivId: number | null;
 	bitFlags: bigint;
-	updatedAt: string;
+	updatedAt?: Date;
 	hasLarge: boolean;
 }
 
