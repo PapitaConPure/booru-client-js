@@ -1,6 +1,7 @@
 export * from './adapters/booru';
 export * from './adapters/danbooru/client';
 export * from './adapters/gelbooru/client';
+export * from './adapters/konachan/client';
 
 export * from './domain/post';
 export * from './domain/post-rating';
@@ -13,6 +14,7 @@ export * from './errors/misc';
 export * from './mappers/post-mapper';
 export * from './mappers/post-mapper/danbooru-post-mapper';
 export * from './mappers/post-mapper/gelbooru-post-mapper';
+export * from './mappers/post-mapper/konachan-post-mapper';
 
 export * from './mappers/tag-mapper';
 export * from './mappers/tag-mapper/danbooru-tag-mapper';
