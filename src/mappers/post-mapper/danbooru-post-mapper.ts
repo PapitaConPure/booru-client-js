@@ -36,6 +36,38 @@ export class DanbooruPostMapper implements PostMapper<DanbooruPostDto, Danbooru>
 			previewSize: undefined,
 			sampleUrl: dto.has_large ? dto.file_url : undefined,
 			sampleSize: undefined,
+			extra: {
+				parentId: dto.parent_id,
+				md5: dto.md5,
+				approverId: dto.approver_id,
+				fileExt: dto.file_ext,
+				fileSize: dto.file_size,
+				upScore: dto.up_score,
+				downScore: dto.down_score,
+				favCount: dto.fav_count,
+				isPending: dto.is_pending,
+				isFlagged: dto.is_flagged,
+				isDeleted: dto.is_deleted,
+				tagCount: dto.tag_count,
+				tagCountGeneral: dto.tag_count_general,
+				tagCountArtist: dto.tag_count_artist,
+				tagCountCopyright: dto.tag_count_copyright,
+				tagCountCharacter: dto.tag_count_character,
+				tagCountMeta: dto.tag_count_meta,
+				lastCommentedAt: dto.last_commented_at
+					? new Date(dto.last_commented_at)
+					: undefined,
+				lastCommentBumpedAt: dto.last_comment_bumped_at
+					? new Date(dto.last_comment_bumped_at)
+					: undefined,
+				lastNotedAt: dto.last_noted_at,
+				hasChildren: dto.has_children,
+				hasActiveChildren: dto.has_active_children,
+				pixivId: dto.pixiv_id,
+				bitFlags: dto.bit_flags,
+				updatedAt: new Date(dto.updated_at),
+				hasLarge: dto.has_large,
+			},
 		});
 	}
 }
