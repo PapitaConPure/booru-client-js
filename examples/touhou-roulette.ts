@@ -28,6 +28,6 @@ const results = await Promise.all([
 console.log(results.length);
 
 //24 names
-console.log(results.flatMap((result) => result.map((tag) => tag.name)));
+console.log(results.flatMap((result) => result.map((tag) => `${tag.name} (${tag.count})`)));
 
 process.exit(0);
