@@ -19,6 +19,7 @@ export interface GelbooruCredentials {
 }
 
 export interface GelbooruSearchOptions {
+	random?: boolean;
 	pid?: number;
 	sort?: string;
 	order?: GelbooruQueryPostOrder;

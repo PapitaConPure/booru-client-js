@@ -138,7 +138,7 @@ class Custombooru implements Booru<CustomBooruSpec> {
 
 	async search(
 		tags: string,
-		searchOptions: Required<BooruSearchOptions>,
+		searchOptions: Required<BooruSearchOptions> & { random?: boolean },
 		credentials: CustombooruCredentials,
 	): Promise<Post<Custombooru>[]> {
 		const { limit, random } = searchOptions;

@@ -27,7 +27,7 @@ describe('BooruClient', () => {
 
 		const client = new BooruClient(fakeAdapter, {});
 
-		const result = await client.search('test', { limit: 1, random: false });
+		const result = await client.search('test', { limit: 1 });
 
 		expect(result).toHaveLength(1);
 		expect(result[0]).toBeInstanceOf(Post);

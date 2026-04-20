@@ -19,6 +19,7 @@ export interface DanbooruCredentials {
 }
 
 export interface DanbooruSearchOptions {
+	random?: boolean;
 	page?: number;
 	order?: DanbooruQueryPostOrder;
 	rating?: DanbooruPostRating;

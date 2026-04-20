@@ -46,7 +46,6 @@ export interface BooruClientTagOptions extends TagResolutionOptions, TagCoordina
 
 export interface BooruSearchOptions {
 	limit?: number;
-	random?: boolean;
 }
 
 export type PostUrlBuilder = (postId: string) => string;

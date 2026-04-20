@@ -7,7 +7,7 @@ const konachan = new Konachan();
 const client = new BooruClient(konachan, {});
 
 //Return the last 5 posts containing the tag "touhou" and a "Safe" content rating
-const posts = await client.search('hololive', { limit: 1, random: true });
+const posts = await client.search('hololive', { limit: 1 });
 
 //Log the id, tags and url of every obtained post
 for (const post of posts) {
