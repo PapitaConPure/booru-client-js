@@ -24,6 +24,8 @@ describe('Gelbooru Adapter', () => {
 						height: 20,
 						image: 'file.jpg',
 						sample: 1,
+						status: 'active',
+						post_locked: 0,
 					},
 				],
 			},
