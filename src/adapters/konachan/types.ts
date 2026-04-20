@@ -1,20 +1,20 @@
 import type { PostMapper } from '../../mappers/post-mapper';
-import type { DanbooruOptions, DanbooruPostExtra, DanbooruSearchOptions } from '../danbooru/types';
+import type { TagMapper } from '../../mappers/tag-mapper';
+import type { FetchFn } from '../../utils/endpoint';
+import type { DanbooruPostExtra } from '../danbooru/types';
 import type { Konachan } from './client';
-import type { KonachanPostDto } from './dto';
+import type { KonachanPostDto, KonachanTagDto } from './dto';
 
-export interface KonachanOptions extends Omit<DanbooruOptions, 'postMapper'> {
+export interface KonachanOptions {
 	/**Mapper used to transform Konachan post DTOs into {@link Post} domain entities.*/
 	postMapper?: PostMapper<KonachanPostDto, Konachan>;
+	tagMapper?: TagMapper<KonachanTagDto>;
+	fetchFn?: FetchFn;
 }
 
 export interface KonachanCredentials extends Record<string, never> {}
 
-export interface KonachanSearchOptions extends Omit<DanbooruSearchOptions, 'rating'> {
-	rating?: KonachanPostRating;
-	width?: number;
-	height?: number;
-}
+export type KonachanSearchOptions = object;
 
 export interface KonachanPostExtra extends DanbooruPostExtra {}
 
