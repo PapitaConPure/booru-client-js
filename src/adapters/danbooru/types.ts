@@ -22,7 +22,6 @@ export interface DanbooruCredentials {
 }
 
 export interface DanbooruSearchOptions {
-	random?: boolean;
 	page?: number;
 	md5?: string;
 	raw?: boolean;

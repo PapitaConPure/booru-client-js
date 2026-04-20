@@ -9,7 +9,6 @@ import type { BooruSearchOptions, BooruSpec, PostUrlBuilder } from '../../types/
 import { createArrayExpecter } from '../../utils/booru';
 import { defineEndpoint, type Endpoint } from '../../utils/endpoint';
 import { fetchExt } from '../../utils/fetchExt';
-import { shuffleArray } from '../../utils/misc';
 import { type Booru, booruSpec } from '../booru';
 import type {
 	DanbooruPostDto,
@@ -55,7 +54,6 @@ export class Danbooru implements Booru<DanbooruSpec> {
 	readonly #postMapper: PostMapper<DanbooruPostDto, Danbooru>;
 	readonly #tagMapper: TagMapper<DanbooruTagDto>;
 	readonly #apiPostsEndpoint: Endpoint;
-	readonly #apiRandomPostsEndpoint: Endpoint;
 	readonly #apiTagsEndpoint: Endpoint;
 
 	/**
@@ -85,13 +83,6 @@ export class Danbooru implements Booru<DanbooruSpec> {
 			{ fetchFn },
 		);
 
-		this.#apiRandomPostsEndpoint = defineEndpoint(
-			'get',
-			`${this.apiBaseUrl}/posts/random.json`,
-			{},
-			{ fetchFn },
-		);
-
 		this.#apiTagsEndpoint = defineEndpoint(
 			'get',
 			`${this.apiBaseUrl}/tags.json`,
@@ -109,22 +100,22 @@ export class Danbooru implements Booru<DanbooruSpec> {
 		searchOptions: Required<BooruSearchOptions> & DanbooruSearchOptions,
 		credentials: DanbooruCredentials,
 	): Promise<Post<Danbooru>[]> {
-		const { limit, random } = searchOptions;
+		const { limit, page, md5, raw } = searchOptions;
 		const { apiKey, login } = credentials;
 
-		const endpoint = random ? this.#apiRandomPostsEndpoint : this.#apiPostsEndpoint;
-
-		const fetchResult = await endpoint.request<DanbooruPostsResponseDto>({
+		const fetchResult = await this.#apiPostsEndpoint.request<DanbooruPostsResponseDto>({
 			api_key: apiKey,
 			login: login,
 			limit: limit,
 			tags: tags,
+			...(limit != null ? { limit } : {}),
+			...(page != null ? { page } : {}),
+			...(md5 != null ? { md5 } : {}),
+			...(raw != null ? { raw } : {}),
 		});
 
 		const postDtos = Danbooru.#expectPosts(fetchResult, { dontThrowOnEmptyFetch: true });
 		const posts = postDtos.map((dto) => this.#postMapper.fromDto(dto));
-
-		if (random) shuffleArray(posts);
 
 		return posts;
 	}
