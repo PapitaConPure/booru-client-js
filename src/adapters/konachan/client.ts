@@ -42,7 +42,7 @@ export class Konachan implements Booru<KonachanSpec> {
 
 	/**Builds a canonical post URL from a post ID.*/
 	static readonly postUrlBuilder: PostUrlBuilder = (postId) =>
-		`https://konachan.com/post/${postId}`;
+		`https://konachan.com/post/show/${postId}`;
 
 	readonly #postMapper: PostMapper<KonachanPostDto, Konachan>;
 	readonly #tagMapper: TagMapper<KonachanTagDto>;
