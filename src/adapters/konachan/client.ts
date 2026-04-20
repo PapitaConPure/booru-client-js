@@ -137,6 +137,7 @@ export class Konachan implements Booru<KonachanSpec> {
 
 		const fetchedTags: Tag[] = [];
 
+		//Yes, tags must be fetched one by one. What the fuck
 		for (let i = 0; i < namesArr.length; i += 2) {
 			const namesBatch = namesArr.slice(i, i + 2);
 
@@ -161,7 +162,7 @@ export class Konachan implements Booru<KonachanSpec> {
 			const validResults = results.filter((tag) => tag != null);
 
 			fetchedTags.push(...validResults);
-			wait(1_000);
+			wait(1_500); //Never below a second, please.
 		}
 
 		return fetchedTags;
@@ -175,14 +176,22 @@ export class Konachan implements Booru<KonachanSpec> {
 		booruName,
 		entity: 'post',
 		extract: (data) => data,
-		createUnknownError: () => new BooruUnknownPostError(''),
+		createUnknownError: ({ fetchResult }) =>
+			new BooruUnknownPostError(
+				`Couldn't fetch a post from Konachan API.\nReceived: ${JSON.stringify(fetchResult)}`,
+				{ cause: fetchResult },
+			),
 	});
 
 	static #expectPosts = createArrayExpecter<KonachanPostsResponseDto, KonachanPostDto>({
 		booruName,
 		entity: 'posts',
 		extract: (data) => data,
-		createUnknownError: () => new BooruUnknownPostError(''),
+		createUnknownError: ({ fetchResult }) =>
+			new BooruUnknownPostError(
+				`Couldn't fetch posts from Konachan API.\nReceived: ${JSON.stringify(fetchResult)}`,
+				{ cause: fetchResult },
+			),
 	});
 
 	static #expectTags = createArrayExpecter<KonachanTagsResponseDto, KonachanTagDto>({
