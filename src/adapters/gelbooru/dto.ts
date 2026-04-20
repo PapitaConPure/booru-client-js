@@ -1,6 +1,5 @@
 import type { ValuesOf } from '../../types/util';
-
-export type GelbooruPostRating = 'general' | 'sensitive' | 'questionable' | 'explicit';
+import type { GelbooruPostRating } from './types';
 
 export interface GelbooruPostDto {
 	id: number;

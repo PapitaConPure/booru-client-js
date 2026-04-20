@@ -1,4 +1,4 @@
-export type KonachanPostRating = 's' | 'q' | 'e';
+import type { KonachanPostRating } from "./types";
 
 export type KonachanPostStatus = 'active' | 'pending' | 'deleted' | 'flagged';
 

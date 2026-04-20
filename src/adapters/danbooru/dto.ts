@@ -1,6 +1,5 @@
 import type { ValuesOf } from '../../types/util';
-
-export type DanbooruPostRating = 'g' | 's' | 'q' | 'e';
+import type { DanbooruPostRating } from './types';
 
 export interface DanbooruPostDto {
 	id: number;

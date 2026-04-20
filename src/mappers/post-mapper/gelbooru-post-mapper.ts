@@ -1,5 +1,6 @@
 import { Gelbooru } from '../../adapters/gelbooru/client';
-import type { GelbooruPostDto, GelbooruPostRating } from '../../adapters/gelbooru/dto';
+import type { GelbooruPostDto } from '../../adapters/gelbooru/dto';
+import type { GelbooruPostRating } from '../../adapters/gelbooru/types';
 import { Post } from '../../domain/post';
 import { type PostRating, PostRatings } from '../../domain/post-rating';
 import { getSourcesArray } from '../../utils/booru';

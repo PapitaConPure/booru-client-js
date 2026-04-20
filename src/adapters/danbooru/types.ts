@@ -20,8 +20,8 @@ export interface DanbooruCredentials {
 
 export interface DanbooruSearchOptions {
 	page?: number;
-	order?: 'id' | 'score' | 'favcount' | 'random';
-	rating?: string;
+	order?: DanbooruQueryPostOrder;
+	rating?: DanbooruPostRating;
 	params?: Record<string, unknown>;
 }
 
@@ -41,3 +41,7 @@ export interface DanbooruPostExtra {
 	tagStringCopyright: string;
 	tagStringArtist: string;
 }
+
+export type DanbooruQueryPostOrder = 'id' | 'score' | 'favcount' | 'random';
+
+export type DanbooruPostRating = 'g' | 's' | 'q' | 'e';

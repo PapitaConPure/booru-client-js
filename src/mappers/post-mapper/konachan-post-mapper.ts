@@ -1,5 +1,6 @@
 import { Konachan } from '../../adapters/konachan/client';
-import type { KonachanPostDto, KonachanPostRating } from '../../adapters/konachan/dto';
+import type { KonachanPostDto } from '../../adapters/konachan/dto';
+import type { KonachanPostRating } from '../../adapters/konachan/types';
 import { Post } from '../../domain/post';
 import { type PostRating, PostRatings } from '../../domain/post-rating';
 import { getSourcesArray } from '../../utils/booru';

@@ -1,5 +1,6 @@
 import { Danbooru } from '../../adapters/danbooru/client';
-import type { DanbooruPostDto, DanbooruPostRating } from '../../adapters/danbooru/dto';
+import type { DanbooruPostDto } from '../../adapters/danbooru/dto';
+import type { DanbooruPostRating } from '../../adapters/danbooru/types';
 import { Post } from '../../domain/post';
 import { type PostRating, PostRatings } from '../../domain/post-rating';
 import { getSourcesArray } from '../../utils/booru';

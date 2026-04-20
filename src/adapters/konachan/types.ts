@@ -10,9 +10,12 @@ export interface KonachanOptions extends Omit<DanbooruOptions, 'postMapper'> {
 
 export interface KonachanCredentials extends Record<string, never> {}
 
-export interface KonachanSearchOptions extends DanbooruSearchOptions {
+export interface KonachanSearchOptions extends Omit<DanbooruSearchOptions, 'rating'> {
+	rating?: KonachanPostRating;
 	width?: number;
 	height?: number;
 }
 
 export interface KonachanPostExtra extends DanbooruPostExtra {}
+
+export type KonachanPostRating = 's' | 'q' | 'e';

@@ -21,7 +21,7 @@ export interface GelbooruCredentials {
 export interface GelbooruSearchOptions {
 	pid?: number;
 	sort?: string;
-	order?: 'asc' | 'desc';
+	order?: GelbooruQueryPostOrder;
 	params?: Record<string, unknown>;
 }
 
@@ -35,3 +35,7 @@ export interface GelbooruPostExtra {
 	owner?: string;
 	sourceRaw?: string;
 }
+
+export type GelbooruQueryPostOrder = 'asc' | 'desc';
+
+export type GelbooruPostRating = 'general' | 'sensitive' | 'questionable' | 'explicit';
