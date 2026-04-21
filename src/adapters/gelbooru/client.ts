@@ -209,5 +209,10 @@ export class Gelbooru implements Booru<GelbooruSpec> {
 			throw new TypeError('User ID is invalid');
 	}
 
+	normalizeTagName(name: string): string | null | undefined {
+		if (name === '') return undefined;
+		return name.toLowerCase();
+	}
+
 	readonly [booruSpec]!: GelbooruSpec;
 }

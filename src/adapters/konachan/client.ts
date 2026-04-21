@@ -177,5 +177,10 @@ export class Konachan implements Booru<KonachanSpec> {
 		_credentials: KonachanCredentials,
 	): asserts _credentials is KonachanCredentials {}
 
+	normalizeTagName(name: string): string | null | undefined {
+		if (name === '') return undefined;
+		return name.toLowerCase();
+	}
+
 	[booruSpec]!: KonachanSpec;
 }
