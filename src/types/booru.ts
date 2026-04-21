@@ -57,7 +57,7 @@ export interface BooruSpec<TSelf extends AnyBooru = AnyBooru> {
 	postExtra: unknown;
 }
 
-type SpecOf<TBooru> = TBooru extends { readonly [booruSpec]?: infer TSpec } ? TSpec : never;
+type SpecOf<TBooru> = TBooru extends { readonly [booruSpec]: infer TSpec } ? TSpec : never;
 
 export type NameOf<TBooru extends AnyBooru> = SpecOf<TBooru>['name'];
 export type CredentialsOf<TBooru extends AnyBooru> = SpecOf<TBooru>['credentials'];

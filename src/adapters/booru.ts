@@ -1,15 +1,38 @@
 import type { Post } from '../domain/post';
 import type { Tag } from '../domain/tag';
-import type { BooruSearchOptions, BooruSpec } from '../types/booru';
+import type { BooruSearchOptions, BooruSpec, DefineBooruSpec } from '../types/booru';
 
+/**
+ * Unique symbol used to statically associate a {@link Booru} implementation with its {@link BooruSpec}.
+ *
+ * It allows utilities like `NameOf<TBooru>`, `CredentialsOf<TBooru>`, and `SearchOptionsOf<TBooru>` to extract
+ * the correct types from a given {@link Booru} instance.
+ *
+ * @remarks
+ * When implementing {@link Booru}, this property is automatically required and will
+ * typically be added via your editor's "implement interface" feature.
+ * The assigned type must match the implemented {@link Booru} interface's type parameter.
+ * 
+ * Use the definite assignment (`!`) operator to avoid worrying about this Symbol's value:
+ *
+ * @example
+ * type CustombooruSpec = DefineBooruSpec<{...}>;
+ *
+ * class Custombooru<CustombooruSpec> implements Booru<CustombooruSpec> {
+ *     readonly [booruSpec]!: CustombooruSpec;
+ * }
+ */
 export const booruSpec: unique symbol = Symbol('booruSpec');
 
 /**
  * Defines a contract for interacting with a booru (imageboard) service.
  *
  * Implementations are responsible for adapting external API responses into the respective known, normalized domain entities:
- * * {@link Post}
- * * {@link Tag}
+ * * {@link Post} and {@link PostRating}
+ * * {@link Tag} and {@link TagType}
+ *
+ * @remarks
+ * For ease of use, you should define a {@link BooruSpec} via the {@link DefineBooruSpec} utility type
  */
 export interface Booru<TSpec extends BooruSpec> {
 	/**Unique identifier of this booru implementation.*/
@@ -89,7 +112,7 @@ export interface Booru<TSpec extends BooruSpec> {
 	 *
 	 * This hook takes place **after** HTTP entities and URI encoding normalization, but **before** {@link Tag}s coordination takes place,
 	 * and it's applied for each tag in the pipeline.
-	 * 
+	 *
 	 * It allows each adapter to canonicalize {@link Tag} names according to its criteria and discard certain inputs as invalid.
 	 *
 	 * @param name The decoded tag name to normalize.
@@ -102,5 +125,5 @@ export interface Booru<TSpec extends BooruSpec> {
 	 */
 	normalizeTagName?(name: string): string | null | undefined;
 
-	readonly [booruSpec]?: TSpec;
+	readonly [booruSpec]: TSpec;
 }
