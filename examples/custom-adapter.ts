@@ -1,10 +1,10 @@
 import {
 	type Booru,
 	BooruClient,
-	BooruFetchError,
 	type BooruSearchOptions,
 	type BooruSpec,
 	booruSpec,
+	createBooruExpecters,
 	Danbooru,
 	defineEndpoint,
 	Post,
@@ -111,6 +111,14 @@ class Custombooru implements Booru<CustomBooruSpec> {
 		'https://custombooru.com/api/v1/tags?json=1',
 	);
 
+	static readonly #expect = createBooruExpecters(
+		customBooruName,
+		(data?: CustombooruPostDto) => data,
+		(data?: CustombooruPostsResponse) => data?.myAwesomePosts,
+		(data?: CustombooruTagDto) => data,
+		(data?: CustombooruTagsResponse) => data?.someIncredibleTags,
+	);
+
 	#postMapper: PostMapper<CustombooruPostDto, Custombooru>;
 	#tagMapper: TagMapper<CustombooruTagDto>;
 
@@ -153,12 +161,8 @@ class Custombooru implements Booru<CustomBooruSpec> {
 			tags,
 		});
 
-		if (!fetchResult.success || fetchResult.data == null)
-			throw new BooruFetchError('Failed to fetch from Custombooru during search! Oh no!');
-
-		const postDtos = fetchResult.data.myAwesomePosts;
+		const postDtos = Custombooru.#expect.post.array(fetchResult);
 		const posts = postDtos.map((dto) => this.#postMapper.fromDto(dto));
-
 		return posts;
 	}
 
@@ -175,11 +179,8 @@ class Custombooru implements Booru<CustomBooruSpec> {
 			super_ultra_secret: superUltraSecretCode,
 		});
 
-		if (!fetchResult.success || fetchResult.data == null)
-			throw new BooruFetchError('Failed to fetch a post by ID from Custombooru');
-
-		const postDto = fetchResult.data;
-
+		const postDto = Custombooru.#expect.post.one(fetchResult);
+		if (postDto == null) return undefined;
 		return this.#postMapper.fromDto(postDto);
 	}
 
@@ -192,7 +193,6 @@ class Custombooru implements Booru<CustomBooruSpec> {
 		if (!match?.[1]) return;
 
 		const id = match[1];
-
 		return this.fetchPostById(id, credentials);
 	}
 
@@ -209,12 +209,8 @@ class Custombooru implements Booru<CustomBooruSpec> {
 			super_ultra_secret: superUltraSecretCode,
 		});
 
-		if (!fetchResult.success || fetchResult.data == null)
-			throw new BooruFetchError('Failed to fetch a post by ID from Custombooru');
-
-		const tagsDto = fetchResult.data.someIncredibleTags;
+		const tagsDto = Custombooru.#expect.tag.array(fetchResult);
 		const tags = tagsDto.map((t) => this.#tagMapper.fromDto(t));
-
 		return tags;
 	}
 
