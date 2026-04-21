@@ -1,66 +1,99 @@
-import { Buffer } from 'node:buffer';
-import { type Readable as NodeReadableStream, default as stream } from 'node:stream';
-import type { ReadableStream as WebReadableStream } from 'node:stream/web';
-
+/**
+ * Map of response types to their corresponding data structures.
+ * @template TSchema The expected structure of a JSON response.
+ */
 interface FetchDataMap<TSchema> {
+	/**Standard JavaScript object parsed from JSON.*/
 	json: TSchema;
+	/**Plain text string.*/
 	text: string;
+	/**Raw binary data as a generic fixed-length container.*/
 	arrayBuffer: ArrayBuffer;
-	buffer: Buffer<ArrayBuffer>;
-	webStream: ReadableStream;
-	nodeStream: NodeReadableStream;
+	/**Raw binary data as a typed array.*/
+	buffer: Uint8Array;
+	/**Standard Web API ReadableStream.*/
+	stream: ReadableStream<Uint8Array>;
 }
+
+/**Available methods for parsing a {@link Response} body.*/
 type FetchType = keyof FetchDataMap<unknown> & {};
 
+/**Extracts the specific data type from FetchDataMap based on the chosen FetchType.*/
 type AssertedFetchData<TFetch extends FetchType, TSchema = unknown> = FetchDataMap<TSchema>[TFetch];
 
+/**A function that evaluates a {@link Response} object.*/
 type ResponsePredicate = (s: Response) => boolean;
+
+/**A function that evaluates an HTTP status code.*/
 type StatusPredicate = (s: number) => boolean;
 
+/**Shapes the behavior of the {@link fetchExt} function.*/
 interface FetchExtOptions<TFetch extends FetchType> {
-	/**El tipo con el cual interpretar la respuesta.*/
+	/**The format in which the {@link Response} body should be parsed. Defaults to `'json'`.*/
 	type?: TFetch;
-	/**Idéntico al parámetro `init` de la función {@linkcode fetch}*/
+	/**Identical to the {@linkcode fetch} function's `init` parameter.*/
 	init?: RequestInit;
-	/**Un predicado para verificar el código HTTP obtenido con la respuesta.*/
+	/**A predicate that validates the HTTP status code obtained from the {@link Response}. Should return `true` if valid.*/
 	validateStatus?: StatusPredicate;
-	/**Un predicado para verificar la respuesta inicial obtenida.*/
+	/**A predicate that validates the obtained {@link Response} object. Should return `true` if valid.*/
 	validateResponse?: ResponsePredicate;
 }
 
+/**Defines what any {@link fetchExt} result body will contain.*/
 interface BaseFetchResult<TSuccess extends true | false> {
 	success: TSuccess;
 }
 
+/**Defines the shape of a successful {@link fetchExt} result.*/
 export interface FetchSuccessResult<TData> extends BaseFetchResult<true> {
 	data: TData;
 	response: Response;
 }
 
+/**Defines the shape of an erroneous {@link fetchExt} result.*/
 export interface FetchErrorResult extends BaseFetchResult<false> {
 	error: Error;
 	response?: Response;
 }
 
+/**Represents all posible results of the {@link fetchExt} function.*/
 export type FetchResult<TData = unknown> = FetchSuccessResult<TData> | FetchErrorResult;
 
+/**
+ * Performs a request and retrieves data using the native `fetch()` API, providing extra utilities for validation and automatic body parsing to the requested format.
+ * @template TFetch Defines the expected response type.
+ * @param url The URL or {@link Request} object for the query.
+ * @param options Configuration for the request and its manipulation before returning.
+ * @returns An object containing the success status, and the {@link Response}.
+ * If the request was successful, the object also contains the extracted data. Otherwise, contains an {@link Error} describing the issue.
+ */
 export async function fetchExt<TFetch extends Exclude<FetchType, 'json'>>(
 	url: string | URL | Request,
 	options: FetchExtOptions<TFetch>,
 ): Promise<FetchResult<AssertedFetchData<TFetch>>>;
+
+/**
+ * Performs a request and retrieves data using the native `fetch()` API, providing extra utilities for validation and automatic body parsing to JSON.
+ * @template TSchema Defines the expected *structure* of the JSON.
+ * @template TFetch The expected response type is `'json'`.
+ * @param url The URL or {@link Request} object for the query.
+ * @param options Configuration for the request and its manipulation before returning.
+ * @returns An object containing the success status, and the {@link Response}.
+ * If the request was successful, the object also contains the extracted JSON data, typed as specified. Otherwise, contains an {@link Error} describing the issue.
+ */
 export async function fetchExt<TSchema = unknown>(
 	url: string | URL | Request,
 	options?: FetchExtOptions<'json'>,
 ): Promise<FetchResult<TSchema>>;
 
 /**
- * Realiza una consulta y obtiene un dato utilizando la API nativa fetch(), ofreciendo algunas utilidades por encima de esta.
- * @template TSchema Si la respuesta esperada es `'json'` (por defecto lo es), define la estructura esperada del JSON
- * @template TFetch Define el tipo de respuesta esperado (por defecto: `'json'`)
- * @param url La URL a la cual realizar una consulta.
- * @param options Opciones de la consulta a realizar y la manipulación del dato obtenido en consecuencia.
- * @returns Un objeto conteniendo el {@link Response} obtenido y si el resultado fue validado y extraído correctamente.
- * Si lo fue, el objeto también contiene el dato extraído y convertido. Si no, contiene un error describiendo el problema.
+ * Performs a request and retrieves data using the native `fetch()` API, providing extra utilities for validation and automatic body parsing.
+ * @template TSchema If the expected response dialect is `'json'`, defines the expected *structure* of the JSON.
+ * @template TFetch Defines the expected response type (default: `'json'`).
+ * @param url The URL or {@link Request} object for the query.
+ * @param options Configuration for the request and its manipulation before returning.
+ * @returns An object containing the success status, and the {@link Response}.
+ * If the request was successful, the object also contains the extracted data. Otherwise, contains an {@link Error} describing the issue.
  */
 export async function fetchExt<TSchema = unknown, TFetch extends FetchType = 'json'>(
 	url: string | URL | Request,
@@ -113,11 +146,16 @@ export async function fetchExt<TSchema = unknown, TFetch extends FetchType = 'js
 
 			case 'buffer': {
 				const arrayBuffer = await response.arrayBuffer();
-				data = Buffer.from(arrayBuffer) as AssertedFetchData<TFetch, TSchema>;
+				const hasBufferClass = typeof globalThis.Buffer !== 'undefined';
+				const finalBuffer = hasBufferClass
+					? globalThis.Buffer.from(arrayBuffer)
+					: new Uint8Array(arrayBuffer);
+				data = finalBuffer as AssertedFetchData<TFetch, TSchema>;
+
 				break;
 			}
 
-			case 'webStream':
+			case 'stream': {
 				if (!response.body)
 					throw new ResponseError(
 						'Response body unavailable for stream extraction.',
@@ -125,18 +163,6 @@ export async function fetchExt<TSchema = unknown, TFetch extends FetchType = 'js
 					);
 
 				data = response.body as AssertedFetchData<TFetch, TSchema>;
-				break;
-
-			case 'nodeStream': {
-				if (!response.body)
-					throw new ResponseError(
-						'Response body unavailable for stream extraction.',
-						response,
-					);
-
-				data = stream.Readable.fromWeb(
-					response.body as unknown as WebReadableStream<Uint8Array>,
-				) as AssertedFetchData<TFetch, TSchema>;
 				break;
 			}
 
@@ -158,6 +184,7 @@ export async function fetchExt<TSchema = unknown, TFetch extends FetchType = 'js
 	}
 }
 
+/**Error thrown when an HTTP status code fails validation.*/
 export class HTTPError extends Error {
 	constructor(status: number, statusText: string);
 	constructor(status: number, statusText: string, options?: ErrorOptions);
@@ -167,6 +194,7 @@ export class HTTPError extends Error {
 	}
 }
 
+/**Error thrown when a fetch operation fails (e.g., network error).*/
 export class FetchError extends Error {
 	constructor();
 	constructor(message?: string);
@@ -177,6 +205,7 @@ export class FetchError extends Error {
 	}
 }
 
+/**Error thrown when the response content is deemed invalid or the body cannot be read.*/
 export class ResponseError extends Error {
 	#response: Response | undefined;
 
