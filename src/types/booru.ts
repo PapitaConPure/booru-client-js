@@ -3,6 +3,7 @@ import type { PostRating } from '../domain/post-rating';
 import type { Tag } from '../domain/tag';
 import type { TagType } from '../domain/tag-type';
 import type { TagStore } from '../stores/tag-store';
+import type { Exact } from './util';
 
 export interface TagResolutionOptions {
 	/**Allows to define a custom {@link TagStore} chain from which to fetch {@link Tag}s. By default: `[`{@linkcode MemoryTagStore}`]` (cache only).*/
@@ -48,6 +49,26 @@ export interface BooruSearchOptions {
 	limit?: number;
 }
 
+export interface BooruSpec<TSelf extends AnyBooru = AnyBooru> {
+	self: TSelf;
+	name: string;
+	credentials: unknown;
+	searchOptions: unknown;
+	postExtra: unknown;
+}
+
+type SpecOf<TBooru> = TBooru extends { readonly [booruSpec]?: infer TSpec } ? TSpec : never;
+
+export type NameOf<TBooru extends AnyBooru> = SpecOf<TBooru>['name'];
+export type CredentialsOf<TBooru extends AnyBooru> = SpecOf<TBooru>['credentials'];
+export type SearchOptionsOf<TBooru extends AnyBooru> = SpecOf<TBooru>['searchOptions'];
+export type PostExtraOf<TBooru extends AnyBooru> = SpecOf<TBooru>['postExtra'];
+
+export type DefineBooruSpec<T extends BooruSpec<AnyBooru>> = Exact<T, BooruSpec<T['self']>>;
+
+// biome-ignore lint/suspicious/noExplicitAny: Required for AnyBooru type
+export type AnyBooru = Booru<any>;
+
 export type PostUrlBuilder = (postId: string) => string;
 
 export interface PostInit<TBooru extends AnyBooru = AnyBooru> {
@@ -80,22 +101,4 @@ export interface TagInit {
 
 export type TagNormalizationStep = (name: string) => string | null | undefined;
 
-export interface BooruSpec<TSelf extends AnyBooru = AnyBooru> {
-	self: TSelf;
-	name: string;
-	credentials: unknown;
-	searchOptions: unknown;
-	postExtra: unknown;
-}
-
-type SpecOf<TBooru> = TBooru extends { readonly [booruSpec]?: infer TSpec } ? TSpec : never;
-
-export type NameOf<TBooru extends AnyBooru> = SpecOf<TBooru>['name'];
-export type CredentialsOf<TBooru extends AnyBooru> = SpecOf<TBooru>['credentials'];
-export type SearchOptionsOf<TBooru extends AnyBooru> = SpecOf<TBooru>['searchOptions'];
-export type PostExtraOf<TBooru extends AnyBooru> = SpecOf<TBooru>['postExtra'];
-
 export type TagFetchApproach = (names: string[]) => Promise<Tag[]>;
-
-// biome-ignore lint/suspicious/noExplicitAny: Required for AnyBooru type
-export type AnyBooru = Booru<any>;
