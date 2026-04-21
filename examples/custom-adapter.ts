@@ -100,7 +100,7 @@ interface CustomBooruSpec extends BooruSpec<Custombooru> {
 }
 
 class Custombooru implements Booru<CustomBooruSpec> {
-	readonly [booruSpec]?: CustomBooruSpec;
+	readonly [booruSpec]!: CustomBooruSpec;
 
 	static readonly POSTS_ENDPOINT = defineEndpoint<CustombooruPostDto | CustombooruPostsResponse>(
 		'get',
