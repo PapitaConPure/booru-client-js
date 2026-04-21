@@ -11,6 +11,7 @@ import type {
 	CredentialsOf,
 	SearchOptionsOf,
 	TagFetchApproach,
+	TagNormalizationStep,
 } from '../types/booru';
 import { decodePercentsAndEntities } from '../utils/encoding';
 import { TagCoordinator } from './tag-coordinator';
@@ -246,11 +247,22 @@ export class BooruClient<TBooru extends AnyBooru = AnyBooru> {
 
 		if (tagNames.some((t) => typeof t !== 'string')) throw new TypeError('Invalid tags');
 
-		const normalizedTagNames = tagNames.map(decodePercentsAndEntities);
+		const booruNormalizeTagName = this.#booru.normalizeTagName?.bind(this.#booru);
+		const preNormalizationSteps: (TagNormalizationStep | undefined)[] = [
+			decodePercentsAndEntities,
+			(name) => name.trim(),
+			booruNormalizeTagName,
+		];
+
+		const normalizedTagNames = tagNames
+			.map((name) => this.#normalizeTagName(name, preNormalizationSteps))
+			.filter((name) => name != null);
+
+		const uniqueNormalizedTagNames = [...new Set(normalizedTagNames)];
 
 		if (forceFetch) {
 			const fetchedTags = await this.#booru.fetchTagsByNames(
-				normalizedTagNames,
+				uniqueNormalizedTagNames,
 				this.#getCredentials(),
 			);
 
@@ -260,7 +272,19 @@ export class BooruClient<TBooru extends AnyBooru = AnyBooru> {
 			return fetchedTags;
 		}
 
-		return this.#tagCoordinator.getMany(normalizedTagNames);
+		return this.#tagCoordinator.getMany(uniqueNormalizedTagNames);
+	}
+
+	#normalizeTagName(name: string, steps: (TagNormalizationStep | null | undefined)[]) {
+		let current: string | null | undefined = name;
+
+		for (const step of steps) {
+			if (step == null) continue;
+			if (current == null) return current;
+			current = step(current);
+		}
+
+		return current;
 	}
 
 	/**
