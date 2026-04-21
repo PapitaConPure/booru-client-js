@@ -84,5 +84,23 @@ export interface Booru<TSpec extends BooruSpec> {
 		credentials: TSpec['credentials'],
 	): asserts credentials is TSpec['credentials'];
 
+	/**
+	 * Defines a {@link Tag} name normalization step that correlates to the implementing {@link Booru}'s criteria for tags.
+	 *
+	 * This hook takes place **after** HTTP entities and URI encoding normalization, but **before** {@link Tag}s coordination takes place,
+	 * and it's applied for each tag in the pipeline.
+	 * 
+	 * It allows each adapter to canonicalize {@link Tag} names according to its criteria and discard certain inputs as invalid.
+	 *
+	 * @param name The decoded tag name to normalize.
+	 * @returns The normalized {@link Tag} name, or `null`/`undefined` to discard the input.
+	 *
+	 * @example
+	 * normalizeTagName('Junko_(touhou)') //→ 'junko_(touhou)'
+	 * normalizeTagName('large_breasts') //→ 'breasts'
+	 * normalizeTagName('') //→ null or undefined
+	 */
+	normalizeTagName?(name: string): string | null | undefined;
+
 	readonly [booruSpec]?: TSpec;
 }
