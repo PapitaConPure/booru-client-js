@@ -78,6 +78,8 @@ export interface TagInit {
 	fetchTimestamp?: Date;
 }
 
+export type TagNormalizationStep = (name: string) => string | null | undefined;
+
 export interface BooruSpec<TSelf extends AnyBooru = AnyBooru> {
 	self: TSelf;
 	name: string;
