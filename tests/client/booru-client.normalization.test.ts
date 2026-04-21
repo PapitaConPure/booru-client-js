@@ -1,4 +1,5 @@
 import { describe, expect, it } from 'bun:test';
+import { booruSpec } from '@papitaconpure/booru-client';
 import { Tag } from '../../src/domain/tag';
 import { BooruClient } from '../../src/services/booru-client';
 import type { AnyBooru } from '../../src/types/booru';
@@ -29,6 +30,8 @@ function createMockBooru() {
 		},
 
 		validateCredentials() {},
+
+		[booruSpec]: {},
 	};
 
 	return {

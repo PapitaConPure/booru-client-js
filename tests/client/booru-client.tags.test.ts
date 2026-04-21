@@ -1,4 +1,5 @@
 import { beforeEach, describe, expect, it } from 'bun:test';
+import { booruSpec } from '@papitaconpure/booru-client';
 import { Gelbooru } from '../../src/adapters/gelbooru/client';
 import type { GelbooruTagsResponseDto } from '../../src/adapters/gelbooru/dto';
 import { Post } from '../../src/domain/post';
@@ -77,6 +78,8 @@ function createMockBooru() {
 		validateCredentials() {
 			return;
 		},
+
+		[booruSpec]: {},
 	};
 
 	return {
