@@ -4,7 +4,7 @@ import type { PostMapper } from '../../mappers/post-mapper';
 import { DanbooruPostMapper } from '../../mappers/post-mapper/danbooru-post-mapper';
 import type { TagMapper } from '../../mappers/tag-mapper';
 import { DanbooruTagMapper } from '../../mappers/tag-mapper/danbooru-tag-mapper';
-import type { BooruSearchOptions, BooruSpec, PostUrlBuilder } from '../../types/booru';
+import type { BooruSearchOptions, DefineBooruSpec, PostUrlBuilder } from '../../types/booru';
 import { createBooruExpecters } from '../../utils/booru';
 import { defineEndpoint, type Endpoint } from '../../utils/endpoint';
 import { fetchExt } from '../../utils/fetchExt';
@@ -24,12 +24,13 @@ import type {
 
 const booruName = 'danbooru' as const;
 
-interface DanbooruSpec extends BooruSpec<Danbooru> {
+type DanbooruSpec = DefineBooruSpec<{
+	self: Danbooru;
 	name: typeof booruName;
 	credentials: DanbooruCredentials;
 	searchOptions: DanbooruSearchOptions;
 	postExtra: DanbooruPostExtra;
-}
+}>;
 
 /**
  * Implementation of the {@link Booru} interface for the Danbooru API.
@@ -215,5 +216,5 @@ export class Danbooru implements Booru<DanbooruSpec> {
 		return name.toLowerCase();
 	}
 
-	[booruSpec]!: DanbooruSpec;
+	readonly [booruSpec]!: DanbooruSpec;
 }

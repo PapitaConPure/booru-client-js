@@ -6,7 +6,7 @@ import type { PostMapper } from '../../mappers/post-mapper';
 import { KonachanPostMapper } from '../../mappers/post-mapper/konachan-post-mapper';
 import type { TagMapper } from '../../mappers/tag-mapper';
 import { KonachanTagMapper } from '../../mappers/tag-mapper/konachan-tag-mapper';
-import type { BooruSearchOptions, BooruSpec, PostUrlBuilder } from '../../types/booru';
+import type { BooruSearchOptions, DefineBooruSpec, PostUrlBuilder } from '../../types/booru';
 import { createBooruExpecters } from '../../utils/booru';
 import { defineEndpoint, type Endpoint } from '../../utils/endpoint';
 import { fetchExt } from '../../utils/fetchExt';
@@ -27,15 +27,21 @@ import type {
 
 const booruName = 'konachan' as const;
 
-interface KonachanSpec extends BooruSpec<Konachan> {
+type KonachanSpec = DefineBooruSpec<{
+	self: Konachan;
 	name: typeof booruName;
 	credentials: KonachanCredentials;
 	searchOptions: KonachanSearchOptions;
 	postExtra: KonachanPostExtra;
-}
+}>;
 
 //TODO: Consider a DanbooruLike/MoebooruBased abstraction for Konachan, Yande.re, etc. because it's getting silly
 
+/**
+ * Implementation of the {@link Booru} interface for the Konachan API.
+ *
+ * @see https://konachan.com/help/api
+ */
 export class Konachan implements Booru<KonachanSpec> {
 	static readonly API_BASE_URL = 'https://konachan.com/';
 
@@ -182,5 +188,5 @@ export class Konachan implements Booru<KonachanSpec> {
 		return name.toLowerCase();
 	}
 
-	[booruSpec]!: KonachanSpec;
+	readonly [booruSpec]!: KonachanSpec;
 }
