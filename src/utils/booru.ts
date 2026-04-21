@@ -137,7 +137,3 @@ export function getSourcesArray(sourceString: string | null | undefined): string
 
 	return sources;
 }
-
-export function* chunk<T>(arr: T[], size: number): Generator<T[]> {
-	for (let i = 0; i < arr.length; i += size) yield arr.slice(i, i + size);
-}

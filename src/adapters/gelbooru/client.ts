@@ -9,7 +9,7 @@ import type { BooruSearchOptions, BooruSpec, PostUrlBuilder } from '../../types/
 import { createArrayExpecter } from '../../utils/booru';
 import { defineEndpoint, type Endpoint } from '../../utils/endpoint';
 import { fetchExt } from '../../utils/fetchExt';
-import { toUnix } from '../../utils/misc';
+import { chunk, toUnix } from '../../utils/misc';
 import { type Booru, booruSpec } from '../booru';
 import type {
 	GelbooruPostDto,
@@ -130,13 +130,11 @@ export class Gelbooru implements Booru<GelbooruSpec> {
 	): Promise<Post<Gelbooru> | undefined> {
 		const { apiKey, userId } = credentials;
 
-		const response = await this.#apiPostsEndpoint.request(
-			{
-				api_key: apiKey,
-				user_id: userId,
-				id: postId,
-			},
-		);
+		const response = await this.#apiPostsEndpoint.request({
+			api_key: apiKey,
+			user_id: userId,
+			id: postId,
+		});
 
 		const [postDto] = Gelbooru.#expectPosts(response) as [GelbooruPostDto];
 		const post = this.#postMapper.fromDto(postDto);
@@ -180,9 +178,7 @@ export class Gelbooru implements Booru<GelbooruSpec> {
 
 		const fetchedTags: Tag[] = [];
 
-		for (let i = 0; i < namesArr.length; i += 100) {
-			const namesBatch = namesArr.slice(i, i + 100).join(' ');
-
+		for (const namesBatch of chunk(namesArr, 100)) {
 			const response = await this.#apiTagsEndpoint.request({
 				api_key: apiKey,
 				user_id: userId,

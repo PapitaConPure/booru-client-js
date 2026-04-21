@@ -48,15 +48,3 @@ export function defineEndpoint<TSchema>(
 		},
 	};
 }
-
-export async function fetchEntitiesFromEndpoint<TResponse, TDto, TEntity>(
-	endpoint: Endpoint<TResponse>,
-	params: Record<string, QueryParameter>,
-	expect: (res: FetchResult<TResponse | undefined>, context?: unknown) => TDto[],
-	map: (dto: TDto) => TEntity,
-	context?: unknown,
-): Promise<TEntity[]> {
-	const res = await endpoint.request(params);
-	const dtos = expect(res, { context });
-	return dtos.map(map);
-}
