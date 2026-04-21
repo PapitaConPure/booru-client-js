@@ -59,21 +59,22 @@ import { BooruClient, Gelbooru } from '@papitaconpure/booru-client';
 //Instance a Booru adapter
 const gelbooru = new Gelbooru();
 
-//Create a Booru client with the adapter and pass your credentials
+//Create a Booru client with the adapter and our credentials
 const client = new BooruClient(gelbooru, {
 	apiKey: 'your Gelbooru API key',
 	userId: 'your Gelbooru user ID',
 });
 
 //Return 5 random posts containing the tag "megumin" and a "General" content rating
-const posts = await client.search('megumin rating:general', { limit: 5, random: true });
+const posts = await client.search('megumin rating:general sort:random', { limit: 5 });
 
-//Log the id, tags and url of every obtained post
-for(const post of posts) {
+//Log the id, tags, url, and extra Gelbooru metadata of every obtained post
+for (const post of posts) {
 	console.log({
 		id: post.id,
 		tags: post.tags,
 		url: post.url,
+		extra: post.extra,
 	});
 }
 ```
@@ -95,7 +96,7 @@ const client = new BooruClient(danbooru, {
 const posts = await client.search('touhou rating:sensitive', { limit: 3 });
 
 //Log the id, tags and url of every obtained post
-for(const post of posts) {
+for (const post of posts) {
 	console.log({
 		id: post.id,
 		tags: post.tags,
