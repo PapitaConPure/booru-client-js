@@ -8,4 +8,10 @@ export type Flatten<T> = {
 	[K in keyof T]: T[K];
 } & {};
 
+export type Exact<T, TShape> = T extends TShape
+	? Exclude<keyof T, keyof TShape> extends never
+		? T
+		: never
+	: never;
+
 export type BooleanString = 'true' | 'false' | 'True' | 'False';
