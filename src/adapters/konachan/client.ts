@@ -2,13 +2,12 @@
 
 import type { Post } from '../../domain/post';
 import type { Tag } from '../../domain/tag';
-import { BooruUnknownPostError, BooruUnknownTagError } from '../../errors/booru';
 import type { PostMapper } from '../../mappers/post-mapper';
 import { KonachanPostMapper } from '../../mappers/post-mapper/konachan-post-mapper';
 import type { TagMapper } from '../../mappers/tag-mapper';
 import { KonachanTagMapper } from '../../mappers/tag-mapper/konachan-tag-mapper';
 import type { BooruSearchOptions, BooruSpec, PostUrlBuilder } from '../../types/booru';
-import { createArrayExpecter, createEntityExpecter } from '../../utils/booru';
+import { createBooruExpecters } from '../../utils/booru';
 import { defineEndpoint, type Endpoint } from '../../utils/endpoint';
 import { fetchExt } from '../../utils/fetchExt';
 import { wait } from '../../utils/misc';
@@ -43,6 +42,14 @@ export class Konachan implements Booru<KonachanSpec> {
 	/**Builds a canonical post URL from a post ID.*/
 	static readonly postUrlBuilder: PostUrlBuilder = (postId) =>
 		`https://konachan.com/post/show/${postId}`;
+
+	static readonly #expect = createBooruExpecters(
+		booruName,
+		(data?: KonachanPostDto) => data,
+		(data?: KonachanPostsResponseDto) => data,
+		(data?: KonachanTagDto) => data,
+		(data?: KonachanTagsResponseDto) => data,
+	);
 
 	readonly #postMapper: PostMapper<KonachanPostDto, Konachan>;
 	readonly #tagMapper: TagMapper<KonachanTagDto>;
@@ -87,7 +94,7 @@ export class Konachan implements Booru<KonachanSpec> {
 			...searchOptions,
 		});
 
-		const postDtos = Konachan.#expectPosts(result);
+		const postDtos = Konachan.#expect.post.array(result);
 		const posts = postDtos.map((dto) => this.#postMapper.fromDto(dto));
 
 		return posts;
@@ -103,7 +110,7 @@ export class Konachan implements Booru<KonachanSpec> {
 			},
 		});
 
-		const postDto = Konachan.#expectPost(response, { dontThrowOnEmptyFetch: true });
+		const postDto = Konachan.#expect.post.one(response, { dontThrowOnEmptyFetch: true });
 
 		if (postDto == null) return undefined;
 
@@ -125,7 +132,7 @@ export class Konachan implements Booru<KonachanSpec> {
 			},
 		});
 
-		const postDto = Konachan.#expectPost(response, { dontThrowOnEmptyFetch: true });
+		const postDto = Konachan.#expect.post.one(response, { dontThrowOnEmptyFetch: true });
 
 		if (postDto == null) return undefined;
 
@@ -146,7 +153,7 @@ export class Konachan implements Booru<KonachanSpec> {
 					name: name,
 				});
 
-				const tagDtos = Konachan.#expectTags(result, { dontThrowOnEmptyFetch: true });
+				const tagDtos = Konachan.#expect.tag.array(result, { dontThrowOnEmptyFetch: true });
 
 				//Moebooru's 'name' param is not for exact matches
 				const tagDto = tagDtos.find((dto) => dto.name === name);
@@ -169,30 +176,6 @@ export class Konachan implements Booru<KonachanSpec> {
 	validateCredentials(
 		_credentials: KonachanCredentials,
 	): asserts _credentials is KonachanCredentials {}
-
-	static #expectPost = createEntityExpecter<KonachanPostDto>({
-		booruName,
-		entity: 'post',
-		extract: (data) => data,
-		createUnknownError: ({ booruName, fetchResult, context }) =>
-			new BooruUnknownPostError({ booruName, fetchResult, posts: context }),
-	});
-
-	static #expectPosts = createArrayExpecter<KonachanPostsResponseDto, KonachanPostDto>({
-		booruName,
-		entity: 'posts',
-		extract: (data) => data,
-		createUnknownError: ({ booruName, fetchResult, context }) =>
-			new BooruUnknownPostError({ booruName, fetchResult, posts: context }),
-	});
-
-	static #expectTags = createArrayExpecter<KonachanTagsResponseDto, KonachanTagDto>({
-		booruName,
-		entity: 'tags',
-		extract: (data) => data,
-		createUnknownError: ({ fetchResult, context }) =>
-			new BooruUnknownTagError({ booruName, fetchResult, tags: context }),
-	});
 
 	[booruSpec]!: KonachanSpec;
 }

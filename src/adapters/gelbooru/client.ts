@@ -1,12 +1,11 @@
 import type { Post } from '../../domain/post';
 import type { Tag } from '../../domain/tag';
-import { BooruUnknownPostError, BooruUnknownTagError } from '../../errors/booru';
 import type { PostMapper } from '../../mappers/post-mapper';
 import { GelbooruPostMapper } from '../../mappers/post-mapper/gelbooru-post-mapper';
 import type { TagMapper } from '../../mappers/tag-mapper';
 import { GelbooruTagMapper } from '../../mappers/tag-mapper/gelbooru-tag-mapper';
 import type { BooruSearchOptions, BooruSpec, PostUrlBuilder } from '../../types/booru';
-import { createArrayExpecter } from '../../utils/booru';
+import { createBooruExpecters } from '../../utils/booru';
 import { defineEndpoint, type Endpoint } from '../../utils/endpoint';
 import { fetchExt } from '../../utils/fetchExt';
 import { chunk, toUnix } from '../../utils/misc';
@@ -45,6 +44,14 @@ export class Gelbooru implements Booru<GelbooruSpec> {
 	/**Builds a canonical post URL from a post ID.*/
 	static readonly POST_URL_BUILDER: PostUrlBuilder = (postId) =>
 		`https://gelbooru.com/index.php?page=post&s=view&id=${postId}`;
+
+	static readonly #expect = createBooruExpecters(
+		booruName,
+		(data?: GelbooruPostDto) => data,
+		(data?: GelbooruPostsResponseDto) => data?.post,
+		(data?: GelbooruTagDto) => data,
+		(data?: GelbooruTagsResponseDto) => data?.tag,
+	);
 
 	readonly #postMapper: PostMapper<GelbooruPostDto, Gelbooru>;
 	readonly #tagMapper: TagMapper<GelbooruTagDto>;
@@ -118,7 +125,7 @@ export class Gelbooru implements Booru<GelbooruSpec> {
 			...directSearchOptions,
 		});
 
-		const postDtos = Gelbooru.#expectPosts(fetchResult, { dontThrowOnEmptyFetch: true });
+		const postDtos = Gelbooru.#expect.post.array(fetchResult, { dontThrowOnEmptyFetch: true });
 		const posts = postDtos.map((dto) => this.#postMapper.fromDto(dto));
 
 		return posts;
@@ -136,7 +143,7 @@ export class Gelbooru implements Booru<GelbooruSpec> {
 			id: postId,
 		});
 
-		const [postDto] = Gelbooru.#expectPosts(response) as [GelbooruPostDto];
+		const [postDto] = Gelbooru.#expect.post.array(response) as [GelbooruPostDto];
 		const post = this.#postMapper.fromDto(postDto);
 
 		return post;
@@ -163,7 +170,7 @@ export class Gelbooru implements Booru<GelbooruSpec> {
 			},
 		});
 
-		const [postDto] = Gelbooru.#expectPosts(response) as [GelbooruPostDto];
+		const [postDto] = Gelbooru.#expect.post.array(response) as [GelbooruPostDto];
 		const post = this.#postMapper.fromDto(postDto);
 
 		return post;
@@ -182,10 +189,10 @@ export class Gelbooru implements Booru<GelbooruSpec> {
 			const response = await this.#apiTagsEndpoint.request({
 				api_key: apiKey,
 				user_id: userId,
-				names: namesBatch,
+				names: namesBatch.join(' '),
 			});
 
-			const tagDtos = Gelbooru.#expectTags(response, { context: namesBatch });
+			const tagDtos = Gelbooru.#expect.tag.array(response, { context: namesBatch });
 			const tags = tagDtos.map((dto) => this.#tagMapper.fromDto(dto));
 			fetchedTags.push(...tags);
 		}
@@ -201,32 +208,6 @@ export class Gelbooru implements Booru<GelbooruSpec> {
 		if (!credentials.userId || typeof credentials.userId !== 'string')
 			throw new TypeError('User ID is invalid');
 	}
-
-	/**
-	 * Asserts that the status code of a response is 200 and that the {@link Post} data is valid before returning it.
-	 * @throws {BooruFetchError}
-	 * @throws {BooruUnknownPostError}
-	 */
-	static #expectPosts = createArrayExpecter<GelbooruPostsResponseDto, GelbooruPostDto>({
-		booruName: this.name,
-		entity: 'posts',
-		extract: (data) => data?.post,
-		createUnknownError: ({ booruName, fetchResult, context }) =>
-			new BooruUnknownPostError({ booruName, fetchResult, posts: context }),
-	});
-
-	/**
-	 * Asserts that the status code of a response is 200 and that the {@link Tag} data is valid before returning it.
-	 * @throws {BooruFetchError}
-	 * @throws {BooruUnknownTagError}
-	 */
-	static #expectTags = createArrayExpecter<GelbooruTagsResponseDto, GelbooruTagDto>({
-		booruName: this.name,
-		entity: 'tags',
-		extract: (data) => data?.tag,
-		createUnknownError: ({ booruName, fetchResult, context }) =>
-			new BooruUnknownTagError({ booruName, fetchResult, tags: context }),
-	});
 
 	readonly [booruSpec]!: GelbooruSpec;
 }

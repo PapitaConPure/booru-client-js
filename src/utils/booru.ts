@@ -1,4 +1,4 @@
-import { BooruFetchError } from '../errors/booru';
+import { BooruFetchError, BooruUnknownPostError, BooruUnknownTagError } from '../errors/booru';
 import type { FetchResult, FetchSuccessResult } from './fetchExt';
 
 /**Options controlling how a fetch result should be interpreted.*/
@@ -24,7 +24,7 @@ function createExpecter<TInput, TOutput>(options: {
 	extract: (input: TInput | undefined) => TOutput | undefined;
 	validate: (value: TOutput | undefined) => value is TOutput;
 	emptyValue: TOutput;
-	createUnknownError: (ctx: {
+	createUnknownError: (context: {
 		booruName: string;
 		fetchResult: FetchSuccessResult<unknown>;
 		context?: unknown;
@@ -86,7 +86,7 @@ export function createEntityExpecter<TEntity>(options: {
 	booruName: string;
 	entity: 'post' | 'tag';
 	extract: (input: TEntity | undefined) => TEntity | undefined;
-	createUnknownError: (ctx: {
+	createUnknownError: (context: {
 		booruName: string;
 		fetchResult: FetchSuccessResult<unknown>;
 		context?: unknown;
@@ -114,7 +114,7 @@ export function createArrayExpecter<TInput, TOutput>(options: {
 	booruName: string;
 	entity: 'posts' | 'tags';
 	extract: (input: TInput | undefined) => TOutput[] | undefined;
-	createUnknownError: (ctx: {
+	createUnknownError: (context: {
 		booruName: string;
 		fetchResult: FetchSuccessResult<unknown>;
 		context?: unknown;
@@ -136,4 +136,50 @@ export function getSourcesArray(sourceString: string | null | undefined): string
 	if (!sources?.length) return undefined;
 
 	return sources;
+}
+
+export function createBooruExpecters<TPostsResponseDto, TPostDto, TTagsResponseDto, TTagDto>(
+	booruName: string,
+	extractPost: (data: TPostDto | undefined) => TPostDto | undefined,
+	extractPosts: (data: TPostsResponseDto | undefined) => TPostDto[] | undefined,
+	extractTag: (data: TTagDto | undefined) => TTagDto | undefined,
+	extractTags: (data: TTagsResponseDto | undefined) => TTagDto[] | undefined,
+) {
+	return {
+		post: {
+			one: createEntityExpecter({
+				booruName,
+				entity: 'post',
+				extract: extractPost,
+				createUnknownError: ({ fetchResult, context }) =>
+					new BooruUnknownPostError({ booruName, fetchResult, posts: context }),
+			}),
+
+			array: createArrayExpecter({
+				booruName,
+				entity: 'posts',
+				extract: extractPosts,
+				createUnknownError: ({ fetchResult, context }) =>
+					new BooruUnknownPostError({ booruName, fetchResult, posts: context }),
+			}),
+		},
+
+		tag: {
+			one: createEntityExpecter<TTagDto>({
+				booruName,
+				entity: 'tag',
+				extract: extractTag,
+				createUnknownError: ({ fetchResult, context }) =>
+					new BooruUnknownTagError({ booruName, fetchResult, tags: context }),
+			}),
+
+			array: createArrayExpecter<TTagsResponseDto, TTagDto>({
+				booruName,
+				entity: 'tags',
+				extract: extractTags,
+				createUnknownError: ({ fetchResult, context }) =>
+					new BooruUnknownTagError({ booruName, fetchResult, tags: context }),
+			}),
+		},
+	};
 }

@@ -1,12 +1,11 @@
 import type { Post } from '../../domain/post';
 import type { Tag } from '../../domain/tag';
-import { BooruUnknownPostError, BooruUnknownTagError } from '../../errors/booru';
 import type { PostMapper } from '../../mappers/post-mapper';
 import { DanbooruPostMapper } from '../../mappers/post-mapper/danbooru-post-mapper';
 import type { TagMapper } from '../../mappers/tag-mapper';
 import { DanbooruTagMapper } from '../../mappers/tag-mapper/danbooru-tag-mapper';
 import type { BooruSearchOptions, BooruSpec, PostUrlBuilder } from '../../types/booru';
-import { createArrayExpecter, createEntityExpecter } from '../../utils/booru';
+import { createBooruExpecters } from '../../utils/booru';
 import { defineEndpoint, type Endpoint } from '../../utils/endpoint';
 import { fetchExt } from '../../utils/fetchExt';
 import { type Booru, booruSpec } from '../booru';
@@ -50,6 +49,14 @@ export class Danbooru implements Booru<DanbooruSpec> {
 	/**Builds a canonical post URL from a post ID.*/
 	static readonly POST_URL_BUILDER: PostUrlBuilder = (postId) =>
 		`https://danbooru.donmai.us/posts/${postId}`;
+
+	static readonly #expect = createBooruExpecters(
+		booruName,
+		(data?: DanbooruPostDto) => data,
+		(data?: DanbooruPostsResponseDto) => data,
+		(data?: DanbooruTagDto) => data,
+		(data?: DanbooruTagsResponseDto) => data,
+	);
 
 	readonly #postMapper: PostMapper<DanbooruPostDto, Danbooru>;
 	readonly #tagMapper: TagMapper<DanbooruTagDto>;
@@ -109,7 +116,7 @@ export class Danbooru implements Booru<DanbooruSpec> {
 			...searchOptions,
 		});
 
-		const postDtos = Danbooru.#expectPosts(fetchResult, { dontThrowOnEmptyFetch: true });
+		const postDtos = Danbooru.#expect.post.array(fetchResult, { dontThrowOnEmptyFetch: true });
 		const posts = postDtos.map((dto) => this.#postMapper.fromDto(dto));
 
 		return posts;
@@ -132,7 +139,7 @@ export class Danbooru implements Booru<DanbooruSpec> {
 			},
 		});
 
-		const postDto = Danbooru.#expectPost(response, { dontThrowOnEmptyFetch: true });
+		const postDto = Danbooru.#expect.post.one(response, { dontThrowOnEmptyFetch: true });
 
 		if (postDto == null) return undefined;
 
@@ -161,7 +168,7 @@ export class Danbooru implements Booru<DanbooruSpec> {
 			},
 		});
 
-		const postDto = Danbooru.#expectPost(response, { dontThrowOnEmptyFetch: true });
+		const postDto = Danbooru.#expect.post.one(response, { dontThrowOnEmptyFetch: true });
 
 		if (postDto == null) return undefined;
 
@@ -186,7 +193,7 @@ export class Danbooru implements Booru<DanbooruSpec> {
 				'search[name_space]': namesBatch,
 			});
 
-			const tagDtos = Danbooru.#expectTags(response, { context: namesBatch });
+			const tagDtos = Danbooru.#expect.tag.array(response, { context: namesBatch });
 			const tags = tagDtos.map((dto) => this.#tagMapper.fromDto(dto));
 			fetchedTags.push(...tags);
 		}
@@ -202,40 +209,6 @@ export class Danbooru implements Booru<DanbooruSpec> {
 		if (!credentials.login || typeof credentials.login !== 'string')
 			throw new TypeError('User ID is invalid');
 	}
-
-	static #expectPost = createEntityExpecter<DanbooruPostDto>({
-		booruName,
-		entity: 'post',
-		extract: (data) => data,
-		createUnknownError: ({ booruName, fetchResult, context }) =>
-			new BooruUnknownPostError({ booruName, fetchResult, posts: context }),
-	});
-
-	/**
-	 * Asserts that the status code of a response is 200 and that the {@link Post} data is valid before returning it.
-	 * @throws {BooruFetchError}
-	 * @throws {BooruUnknownPostError}
-	 */
-	static #expectPosts = createArrayExpecter<DanbooruPostsResponseDto, DanbooruPostDto>({
-		booruName: this.name,
-		entity: 'posts',
-		extract: (data) => data,
-		createUnknownError: ({ booruName, fetchResult, context }) =>
-			new BooruUnknownPostError({ booruName, fetchResult, posts: context }),
-	});
-
-	/**
-	 * Asserts that the status code of a response is 200 and that the {@link Tag} data is valid before returning it.
-	 * @throws {BooruFetchError}
-	 * @throws {BooruUnknownTagError}
-	 */
-	static #expectTags = createArrayExpecter<DanbooruTagsResponseDto, DanbooruTagDto>({
-		booruName: this.name,
-		entity: 'tags',
-		extract: (data) => data,
-		createUnknownError: ({ booruName, fetchResult, context }) =>
-			new BooruUnknownTagError({ booruName, fetchResult, tags: context }),
-	});
 
 	[booruSpec]!: DanbooruSpec;
 }
