@@ -5,8 +5,8 @@ import { BooruClient } from '../../src/services/booru-client';
 describe('Gelbooru - batching', () => {
 	it('splits large tag requests into multiple batches', async () => {
 		const gelbooru = {
-			async fetchTagsByNames(names: string[]) {
-				return names.map((n, i) => ({
+			async fetchTagsByNames(names: Iterable<string>) {
+				return [...names].map((n, i) => ({
 					id: i,
 					name: n,
 					count: 1,
