@@ -12,7 +12,7 @@ import type { BooruSearchOptions, BooruSpec, DefineBooruSpec } from '../types/bo
  * When implementing {@link Booru}, this property is automatically required and will
  * typically be added via your editor's "implement interface" feature.
  * The assigned type must match the implemented {@link Booru} interface's type parameter.
- * 
+ *
  * Use the definite assignment (`!`) operator to avoid worrying about this Symbol's value:
  *
  * @example
