@@ -71,6 +71,7 @@ export class TagResolver {
 
 		const uniqueTagNames = new Set(normalizedTagNames);
 
+		//First, try to fetch all tags from stores
 		const { foundTagsMap, missingTagNames } =
 			uniqueTagNames.size < this.#tagFetchThreshold
 				? await this.#fetchTagsByNamePerTag(uniqueTagNames)
@@ -78,6 +79,7 @@ export class TagResolver {
 
 		if (!missingTagNames.size) return [...foundTagsMap.values()];
 
+		//If not all were found, then an API Tag refresh starts from here...
 		const fetchedTags = await this.#fetchFromApi(missingTagNames);
 
 		if (!fetchedTags.length) return [...foundTagsMap.values()];
