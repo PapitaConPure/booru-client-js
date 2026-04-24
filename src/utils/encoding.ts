@@ -53,6 +53,6 @@ export function decodePercent(encodedString: string) {
 	return decodeURIComponent(sanitized);
 }
 
-export function decodePercentsAndEntities(endodedString: string) {
-	return decodePercent(decodeEntities(endodedString));
+export function decodePercentsAndEntities(encodedString: string) {
+	return decodePercent(decodeEntities(encodedString));
 }
