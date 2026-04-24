@@ -2,6 +2,7 @@ import type { GelbooruTagDto } from '../../adapters/gelbooru/dto';
 import { type GelbooruTagType, GelbooruTagTypes } from '../../adapters/gelbooru/types';
 import { Tag } from '../../domain/tag';
 import { type TagType, TagTypes } from '../../domain/tag-type';
+import { decodePercentsAndEntities } from '../../utils/encoding';
 import type { TagMapper } from '../tag-mapper';
 
 const gelbooruTagTypesMap = {
@@ -18,7 +19,7 @@ export class GelbooruTagMapper implements TagMapper<GelbooruTagDto> {
 	fromDto(dto: GelbooruTagDto): Tag {
 		return new Tag({
 			id: `${dto.id}`,
-			name: dto.name,
+			name: decodePercentsAndEntities(dto.name),
 			type: gelbooruTagTypesMap[dto.type],
 			count: dto.count,
 		});

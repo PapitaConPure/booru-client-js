@@ -2,6 +2,7 @@ import type { DanbooruTagDto } from '../../adapters/danbooru/dto';
 import { DanbooruTagCategories, type DanbooruTagCategory } from '../../adapters/danbooru/types';
 import { Tag } from '../../domain/tag';
 import { type TagType, TagTypes } from '../../domain/tag-type';
+import { decodePercentsAndEntities } from '../../utils/encoding';
 import type { TagMapper } from '../tag-mapper';
 
 const danbooruTagTypesMap = {
@@ -16,7 +17,7 @@ export class DanbooruTagMapper implements TagMapper<DanbooruTagDto> {
 	fromDto(dto: DanbooruTagDto): Tag {
 		return new Tag({
 			id: `${dto.id}`,
-			name: dto.name,
+			name: decodePercentsAndEntities(dto.name),
 			type: dto.is_deprecated ? TagTypes.DEPRECATED : danbooruTagTypesMap[dto.category],
 			count: dto.post_count,
 		});
