@@ -101,4 +101,4 @@ export interface TagInit {
 
 export type TagNormalizationStep = (name: string) => string | null | undefined;
 
-export type TagFetchApproach = (names: string[]) => Promise<Tag[]>;
+export type TagFetchApproach = (names: Iterable<string>) => Promise<Tag[]>;
