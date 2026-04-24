@@ -78,7 +78,7 @@ export class TagResolver {
 
 		if (!missingTagNames.size) return [...foundTagsMap.values()];
 
-		const fetchedTags = await this.#fetchFromApi([...missingTagNames]);
+		const fetchedTags = await this.#fetchFromApi(missingTagNames);
 
 		if (!fetchedTags.length) return [...foundTagsMap.values()];
 
