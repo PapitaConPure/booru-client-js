@@ -1,4 +1,4 @@
-import { describe, expect, it } from 'bun:test';
+import { describe, expect, test } from 'bun:test';
 import { Tag } from '../../src/domain/tag';
 import { TagCoordinator } from '../../src/services/tag-coordinator';
 import type { TagResolver } from '../../src/services/tag-resolver';
@@ -8,7 +8,7 @@ function createResolver(fn: (names: Set<string>) => Promise<Tag[]>): TagResolver
 }
 
 describe('TagCoordinator - advanced behavior', () => {
-	it('all callers for same tag receive same resolved value', async () => {
+	test.concurrent('all callers for same tag receive same resolved value', async () => {
 		const resolver = createResolver(async (names) =>
 			[...names].map((n) => Tag.mock({ id: 1, name: n, count: 1, type: 0 })),
 		);
@@ -27,7 +27,7 @@ describe('TagCoordinator - advanced behavior', () => {
 		expect(c?.name).toBe('same');
 	});
 
-	it('some tags resolve while others return undefined', async () => {
+	test.concurrent('some tags resolve while others return undefined', async () => {
 		const resolver = createResolver(async (names) => {
 			return [...names]
 				.filter((n) => n !== 'missing')
@@ -42,7 +42,7 @@ describe('TagCoordinator - advanced behavior', () => {
 		expect(b).toBeUndefined();
 	});
 
-	it('ensures correct mapping per name', async () => {
+	test.concurrent('ensures correct mapping per name', async () => {
 		const resolver = createResolver(async (names) => {
 			return [...names].map((n, i) =>
 				Tag.mock({
@@ -65,7 +65,7 @@ describe('TagCoordinator - advanced behavior', () => {
 		expect(results.map((r) => r?.name).sort()).toEqual(['a', 'b', 'c']);
 	});
 
-	it('handles sudden 100+ requests', async () => {
+	test.concurrent('handles sudden 100+ requests', async () => {
 		let calls = 0;
 
 		const resolver = createResolver(async (names) => {
@@ -90,7 +90,7 @@ describe('TagCoordinator - advanced behavior', () => {
 		expect(calls).toBeLessThanOrEqual(2);
 	});
 
-	it('handles stairway of 100+ requests within grace window', async () => {
+	test.concurrent('handles stairway of 100+ requests within grace window', async () => {
 		let calls = 0;
 
 		const resolver = createResolver(async (names) => {
@@ -116,7 +116,7 @@ describe('TagCoordinator - advanced behavior', () => {
 		expect(calls).toBeGreaterThan(0);
 	});
 
-	it('no promise hangs because of an error', async () => {
+	test.concurrent('no promise hangs because of an error', async () => {
 		expect(async () => {
 			const resolver = createResolver(async () => {
 				throw new Error('fail');
@@ -132,7 +132,7 @@ describe('TagCoordinator - advanced behavior', () => {
 		});
 	});
 
-	it('system recovers after error', async () => {
+	test.concurrent('system recovers after error', async () => {
 		let shouldFail = true;
 
 		const resolver = createResolver(async (names) => {
@@ -159,7 +159,7 @@ describe('TagCoordinator - advanced behavior', () => {
 		expect(result?.name).toBe('a');
 	});
 
-	it('state integrity after flush', async () => {
+	test.concurrent('state integrity after flush', async () => {
 		let calls = 0;
 
 		const resolver = createResolver(async (names) => {
@@ -186,7 +186,7 @@ describe('TagCoordinator - advanced behavior', () => {
 		expect(calls).toBe(2);
 	});
 
-	it('state integrity after rejection', async () => {
+	test.concurrent('state integrity after rejection', async () => {
 		let shouldFail = true;
 
 		const resolver = createResolver(async (names) => {
@@ -213,7 +213,21 @@ describe('TagCoordinator - advanced behavior', () => {
 		expect(result?.name).toBe('b');
 	});
 
-	it('adaptive delay responds to batch sizes', async () => {
+	test.concurrent('recovers from timeout error', async () => {
+		const resolver = createResolver(async () => {
+			return new Promise(() => {});
+		});
+
+		const coordinator = new TagCoordinator(resolver, { resolutionTimeoutMs: 1000 });
+
+		const tagName = 'ibuki_suika';
+
+		expect(coordinator.getOne(tagName)).rejects.toMatchObject(
+			new Error(`Tag resolution timeout: ${tagName}`),
+		);
+	});
+
+	test.concurrent('adaptive delay responds to batch sizes', async () => {
 		const observedSizes: number[] = [];
 
 		const resolver = createResolver(async (names) => {
@@ -241,7 +255,7 @@ describe('TagCoordinator - advanced behavior', () => {
 		expect(observedSizes[1]).toBeGreaterThan(observedSizes[0] as number);
 	});
 
-	it('adaptive delay naturally grows batches', async () => {
+	test.concurrent('adaptive delay naturally grows batches', async () => {
 		let calls = 0;
 
 		const resolver = createResolver(async (names) => {
@@ -273,7 +287,7 @@ describe('TagCoordinator - advanced behavior', () => {
 		expect(calls).toBeLessThan(30);
 	});
 
-	it('Optimizes repeated tags properly', async () => {
+	test.concurrent('Optimizes repeated tags properly', async () => {
 		let calls = 0;
 
 		const resolver = createResolver(async (names) => {
