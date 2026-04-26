@@ -1,4 +1,4 @@
-import { beforeEach, describe, expect, it } from 'bun:test';
+import { beforeEach, describe, expect, test } from 'bun:test';
 import { booruSpec } from '@papitaconpure/booru-client';
 import { Tag } from '../../src/domain/tag';
 import { BooruClient } from '../../src/services/booru-client';
@@ -58,7 +58,7 @@ describe('BooruClient - batching integration', () => {
 		});
 	});
 
-	it('batching across public API: multiple fetchTagsByNames calls in same tick coalesce', async () => {
+	test('batching across public API: multiple fetchTagsByNames calls in same tick coalesce', async () => {
 		const p1 = client.fetchTagsByNames({ names: ['a'] });
 		const p2 = client.fetchTagsByNames({ names: ['b'] });
 
@@ -67,7 +67,7 @@ describe('BooruClient - batching integration', () => {
 		expect(mock.getCalls()).toBe(1);
 	});
 
-	it('batching across public API: concurrent calls are deduplicated', async () => {
+	test('batching across public API: concurrent calls are deduplicated', async () => {
 		const p1 = client.fetchTagsByNames({ names: ['a'] });
 		const p2 = client.fetchTagsByNames({ names: ['a'] });
 
@@ -76,14 +76,14 @@ describe('BooruClient - batching integration', () => {
 		expect(mock.getCalls()).toBe(1);
 	});
 
-	it('first call hits API, second call uses cache', async () => {
+	test.concurrent('first call hits API, second call uses cache', async () => {
 		await client.fetchTagsByNames({ names: ['a'] });
 		await client.fetchTagsByNames({ names: ['a'] });
 
 		expect(mock.getCalls()).toBe(1);
 	});
 
-	it('result correctness across batch', async () => {
+	test.concurrent('result correctness across batch', async () => {
 		const p1 = client.fetchTagsByNames({ names: ['a', 'b'] });
 		const p2 = client.fetchTagsByNames({ names: ['c'] });
 

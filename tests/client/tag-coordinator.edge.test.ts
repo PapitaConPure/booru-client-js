@@ -1,4 +1,4 @@
-import { describe, expect, it } from 'bun:test';
+import { describe, expect, test } from 'bun:test';
 import { Tag } from '../../src/domain/tag';
 import { TagCoordinator } from '../../src/services/tag-coordinator';
 import type { TagResolver } from '../../src/services/tag-resolver';
@@ -10,7 +10,7 @@ function createResolver(fn: (names: Set<string>) => Promise<Tag[]>): TagResolver
 }
 
 describe('TagCoordinator - edge cases & robustness', () => {
-	it('handles empty input', async () => {
+	test.concurrent('handles empty input', async () => {
 		let calls = 0;
 
 		const resolver = createResolver(async (names) => {
@@ -26,7 +26,7 @@ describe('TagCoordinator - edge cases & robustness', () => {
 		expect(calls).toBe(0);
 	});
 
-	it('handles large tag sets without excessive resolver calls', async () => {
+	test.concurrent('handles large tag sets without excessive resolver calls', async () => {
 		let calls = 0;
 
 		const resolver = createResolver(async (names) => {
@@ -57,7 +57,7 @@ describe('TagCoordinator - edge cases & robustness', () => {
 		expect(calls).toBeLessThanOrEqual(Math.ceil(total / maxConcurrentTags));
 	});
 
-	it('handles rapid-fire flushNow() calls without duplicate resolutions nor crashes', async () => {
+	test.concurrent('handles rapid-fire flushNow() calls without duplicate resolutions nor crashes', async () => {
 		let calls = 0;
 
 		const resolver = createResolver(async (names) => {
@@ -84,7 +84,7 @@ describe('TagCoordinator - edge cases & robustness', () => {
 		expect(calls).toBeLessThanOrEqual(3);
 	});
 
-	it('each request resolves exactly once', async () => {
+	test.concurrent('each request resolves exactly once', async () => {
 		let resolveCount = 0;
 
 		const resolver = createResolver(async (names) => {
