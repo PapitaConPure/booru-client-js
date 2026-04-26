@@ -49,6 +49,7 @@ export class TagCoordinator {
 	/**Stores the handle for the scheduled flush timer (if any) so that {@link flushNow} can cancel it on a whim.*/
 	#flushTimer: NodeJS.Timeout | null;
 
+	/**Defines the maximum time (in milliseconds) to wait before rejecting the resolution of a {@link Tag} request. Defaults to 20k (20 seconds). Can be set to 0 or negative to disable.*/
 	#resolutionTimeoutMs: number;
 
 	/**Base {@link Tag} request batching delay (in milliseconds) to apply when the batch size is small.*/
@@ -76,12 +77,13 @@ export class TagCoordinator {
 		this.#isFlushing = false;
 		this.#flushTimer = null;
 
-		if (resolutionTimeoutMs < 1_000)
+		if (resolutionTimeoutMs > 0 && resolutionTimeoutMs < 1_000)
 			console.warn(
 				'Tag resolution timeout is too low! It will be increased to a minimum of 1000ms (1 second).',
 			);
 
-		this.#resolutionTimeoutMs = Math.max(1000, resolutionTimeoutMs);
+		this.#resolutionTimeoutMs =
+			resolutionTimeoutMs > 0 ? Math.max(1000, resolutionTimeoutMs) : 0;
 		this.#maxConcurrentTags = maxConcurrentTags;
 		this.#maxGraceWindowMs = Math.max(0, maxBatchingGraceWindowMs);
 		this.#baseGraceWindowMs = Math.min(
@@ -162,9 +164,11 @@ export class TagCoordinator {
 
 		this.#scheduleTagFlush();
 
-		newTagRequest.finally(() => {
-			this.#ongoingTagRequests.delete(name);
-		}).catch(() => {});
+		newTagRequest
+			.finally(() => {
+				this.#ongoingTagRequests.delete(name);
+			})
+			.catch(() => {});
 
 		return newTagRequest;
 	}
@@ -218,6 +222,26 @@ export class TagCoordinator {
 			let resultingTags: Tag[] = [];
 			try {
 				resultingTags = await this.#resolver.resolveMany(pendingNames);
+
+				const resultsMap = new Map<string, Tag>();
+				for (const resultingTag of resultingTags)
+					resultsMap.set(resultingTag.name, resultingTag);
+
+				//Resolve pending requests
+				for (const pendingName of pendingNames) {
+					const maybeTag = resultsMap.get(pendingName);
+					const resolvers = resolversMap.get(pendingName);
+
+					if (!resolvers)
+						throw new Error(
+							[
+								`Reached a forbidden state in which the Tag name "${pendingName}" is pending but it cannot be resolved.`,
+								'This is a bug, please report it: https://github.com/PapitaConPure/booru-client-js/issues/new',
+							].join('\n'),
+						);
+
+					for (const resolver of resolvers) resolver.resolve(maybeTag);
+				}
 			} catch (err) {
 				for (const [, resolvers] of resolversMap)
 					for (const resolver of resolvers) resolver.reject(err);
@@ -226,21 +250,6 @@ export class TagCoordinator {
 
 				return;
 			}
-
-			const resultsMap = new Map<string, Tag>();
-			for (const resultingTag of resultingTags)
-				resultsMap.set(resultingTag.name, resultingTag);
-
-			//Resolve pending requests
-			for (const pendingName of pendingNames) {
-				const maybeTag = resultsMap.get(pendingName);
-				const resolvers = resolversMap.get(pendingName);
-
-				if (!resolvers) continue;
-
-				for (const resolver of resolvers) resolver.resolve(maybeTag);
-			}
-		} catch {
 		} finally {
 			this.#isFlushing = false;
 
