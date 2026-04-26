@@ -164,7 +164,7 @@ export class TagCoordinator {
 
 		newTagRequest.finally(() => {
 			this.#ongoingTagRequests.delete(name);
-		});
+		}).catch(() => {});
 
 		return newTagRequest;
 	}
